@@ -1,4 +1,5 @@
 import Head from "next/head";
+import { siteConfig } from "config/site.config";
 
 export interface Meta {
   description?: string;
@@ -22,11 +23,10 @@ const AppHead: React.FC<Props> = ({
   url = `${process.env.NEXT_PUBLIC_URL}/blog`,
   meta,
 }) => {
-  let author = "Sat Naing";
-  let description =
-    "Articles about programming, coding, technologies, software engineering, my personal projects and my experiences.";
-  let siteName = "Sat Naing's Blog";
-  let type = "article";
+  let author: string = siteConfig.personalInfo.fullName;
+  let description: string = siteConfig.personalInfo.shortBio;
+  let siteName: string = `${siteConfig.personalInfo.fullName}'s Blog`;
+  let type: string = "article";
   let coverImage: string | undefined;
   let coverImageAlt: string | undefined;
   let ogImage: string | undefined;
@@ -43,8 +43,8 @@ const AppHead: React.FC<Props> = ({
     ogImageAlt = meta.ogImageAlt && meta.ogImageAlt;
   }
 
-  let appOgImage = `${process.env.NEXT_PUBLIC_URL}/satnaing-blog-og.png`;
-  let appOgImageAlt = "Sat Naing's Blog";
+  let appOgImage = `${process.env.NEXT_PUBLIC_URL}${siteConfig.images.ogImage}`;
+  let appOgImageAlt = `${siteConfig.personalInfo.fullName}'s Blog`;
 
   if (ogImage) {
     appOgImage = ogImage;

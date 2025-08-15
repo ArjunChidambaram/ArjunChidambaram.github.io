@@ -8,6 +8,7 @@ import useOnScreen from "hooks/useOnScreen";
 import useScrollActive from "hooks/useScrollActive";
 import { MdxMeta } from "pages/blog/posts/[slug]";
 import BlogImageCard from "@/components/BlogImageCard";
+import { siteConfig } from "config/site.config";
 
 // Import Swiper React components
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -54,9 +55,7 @@ const BlogSection: React.FC<Props> = ({ posts }) => {
           </RoughNotation>
         </div>
         <div className="text-center mb-8" ref={elementRef}>
-          I write blog posts about what I've done and what I'm doing{" "}
-          <br className="hidden sm:block" aria-hidden="true" />
-          as a documenting practice. Here are some of my recent blog posts.
+          {siteConfig.blogSection.description}
         </div>
         <div>
           <Swiper

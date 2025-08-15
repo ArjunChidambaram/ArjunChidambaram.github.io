@@ -89,3 +89,4 @@ const BlogCard: React.FC<Props> = ({ post }) => {
 };
 
 export default BlogCard;
+

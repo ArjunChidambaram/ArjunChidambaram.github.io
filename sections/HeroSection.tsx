@@ -4,8 +4,9 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/dist/ScrollTrigger";
 
 import LinkButton from "../components/LinkButton";
+import { siteConfig } from "config/site.config";
 
-import satNaing from "../public/satnaing-illustration.webp";
+import arjunCharacter from "../public/arjun-character.webp";
 import laptop from "../public/laptop-illustration.webp";
 
 const HeroSection: React.FC = () => {
@@ -90,20 +91,21 @@ const HeroSection: React.FC = () => {
         aria-hidden="true"
         className="bg-text absolute -top-36 rotate-12 text-gray-100 dark:text-[#1f2e3a] text-9xl scale-150 tracking-wide font-bold select-none pointer-events-none text-center z-0"
       >
-        PASSIONATE PROGRAMMER FREELANCER FULL-STACK DEVELOPER
+        {siteConfig.heroSection.backgroundText}
       </span>
 
-      <div className="image-animation z-10 select-none mt-0 xs:mt-6 sm:mt-14 lg:mt-0 px-0 mx-auto lg:p-0 lg:basis-1/3">
+      {/* Temporarily hidden hero images - files preserved */}
+      <div className="image-animation z-10 select-none mt-0 xs:mt-6 sm:mt-14 lg:mt-0 px-0 mx-auto lg:p-0 lg:basis-1/3 hidden">
         <div className="relative w-72 md:w-80 h-80 flex items-center mx-auto">
           <div className="absolute pointer-events-none scale-90 xs:scale-95 mx-auto">
             <Image
-              src={satNaing}
-              width={1177}
-              height={1374}
+              src={arjunCharacter}
+              width={400}
+              height={400}
               priority
               id="character-illustration"
-              aria-label="Sat Naing character illustration levitating with a Macbook"
-              alt="Sat Naing character illustration"
+              aria-label="Arjun Chidambaram Subbiah character illustration levitating with a Macbook"
+              alt="Arjun Chidambaram Subbiah character illustration"
             />
           </div>
           <div className="laptop absolute top-14 sm:top-16 left-0 scale-[.41] xs:scale-[.45] pointer-events-none">
@@ -120,32 +122,27 @@ const HeroSection: React.FC = () => {
 
       <div className="lg:basis-2/3 z-10 relative">
         <span className="text-marrsgreen lg:text-lg font-medium dark:text-carrigreen">
-          Hi my name is
+          {siteConfig.heroSection.greeting}
         </span>
         <div className="overflow-hidden">
           <h1 className="text-animation text-4xl md:text-5xl lg:text-7xl md:my-2 font-semibold my-1">
-            Sat Naing
+            {siteConfig.personalInfo.fullName}
           </h1>
         </div>
         <div className="overflow-hidden">
           <span className="text-animation text-2xl md:text-3xl lg:text-5xl block md:my-3 text-marrsgreen dark:text-carrigreen font-medium">
-            A Full-stack Developer
+            {siteConfig.personalInfo.jobTitle}
           </span>
         </div>
         <div className="mt-2 my-4 md:mb-8">
-          <p className="mb-1">
-            I am a Full-Stack Developer with a passion for delivering
-            exceptional results.
-          </p>
-          <p>
-            With my expertise in React and NextJS on the frontend, and PHP,
-            CodeIgniter, NodeJS, and Express on the backend, I bring a unique
-            combination of technical skills and creative problem-solving to
-            every project I work on.
-          </p>
+          {siteConfig.heroSection.heroDescription.map((paragraph, index) => (
+            <p key={index} className="mb-1">
+              {paragraph}
+            </p>
+          ))}
         </div>
         <LinkButton href={`mailto:${process.env.NEXT_PUBLIC_EMAIL}`}>
-          Contact me!
+          {siteConfig.heroSection.ctaText}
         </LinkButton>
       </div>
       <a
@@ -153,7 +150,7 @@ const HeroSection: React.FC = () => {
         className="group absolute link-outline animate-bounce hidden md:bottom-14 lg:bottom-16 left-1/2 transform -translate-x-1/2 md:flex items-center flex-col"
       >
         <span className="group-hover:text-marrsgreen dark:group-hover:text-carrigreen">
-          Scroll
+          {siteConfig.heroSection.scrollText}
         </span>
         <svg
           xmlns="http://www.w3.org/2000/svg"

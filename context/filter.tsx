@@ -1,17 +1,18 @@
 import React, { createContext, useContext, useState } from "react";
+import { siteConfig } from "config/site.config";
 
 interface FilterInitialType {
   searchText: string;
-  postLanguage: LanguageType;
+  postTopic: TopicType;
   onSearch?: (val: string) => void;
-  onLanguageChange?: (val: LanguageType) => void;
+  onTopicChange?: (val: TopicType) => void;
 }
 
-export type LanguageType = "All" | "English" | "Myanmar";
+export type TopicType = typeof siteConfig.blog.defaultTopics[number];
 
 export const filterContext = createContext<FilterInitialType>({
   searchText: "",
-  postLanguage: "All",
+  postTopic: "All",
 });
 
 export const ProvideFilter = ({ children }: { children: React.ReactNode }) => {
@@ -25,20 +26,20 @@ export const useFilter = () => useContext(filterContext);
 
 const useProvideFilter = () => {
   const [searchText, setSearchText] = useState("");
-  const [postLanguage, setPostLanguage] = useState<LanguageType>("All");
+  const [postTopic, setPostTopic] = useState<TopicType>("All");
 
   const onSearch = (val: string) => {
     setSearchText(val);
   };
 
-  const onLanguageChange = (val: LanguageType) => {
-    setPostLanguage(val);
+  const onTopicChange = (val: TopicType) => {
+    setPostTopic(val);
   };
 
   return {
     searchText,
-    postLanguage,
+    postTopic,
     onSearch,
-    onLanguageChange,
+    onTopicChange,
   };
 };

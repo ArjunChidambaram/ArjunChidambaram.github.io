@@ -1,27 +1,15 @@
 /** @type {import('next').NextConfig} */
-
-module.exports = {
-  async redirects() {
-    return [
-      {
-        source: "/admin",
-        destination: "https://app.forestry.io/login",
-        permanent: true,
-        basePath: false,
-      },
-    ];
-  },
-  // Append the default value with md extensions
-  pageExtensions: ["ts", "tsx", "js", "jsx", "md", "mdx", "html"],
+const nextConfig = {
+  output: 'export',
   reactStrictMode: true,
-  trailingSlash: false,
   images: {
-    domains: ["res.cloudinary.com"],
+    unoptimized: true,
   },
-  compiler: {
-    removeConsole: true,
-  },
-};
+  trailingSlash: true,
+  skipTrailingSlashRedirect: true,
+}
+
+module.exports = nextConfig
 
 // const nextConfig = {
 //   reactStrictMode: true,

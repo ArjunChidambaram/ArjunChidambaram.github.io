@@ -8,8 +8,8 @@ import { ScrollTrigger } from "gsap/dist/ScrollTrigger";
 import { useSection } from "context/section";
 import useOnScreen from "hooks/useOnScreen";
 import useScrollActive from "hooks/useScrollActive";
+import { siteConfig } from "config/site.config";
 
-import satNaing from "../public/satnaing.webp";
 import AboutBgSvg from "@/components/AboutBgSvg";
 import EduGroup from "@/components/EduGroup";
 
@@ -106,7 +106,7 @@ const AboutSection: React.FC = () => {
     >
       <section id="whoami" className="section">
         <RoughNotationGroup>
-          <div className="text-center">
+          <div className="text-center mb-8">
             <RoughNotation
               type="underline"
               color={`${
@@ -116,73 +116,72 @@ const AboutSection: React.FC = () => {
               order={1}
               show={isSecOnScreen}
             >
-              <h2 className="section-heading">Who am I?</h2>
+              <h2 className="section-heading">{siteConfig.aboutSection.title}</h2>
             </RoughNotation>
           </div>
-          <div className="md:grid grid-rows-5 lg:grid-rows-6 grid-cols-5">
-            <div className="col-start-1 col-end-3 row-start-1 row-end-4 lg:row-end-7 lg:col-start-1 lg:col-end-3 flex justify-center items-center py-4 lg:mb-[20%]">
-              <div className="relative w-72">
-                <svg
-                  width="96"
-                  height="21"
-                  viewBox="0 0 96 21"
-                  aria-hidden="true"
-                  className="img-svg hidden lg:block fill-marrsgreen dark:fill-carrigreen absolute -top-14 -left-14"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path d="M79.2202 0.959991L62.7802 17.32L46.3301 0.959991L29.8902 17.32L13.4501 0.959991L0.410156 13.94L0.400146 17.58L13.4501 4.58999L29.8902 20.95L46.3301 4.58999L62.7802 20.95L79.2202 4.58999L93.7302 19.02L95.5402 17.19L79.2202 0.959991Z" />
-                </svg>
-
-                <div className="profile-picture overflow-hidden md:overflow-visible rounded-md md:shadow-2xl">
-                  <Image
-                    src={satNaing}
-                    width={1700}
-                    height={1790}
-                    priority
-                    alt="Sat Naing profile picture"
-                    className="rounded-md"
-                  />
+          
+          {/* Main content */}
+          <div className="w-full px-0">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch h-full w-full">
+              {/* Column 1: My Journey */}
+              <div className="flex flex-col items-center lg:items-start justify-between h-full mt-0">
+                {/* Illustration (removed to bring 'My Journey' to top) */}
+                {/* Journey Content */}
+                <div className="lg:pr-4">
+                  <h3 className="text-2xl font-bold mb-4">{siteConfig.aboutSection.myJourney.title}</h3>
+                  <div className="space-y-4 mb-8">
+                    {siteConfig.aboutSection.myJourney.paragraphs.map((paragraph, index) => (
+                      <p key={index} className={index === 0 ? "about-intro" : ""}>
+                        {paragraph}
+                      </p>
+                    ))}
+                  </div>
                 </div>
+              </div>
 
-                <svg
-                  width="15"
-                  height="14"
-                  viewBox="0 0 15 14"
-                  aria-hidden="true"
-                  className="img-svg hidden lg:block fill-marrsgreen dark:fill-carrigreen absolute bottom-8 -right-12"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path d="M13.68 11.51L9.23 7.05998L13.68 2.61C14.24 2.05 14.24 1.12999 13.68 0.569994C13.12 0.00999391 12.2 0.00999391 11.64 0.569994L7.19002 5.02001L2.74001 0.569994C2.18001 0.00999391 1.26003 0.00999391 0.700029 0.569994C0.140029 1.12999 0.140029 2.05 0.700029 2.61L5.15004 7.05998L0.700029 11.51C0.140029 12.07 0.140029 12.99 0.700029 13.55C1.26003 14.11 2.18001 14.11 2.74001 13.55L7.19002 9.09999L11.64 13.55C12.2 14.11 13.12 14.11 13.68 13.55C14.24 12.99 14.24 12.08 13.68 11.51Z" />
-                </svg>
+              {/* Column 2: Experience */}
+              <div className="flex flex-col justify-between h-full">
+                <div className="mb-8">
+                  <h3 className="text-2xl font-bold mb-4">Experience</h3>
+                  <div className="space-y-6">
+                    {siteConfig.aboutSection.experience.map((exp, index) => (
+                      <div key={index} className="border-l-4 border-blue-500 pl-4">
+                        <h4 className="text-xl font-semibold">{exp.title}</h4>
+                        <p className="text-blue-600 dark:text-blue-400">{exp.company}</p>
+                        <p className="text-gray-600 dark:text-gray-400">{exp.period}</p>
+                        <p className="mt-2">{exp.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
 
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                  className="img-svg hidden lg:block fill-[#FF9D00] absolute -bottom-10 right-6 scale-150"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path d="M11.6799 5.68002C11.6799 8.65002 9.27994 11.05 6.30994 11.05C3.33994 11.05 0.939941 8.65002 0.939941 5.68002C0.939941 2.71002 3.33994 0.309998 6.30994 0.309998C9.27994 0.309998 11.6799 2.71002 11.6799 5.68002Z" />
-                </svg>
+              {/* Column 3: Education */}
+              <div className="flex flex-col justify-between h-full">
+                <div ref={eduRef}>
+                  <h3 className="text-2xl font-bold mb-4">Education</h3>
+                  <div className="space-y-6">
+                    {siteConfig.aboutSection.education.map((edu, index) => (
+                      <div key={index} className="border-l-4 border-blue-500 pl-4">
+                        <h4 className="text-xl font-semibold">{edu.degree}</h4>
+                        <p className="text-blue-600 dark:text-blue-400">{edu.school}</p>
+                        <p className="text-gray-600 dark:text-gray-400">{edu.period}</p>
+                        <p className="mt-2">{edu.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
-
-            <p className="col-start-1 col-end-3 row-start-4 row-end-6 lg:row-start-1 lg:row-end-2 lg:col-start-3 lg:col-end-6 lg:ml-8 lg:mt-auto about-intro">
-              With 4+ years of comprehensive experience in web application
-              development, I have polished my skills in both frontend and
-              backend development. In addition to my hands-on experience in web
-              development, my education has also played a critical role in
-              providing a strong foundation for my career.
-            </p>
-
-            <div
-              className="col-start-3 col-end-6 row-start-1 row-end-6 lg:row-start-2 lg:row-end-7 md:ml-8 place-content-end"
-              ref={eduRef}
-            >
-              <p className="edu-bg my-4">Here is my educational background.</p>
-              {educationInfo.map((edu) => (
-                <EduGroup edu={edu} key={edu.id} />
+          </div>
+          {/* Technologies Section moved below the grid */}
+          <div className="w-full flex flex-col items-center mt-8">
+            <h3 className="text-2xl font-bold mb-4">Technologies I Work With</h3>
+            <div className="flex flex-wrap gap-2 justify-center">
+              {siteConfig.aboutSection.skills.map((skill, index) => (
+                <span key={index} className="px-4 py-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
+                  {skill}
+                </span>
               ))}
             </div>
           </div>
@@ -193,33 +192,5 @@ const AboutSection: React.FC = () => {
     </div>
   );
 };
-
-const educationInfo = [
-  {
-    id: 1,
-    title: "B.Sc (Hons) in Computing",
-    subTitle: "Edinburgh Napier University | 2018 ~ 2019",
-    list: [
-      "Studied computer science, software development, DevOps",
-      "Graduated with First Class Honours",
-      "Got merit in 7 modules out of 9",
-    ],
-  },
-  {
-    id: 2,
-    title: "HND in Computing & System Development",
-    subTitle: "Info Myanmar University | 2016 - 2018",
-    list: [
-      "Studied modules specializing in software development",
-      "Passed HND with overall Merit",
-    ],
-  },
-  {
-    id: 3,
-    title: "IELTS",
-    subTitle: "British Council Myanmar | 2017",
-    list: ["Got overall band score 6.5."],
-  },
-];
 
 export default AboutSection;

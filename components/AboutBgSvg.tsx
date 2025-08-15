@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { siteConfig } from "config/site.config";
 
 import dots from "../public/extra/dots.svg";
 import dotsDark from "../public/extra/dots-dark.svg";

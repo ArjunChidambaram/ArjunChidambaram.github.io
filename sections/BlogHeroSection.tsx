@@ -2,10 +2,11 @@ import React, { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/dist/ScrollTrigger";
 
-import { LanguageType, useFilter } from "context/filter";
+import { TopicType, useFilter } from "context/filter";
+import { siteConfig } from "config/site.config";
 
 const BlogHeroSection: React.FC = () => {
-  const { searchText, onSearch, postLanguage, onLanguageChange } = useFilter();
+  const { searchText, onSearch, postTopic, onTopicChange } = useFilter();
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     onSearch!(e.target.value);
@@ -41,21 +42,22 @@ const BlogHeroSection: React.FC = () => {
       <div className="mt-10">
         <div className="overflow-hidden py-1">
           <h1 className="main-header text-4xl lg:text-5xl font-bold">
-            Sat Naing's{" "}
+            {siteConfig.personalInfo.shortName}'s{" "}
             <span className="text-marrsgreen dark:text-carrigreen">Blog</span>
           </h1>
         </div>
         <div>
           <p className="intro-1 mt-4 mb-2">
-            Hello, everyone! Welcome to my personal blog.
+            Welcome to my data science and machine learning blog!
           </p>
           <p className="intro-2">
-            In this blog, I will be writing about my projects (what I do/how I
-            did), my personal experiences, and some random stuffs.
+            Here I share insights from my {siteConfig.personalInfo.experience} of experience as a {siteConfig.personalInfo.jobTitle}, 
+            covering everything from foundational algorithms to production-scale AI systems 
+            that drive real business value.
           </p>
           <p className="intro-3">
             You can follow me on my social media and{" "}
-            <a href="https://github.com/satnaing" className="link">
+            <a href={siteConfig.socialLinks.github.url} className="link">
               Github account.
             </a>
             <svg
@@ -103,7 +105,7 @@ const BlogHeroSection: React.FC = () => {
         </span>
       </label>
       <div className="flex items-center my-4 md:my-6">
-        <label htmlFor="language" className="mr-2 flex items-center gap-x-2">
+        <label htmlFor="topic" className="mr-2 flex items-center gap-x-2">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-5 w-5 inline-block"
@@ -119,18 +121,20 @@ const BlogHeroSection: React.FC = () => {
               d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"
             />
           </svg>
-          Blog Posts Language:{" "}
+          Blog Post Topics:{" "}
         </label>
         <select
-          name="language"
-          id="language"
+          name="topic"
+          id="topic"
           className="px-2 py-1 bg-cardlight dark:bg-carddark focus-visible:outline-marrsgreen dark:focus-visible:outline-carrigreen"
-          defaultValue={postLanguage}
-          onChange={(e) => onLanguageChange!(e.target.value as LanguageType)}
+          defaultValue={postTopic}
+          onChange={(e) => onTopicChange!(e.target.value as TopicType)}
         >
-          <option value="All">All</option>
-          <option value="English">English</option>
-          <option value="Myanmar">Myanmar</option>
+          {siteConfig.blog.defaultTopics.map((topic) => (
+            <option key={topic} value={topic}>
+              {topic === "All" ? "All Topics" : topic === "AI" ? "Artificial Intelligence" : topic}
+            </option>
+          ))}
         </select>
       </div>
     </section>

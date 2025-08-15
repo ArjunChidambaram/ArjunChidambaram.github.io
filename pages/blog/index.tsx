@@ -11,17 +11,18 @@ import Footer from "@/components/Footer";
 import { getAllPosts } from "utils/api";
 import { useFilter } from "context/filter";
 import Loader from "@/components/Loader";
+import { siteConfig } from "config/site.config";
 
 type Props = {
   posts: MdxMeta[];
 };
 
 const Blog: NextPage<Props> = ({ posts }) => {
-  const { searchText, postLanguage } = useFilter();
+  const { searchText, postTopic } = useFilter();
   return (
     <>
-      <AppHead title="Blog - Sat Naing" />
-      <Loader>Sat Naing&apos;s Blog</Loader>
+      <AppHead title={`Blog - ${siteConfig.personalInfo.fullName}`} />
+      <Loader>{siteConfig.personalInfo.fullName}&apos;s Blog</Loader>
       <div className="bg-bglight dark:bg-bgdark min-h-screen">
         <div className="selection:bg-marrsgreen selection:text-bglight dark:selection:bg-carrigreen dark:selection:text-bgdark">
           <SkipToMain />
@@ -29,7 +30,7 @@ const Blog: NextPage<Props> = ({ posts }) => {
           <SocialLinks />
           <main id="main" className="mb-20">
             <BlogHeroSection />
-            {searchText === "" && postLanguage === "All" && (
+            {searchText === "" && postTopic === "All" && (
               <>
                 <div className="px-4 sm:px-8 md:px-20 max-w-4xl mx-auto">
                   <h2 className="text-2xl font-medium mb-2">Featured Posts</h2>
@@ -50,19 +51,19 @@ const Blog: NextPage<Props> = ({ posts }) => {
             )}
             <div className="px-4 sm:px-8 md:px-20 max-w-4xl mx-auto">
               <h2 className="text-2xl font-medium mb-2">
-                {searchText === "" && postLanguage === "All" && "All Posts"}
+                {searchText === "" && postTopic === "All" && "All Posts"}
                 {searchText !== "" && <div>Search result(s)</div>}
-                {postLanguage !== "All" &&
-                  `Posts written in '${postLanguage}' language`}
+                {postTopic !== "All" &&
+                  `Posts in '${postTopic}' topic`}
               </h2>
               <ul>
                 {posts
                   .filter(({ title }) =>
                     title.toLowerCase().includes(searchText.toLowerCase())
                   )
-                  .filter(({ language }) => {
-                    if (postLanguage === "All") return true;
-                    return language === postLanguage;
+                  .filter(({ category }) => {
+                    if (postTopic === "All") return true;
+                    return category === postTopic;
                   })
                   .map((post) => (
                     <BlogCard post={post} key={post.slug} />
@@ -84,7 +85,7 @@ export const getStaticProps: GetStaticProps = async () => {
     "excerpt",
     "datetime",
     "featured",
-    "language",
+    "category",
   ]);
 
   return {
