@@ -12,6 +12,7 @@ import WorkSection from "@/sections/WorkSection";
 import BlogSection from "@/sections/BlogSection";
 import ContactSection from "@/sections/ContactSection";
 import Footer from "@/components/Footer";
+import FloatingBuddy from "@/components/FloatingBuddy";
 
 import { getAllPosts } from "utils/api";
 import { MdxMeta } from "../pages/blog/posts/[slug]";
@@ -71,6 +72,7 @@ const Home: NextPage<Props> = ({ blogPosts }) => {
             <ContactSection />
           </main>
           <SocialLinks page="index" />
+          <FloatingBuddy />
           <Footer />
         </div>
       </div>

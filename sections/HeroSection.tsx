@@ -6,7 +6,7 @@ import { ScrollTrigger } from "gsap/dist/ScrollTrigger";
 import LinkButton from "../components/LinkButton";
 import { siteConfig } from "config/site.config";
 
-import arjunCharacter from "../public/arjun-character.webp";
+import Character from "@/components/Character";
 import laptop from "../public/laptop-illustration.webp";
 
 // Types out each role, pauses, deletes it, then moves to the next.
@@ -161,15 +161,11 @@ const HeroSection: React.FC = () => {
       <div className="character-wrap relative z-10 select-none mt-0 xs:mt-6 sm:mt-14 lg:mt-0 px-0 mx-auto lg:p-0 lg:basis-1/3">
       <div className="image-animation">
         <div className="relative w-72 md:w-80 h-80 flex items-center mx-auto">
-          <div className="absolute pointer-events-none scale-90 xs:scale-95 mx-auto">
-            <Image
-              src={arjunCharacter}
+          <div className="absolute scale-90 xs:scale-95 mx-auto">
+            <Character
               width={400}
-              height={400}
               priority
-              id="character-illustration"
-              aria-label="Arjun Chidambaram Subbiah character illustration levitating with a Macbook"
-              alt="Arjun Chidambaram Subbiah character illustration"
+              alt="Arjun Chidambaram Subbiah character illustration levitating with a Macbook"
             />
           </div>
           <div className="laptop absolute top-14 sm:top-16 left-0 scale-[.41] xs:scale-[.45] pointer-events-none">
