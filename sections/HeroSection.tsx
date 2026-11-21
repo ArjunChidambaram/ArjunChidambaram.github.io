@@ -6,7 +6,7 @@ import { ScrollTrigger } from "gsap/dist/ScrollTrigger";
 import LinkButton from "../components/LinkButton";
 import { siteConfig } from "config/site.config";
 
-import Character from "@/components/Character";
+import HeroCharacter from "@/components/HeroCharacter";
 
 // Types out each role, pauses, deletes it, then moves to the next.
 const useTypewriter = (words: readonly string[]) => {
@@ -73,42 +73,10 @@ const HeroSection: React.FC = () => {
     let tl = gsap.timeline({ defaults: { stagger: 0.2, duration: 0.3 } });
     tl.fromTo(q(".text-animation"), { y: 100 }, { y: 0, delay: 1 });
 
-    // character drops in after the loader, then starts floating
-    gsap.fromTo(
-      q(".character-wrap"),
-      { opacity: 0, y: -60, scale: 0.9 },
-      { opacity: 1, y: 0, scale: 1, duration: 1.1, delay: 1.3, ease: "back.out(1.6)" }
-    );
     gsap.fromTo(q(".hero-fade"), { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6, delay: 1.6, stagger: 0.15 });
 
     // the shadow shrinks as he rises and grows as he sinks
-    gsap.to(q(".hero-blob"), { rotation: 360, duration: 40, repeat: -1, ease: "none" });
 
-    // illustration floating effect
-    let imgTl = gsap.timeline({ repeat: -1 });
-    imgTl
-      .to(q(".image-animation"), 3, {
-        y: "-=14",
-        x: "+=6",
-        rotation: "-=1",
-        ease: "power1.easeInOut",
-      })
-      .to(q(".image-animation"), 2, {
-        y: "+=14",
-        x: "-=6",
-        rotation: "-=1",
-        ease: "power1.easeInOut",
-      })
-      .to(q(".image-animation"), 3, {
-        y: "-=10",
-        rotation: "+=1",
-        ease: "power1.easeInOut",
-      })
-      .to(q(".image-animation"), 3, {
-        y: "+=10",
-        rotation: "+=1",
-        ease: "power1.easeInOut",
-      });
 
   }, []);
 
@@ -125,16 +93,8 @@ const HeroSection: React.FC = () => {
       </span>
 
       {/* Temporarily hidden hero images - files preserved */}
-      <div className="character-wrap relative z-10 select-none mt-0 xs:mt-6 sm:mt-14 lg:mt-0 mx-auto lg:basis-1/3 flex justify-center">
-        {/* soft blob behind him, like the character sheet */}
-        <div
-          aria-hidden="true"
-          className="hero-blob absolute top-16 left-1/2 -translate-x-1/2 h-72 w-72 md:h-[23rem] md:w-[23rem] rounded-[42%_58%_55%_45%/48%_42%_58%_52%]"
-          style={{ backgroundColor: "rgba(0, 122, 122, 0.13)" }}
-        />
-        <div className="image-animation relative">
-          <Character width={300} priority className="mx-auto" />
-        </div>
+      <div className="relative z-10 select-none mt-0 xs:mt-6 sm:mt-14 lg:mt-0 mx-auto lg:basis-1/3 flex justify-center">
+        <HeroCharacter />
       </div>
 
       <div className="lg:basis-2/3 z-10 relative">

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import Door from "@/components/Door";
 import gsap from "gsap";
 
 import { useSection } from "context/section";
@@ -25,11 +26,12 @@ const SRC = {
 };
 
 /**
- * A mini Arjun who walks around the edges of the screen once the hero is out
- * of view. He walks between spots, then strikes a pose that fits the section
- * you're reading (presenting your work, typing in the blog, pointing at the
- * contact form). Hover and he waves; click and he celebrates and takes you
- * back to the top.
+ * A mini Arjun who lives at the edges of the screen once the hero is out of
+ * view. He arrives through a door, strikes a pose that fits the section you're
+ * reading, and takes short strolls. To get somewhere new (another section, the
+ * other side of the screen) he walks into a door and comes out of another one
+ * where he needs to be. Hover and he waves; click and he celebrates and takes
+ * you back to the top.
  */
 
 type Pose =
@@ -83,9 +85,18 @@ const FloatingBuddy: React.FC = () => {
   const driftRef = useRef<gsap.core.Tween>();
   const pausedRef = useRef(false);
   const sideRef = useRef<"left" | "right">("right");
+  const doorRef = useRef<HTMLDivElement>(null);
+  const busyRef = useRef(false);
+  const spotRef = useRef<{ x: number; y: number } | null>(null);
+  const presentRef = useRef(false);
+  const api = useRef<{ arrive: () => void; leave: () => void; relocate: () => void }>();
+  const [present, setPresent] = useState(false);
+  const [hinge, setHinge] = useState<"left" | "right">("right");
 
   const sectionInfo = SECTION_POSE[currentSection ?? ""] ?? IDLE;
   const pose: Pose = override ?? (walking ? "walking" : sectionInfo.pose);
+  const doorW = height * 0.42;
+  const doorH = height * 1.12;
   const [natW, natH] = POSES[pose];
   const width = (natW / natH) * height;
   // standing still on the right edge, turn toward the page
@@ -100,69 +111,202 @@ const FloatingBuddy: React.FC = () => {
 
   useEffect(() => {
     const el = wrapRef.current;
-    if (!el) return;
+    const door = doorRef.current;
+    if (!el || !door) return;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const h = window.innerWidth < 640 ? HEIGHT_PHONE : HEIGHT_DESKTOP;
     setHeight(h);
-    const boxW = h * 0.6; // widest pose, roughly
+    const cw = h * 0.6; // widest pose, roughly
+    const dw = h * 0.42;
+    const dh = h * 1.12;
+    const panel = door.querySelector(".door-panel");
+    const glow = door.querySelector(".door-glow");
+    const PACE = 110; // px per second
 
-    const pickSpot = (allowSwitch = true) => {
+    const pickSpot = (side: "left" | "right") => {
       const vw = window.innerWidth;
       const vh = window.innerHeight;
       const margin = 12;
       const rightMargin = vw >= 768 ? 72 : margin; // clear of the social icons
-      if (allowSwitch && Math.random() < 0.2) sideRef.current = sideRef.current === "left" ? "right" : "left";
-      const gutter = Math.max(boxW + margin * 2, (vw - 1100) / 2);
-      const room = Math.max(0, gutter - boxW - margin * 2);
-      const x =
-        sideRef.current === "left"
-          ? margin + Math.random() * room
-          : vw - boxW - rightMargin - Math.random() * room;
+      // leave room for the door on the outer side
+      const minX = side === "left" ? margin + dw + 8 : 0;
+      const maxRight = vw - cw - rightMargin - dw - 8;
+      const gutter = Math.max(cw + dw + margin * 2, (vw - 1100) / 2);
+      const room = Math.max(0, gutter - cw - dw - margin * 2);
+      const x = side === "left" ? minX + Math.random() * room : maxRight - Math.random() * room;
       const top = 90;
       const bottom = vh - h - (vw < 768 ? 100 : 24);
       return { x, y: top + Math.random() * Math.max(0, bottom - top) };
     };
 
-    const start = pickSpot(false);
-    gsap.set(el, { x: start.x, y: start.y });
-    if (reduce) return;
+    // the door always sits on the outer side, so he walks in toward the page
+    const doorFor = (spot: { x: number; y: number }, side: "left" | "right") => ({
+      x: side === "left" ? spot.x - dw - 8 : spot.x + cw + 8,
+      y: spot.y + h - dh,
+    });
+    const openTo = (side: "left" | "right") => (side === "left" ? -100 : 100);
 
-    let current = start;
-    const wander = () => {
-      if (pausedRef.current) {
-        gsap.delayedCall(1, wander);
-        return;
-      }
-      const next = pickSpot();
-      const dist = Math.hypot(next.x - current.x, next.y - current.y);
-      setFacingLeft(next.x < current.x);
-      setWalking(true);
-      driftRef.current = gsap.to(el, {
-        x: next.x,
-        y: next.y,
-        duration: Math.max(1.5, dist / 90), // a steady walking pace
-        ease: "none",
-        onComplete: () => {
-          current = next;
-          setWalking(false);
-          gsap.delayedCall(3 + Math.random() * 3, wander);
-        },
+    const showDoor = (t: gsap.core.Timeline, pos: { x: number; y: number }, side: "left" | "right") => {
+      t.call(() => setHinge(side))
+        .set(door, { x: pos.x, y: pos.y, opacity: 0, scale: 0.7, transformOrigin: "50% 100%" })
+        .set(panel, { rotationY: 0, transformOrigin: side === "left" ? "0% 50%" : "100% 50%" })
+        .to(door, { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(2)" })
+        .to(panel, { rotationY: openTo(side), duration: 0.4, ease: "power2.out" })
+        .to(glow, { opacity: 1, duration: 0.25 }, "<");
+    };
+    const hideDoor = (t: gsap.core.Timeline) => {
+      t.to(panel, { rotationY: 0, duration: 0.3, ease: "power2.in" })
+        .to(glow, { opacity: 0, duration: 0.2 }, "<")
+        .to(door, { opacity: 0, scale: 0.7, duration: 0.25, ease: "power2.in" });
+    };
+
+    const arriveTl = (t: gsap.core.Timeline, side: "left" | "right") => {
+      const spot = pickSpot(side);
+      const d = doorFor(spot, side);
+      const startX = d.x + dw / 2 - cw / 2;
+      t.set(el, { x: startX, y: spot.y, opacity: 0 });
+      showDoor(t, d, side);
+      t.call(() => {
+        setFacingLeft(side === "right");
+        setWalking(true);
+      })
+        .to(el, { opacity: 1, duration: 0.25 })
+        .to(el, { x: spot.x, duration: Math.max(0.6, Math.abs(spot.x - startX) / PACE), ease: "none" }, "<")
+        .call(() => setWalking(false));
+      hideDoor(t);
+      t.call(() => {
+        spotRef.current = spot;
       });
     };
-    gsap.delayedCall(2, wander);
+
+    const leaveTl = (t: gsap.core.Timeline) => {
+      const spot = spotRef.current;
+      if (!spot) return;
+      const side = sideRef.current;
+      const d = doorFor(spot, side);
+      showDoor(t, d, side);
+      const into = d.x + dw / 2 - cw / 2;
+      t.call(() => {
+        setFacingLeft(side === "left");
+        setWalking(true);
+      })
+        .to(el, { x: into, duration: Math.max(0.6, Math.abs(into - spot.x) / PACE), ease: "none" })
+        .to(el, { opacity: 0, duration: 0.25 }, "-=0.25")
+        .call(() => setWalking(false));
+      hideDoor(t);
+      t.call(() => {
+        spotRef.current = null;
+      });
+    };
+
+    const run = (build: (t: gsap.core.Timeline) => void) => {
+      busyRef.current = true;
+      driftRef.current?.kill();
+      const t = gsap.timeline({
+        onComplete: () => {
+          busyRef.current = false;
+        },
+      });
+      build(t);
+      return t;
+    };
+
+    const arrive = () => {
+      presentRef.current = true;
+      setPresent(true);
+      if (reduce) {
+        const s = pickSpot(sideRef.current);
+        spotRef.current = s;
+        gsap.set(el, { x: s.x, y: s.y, opacity: 1 });
+        return;
+      }
+      run((t) => arriveTl(t, sideRef.current));
+    };
+    const leave = () => {
+      presentRef.current = false;
+      if (reduce || !spotRef.current) {
+        gsap.set(el, { opacity: 0 });
+        spotRef.current = null;
+        setPresent(false);
+        return;
+      }
+      run((t) => {
+        leaveTl(t);
+        t.call(() => setPresent(false));
+      });
+    };
+    // through one door, out of another (sometimes on the other side of the screen)
+    const relocate = () => {
+      if (busyRef.current || !spotRef.current || reduce) return;
+      run((t) => {
+        leaveTl(t);
+        t.call(() => {
+          if (Math.random() < 0.5) sideRef.current = sideRef.current === "left" ? "right" : "left";
+        });
+        t.add(() => {
+          const t2 = gsap.timeline({
+            onComplete: () => {
+              busyRef.current = false;
+            },
+          });
+          arriveTl(t2, sideRef.current);
+          driftRef.current = t2 as unknown as gsap.core.Tween;
+        });
+      });
+    };
+    api.current = { arrive, leave, relocate };
+
+    // short strolls on the same side between door trips
+    const stroll = () => {
+      if (!busyRef.current && !pausedRef.current && spotRef.current && !reduce) {
+        const from = spotRef.current;
+        const to = pickSpot(sideRef.current);
+        setFacingLeft(to.x < from.x);
+        setWalking(true);
+        driftRef.current = gsap.to(el, {
+          x: to.x,
+          y: to.y,
+          duration: Math.max(1, Math.hypot(to.x - from.x, to.y - from.y) / PACE),
+          ease: "none",
+          onComplete: () => {
+            spotRef.current = to;
+            setWalking(false);
+          },
+        });
+      }
+      strollTimer = setTimeout(stroll, 7000 + Math.random() * 4000);
+    };
+    let strollTimer = setTimeout(stroll, 8000);
 
     const onResize = () => {
-      const s = pickSpot(false);
-      current = s;
+      if (!spotRef.current) return;
+      const s = pickSpot(sideRef.current);
+      spotRef.current = s;
       gsap.set(el, { x: s.x, y: s.y });
     };
     window.addEventListener("resize", onResize);
     return () => {
+      clearTimeout(strollTimer);
       driftRef.current?.kill();
-      gsap.killTweensOf(wander);
       window.removeEventListener("resize", onResize);
     };
   }, []);
+
+  // come and go with the hero
+  useEffect(() => {
+    if (visible && !presentRef.current) api.current?.arrive();
+    if (!visible && presentRef.current) api.current?.leave();
+  }, [visible]);
+
+  // new section: take a door to a new spot
+  const firstSection = useRef(true);
+  useEffect(() => {
+    if (firstSection.current) {
+      firstSection.current = false;
+      return;
+    }
+    if (presentRef.current && !pausedRef.current) api.current?.relocate();
+  }, [currentSection]);
 
   // step bounce while walking, slow breathing while standing
   useEffect(() => {
@@ -190,8 +334,10 @@ const FloatingBuddy: React.FC = () => {
 
   const hover = () => {
     pausedRef.current = true;
-    driftRef.current?.pause();
-    setWalking(false);
+    if (!busyRef.current) {
+      driftRef.current?.pause();
+      setWalking(false);
+    }
     setOverride("wave");
     clearTimeout(bubbleTimer.current);
     setBubble(sectionInfo.say === IDLE.say ? "Hi! Click me to go back up" : sectionInfo.say);
@@ -199,9 +345,9 @@ const FloatingBuddy: React.FC = () => {
   const unhover = () => {
     pausedRef.current = false;
     setOverride(null);
-    if (driftRef.current?.progress() !== 1) {
-      driftRef.current?.resume();
-      if (driftRef.current?.isActive()) setWalking(true);
+    if (!busyRef.current && driftRef.current && driftRef.current.progress() < 1) {
+      driftRef.current.resume();
+      setWalking(true);
     }
     bubbleTimer.current = setTimeout(() => setBubble(null), 600);
   };
@@ -214,11 +360,11 @@ const FloatingBuddy: React.FC = () => {
   };
 
   return (
+    <>
+    <Door ref={doorRef} width={doorW} height={doorH} hinge={hinge} className="fixed left-0 top-0 z-30 opacity-0" />
     <div
       ref={wrapRef}
-      className={`fixed left-0 top-0 z-40 transition-opacity duration-500 ${
-        visible ? "opacity-100" : "opacity-0 pointer-events-none"
-      }`}
+      className={`fixed left-0 top-0 z-40 opacity-0 ${present ? "" : "pointer-events-none"}`}
       style={{ height }}
     >
       {bubble && (
@@ -261,6 +407,7 @@ const FloatingBuddy: React.FC = () => {
         ))}
       </div>
     </div>
+    </>
   );
 };
 
