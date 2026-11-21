@@ -1,5 +1,5 @@
 import Head from "next/head";
-import { siteConfig } from "config/site.config";
+import { siteConfig, SITE_URL } from "config/site.config";
 
 export interface Meta {
   description?: string;
@@ -20,7 +20,7 @@ type Props = {
 
 const AppHead: React.FC<Props> = ({
   title,
-  url = `${process.env.NEXT_PUBLIC_URL}/blog`,
+  url = `${SITE_URL}/blog`,
   meta,
 }) => {
   let author: string = siteConfig.personalInfo.fullName;
@@ -43,7 +43,7 @@ const AppHead: React.FC<Props> = ({
     ogImageAlt = meta.ogImageAlt && meta.ogImageAlt;
   }
 
-  let appOgImage = `${process.env.NEXT_PUBLIC_URL}${siteConfig.images.ogImage}`;
+  let appOgImage = `${SITE_URL}${siteConfig.images.ogImage}`;
   let appOgImageAlt = `${siteConfig.personalInfo.fullName}'s Blog`;
 
   if (ogImage) {
@@ -69,9 +69,17 @@ const AppHead: React.FC<Props> = ({
       <meta property="og:image:alt" content={appOgImageAlt} />
       <meta property="og:url" content={url} />
       <meta property="og:site_name" content={siteName} />
-      <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:image:alt" content={appOgImageAlt} />
       <meta property="og:type" content={type} />
+      <meta property="og:locale" content="en_US" />
+      <meta property="og:image:width" content="1200" />
+      <meta property="og:image:height" content="630" />
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:title" content={title} />
+      <meta name="twitter:description" content={description} />
+      <meta name="twitter:image" content={appOgImage} />
+      <meta name="twitter:image:alt" content={appOgImageAlt} />
+      <meta name="keywords" content={siteConfig.siteMetadata.keywords.join(", ")} />
+      <link rel="canonical" href={url} />
     </Head>
   );
 };

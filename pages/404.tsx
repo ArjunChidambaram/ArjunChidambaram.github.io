@@ -1,3 +1,4 @@
+import { SITE_URL } from "config/site.config";
 import type { NextPage } from "next";
 
 import AppHead from "@/components/AppHead";
@@ -12,7 +13,7 @@ const Home: NextPage = () => {
     <>
       <AppHead
         title="Arjun Chidambaram Subbiah - Staff Data Scientist"
-        url={`${process.env.NEXT_PUBLIC_URL}`}
+        url={`${SITE_URL}`}
         meta={meta}
       />
       <div className="bg-bglight dark:bg-bgdark overflow-hidden">

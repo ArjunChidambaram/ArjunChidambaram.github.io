@@ -1,6 +1,8 @@
 ---
-author: AI Mastery Learning
-pubDatetime: 2025-08-28T12:00:00Z
+author: "Arjun Subbiah"
+datetime: "2025-08-28T12:00:00.000Z"
+category: "AI"
+excerpt: "Set up a local AI environment with LangChain and Ollama, from installation to a first chat application, with no API keys or cloud costs."
 title: "Getting Started with LangChain and Ollama: A Complete Beginner's Guide"
 slug: getting-started-langchain-ollama-beginner-guide
 featured: true

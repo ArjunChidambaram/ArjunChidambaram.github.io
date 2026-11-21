@@ -21,6 +21,11 @@ export const staticNavItems: NavItem[] = [
     text: "Who am i?",
   },
   {
+    url: "#projects",
+    svgPath: iconPaths.default,
+    text: "Projects",
+  },
+  {
     url: "#blog",
     svgPath: iconPaths.blog,
     text: "Blog",

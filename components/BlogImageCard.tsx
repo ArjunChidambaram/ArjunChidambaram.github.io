@@ -10,6 +10,7 @@ type Props = {
   post: {
     coverImage?: string;
     coverImageAlt?: string;
+    category?: string;
     slug: string;
     title: string;
     excerpt: string;
@@ -24,7 +25,7 @@ const BlogImageCard: React.FC<Props> = ({
   fullWH = false,
   className = "",
 }) => {
-  const { title, coverImage, coverImageAlt, slug, excerpt, datetime } = post;
+  const { title, coverImage, coverImageAlt, slug, excerpt, datetime, category } = post;
 
   const sectionRef = useRef<HTMLDivElement>(null);
 
@@ -83,13 +84,17 @@ const BlogImageCard: React.FC<Props> = ({
           </Link>
         </div>
         <div className="blog-image relative w-full h-48 md:h-40 mb-3">
-          <Image
-            src={coverImage!}
-            sizes="100vw"
-            fill
-            className="object-contain"
-            alt={coverImageAlt ?? title}
-          />
+          {coverImage ? (
+            <Image
+              src={coverImage}
+              sizes="100vw"
+              fill
+              className="object-contain"
+              alt={coverImageAlt ?? title}
+            />
+          ) : (
+            <GeneratedCover title={title} category={category} />
+          )}
         </div>
       </div>
       <div className="italic text-sm mb-1 text-carddark dark:text-gray-300 flex items-center">
@@ -117,6 +122,45 @@ const BlogImageCard: React.FC<Props> = ({
       >
         {excerpt}
       </p>
+    </div>
+  );
+};
+
+// Drawn cover for posts without an image: a gradient picked by topic,
+// a large topic glyph, and a grid that drifts on hover.
+const COVERS: Record<string, { from: string; to: string; glyph: string }> = {
+  "Machine Learning": { from: "#007A7A", to: "#05CE91", glyph: "ƒ(x)" },
+  AI: { from: "#3B2F8F", to: "#7C6CF2", glyph: "🤖" },
+  Statistics: { from: "#9A4B00", to: "#F5A524", glyph: "σ" },
+  default: { from: "#1E293B", to: "#3D5A80", glyph: "{ }" },
+};
+
+const GeneratedCover: React.FC<{ title: string; category?: string }> = ({ title, category }) => {
+  const c = COVERS[category ?? ""] ?? COVERS.default;
+  return (
+    <div
+      className="group/cover absolute inset-0 overflow-hidden rounded"
+      style={{ background: `linear-gradient(135deg, ${c.from}, ${c.to})` }}
+      role="img"
+      aria-label={`${category ?? "Blog"} post: ${title}`}
+    >
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 opacity-20 transition-transform duration-700 group-hover/cover:translate-x-3 group-hover/cover:-translate-y-3"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(255,255,255,.6) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.6) 1px, transparent 1px)",
+          backgroundSize: "22px 22px",
+        }}
+      />
+      <span aria-hidden="true" className="absolute right-4 bottom-1 text-6xl font-bold text-white/80 transition-transform duration-500 group-hover/cover:scale-110 group-hover/cover:-rotate-6">
+        {c.glyph}
+      </span>
+      {category && (
+        <span className="absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1 text-xs font-medium text-gray-900">
+          {category}
+        </span>
+      )}
     </div>
   );
 };

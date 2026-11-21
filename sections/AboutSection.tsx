@@ -59,6 +59,34 @@ const AboutSection: React.FC = () => {
     // edu-bg
     gsap.fromTo(q(".edu-bg"), fromAnimation, toAnimation("edu-bg"));
 
+    // experience timeline: entries slide in one after another
+    gsap.fromTo(
+      q(".exp-item"),
+      { x: 60, opacity: 0 },
+      {
+        x: 0,
+        opacity: 1,
+        stagger: 0.18,
+        duration: 0.6,
+        ease: "power2.out",
+        scrollTrigger: { trigger: q(".exp-item")[0], start: "top 85%" },
+      }
+    );
+
+    // tech chips pop in
+    gsap.fromTo(
+      q(".skill-chip"),
+      { scale: 0.4, opacity: 0 },
+      {
+        scale: 1,
+        opacity: 1,
+        stagger: 0.04,
+        duration: 0.4,
+        ease: "back.out(2)",
+        scrollTrigger: { trigger: q(".skill-chip")[0], start: "top 90%" },
+      }
+    );
+
     // bg svg parallax effect
     gsap.fromTo(
       q(".bg-svg"),
@@ -145,9 +173,10 @@ const AboutSection: React.FC = () => {
                   <h3 className="text-2xl font-bold mb-4">Experience</h3>
                   <div className="space-y-6">
                     {siteConfig.aboutSection.experience.map((exp, index) => (
-                      <div key={index} className="border-l-4 border-blue-500 pl-4">
+                      <div key={index} className="exp-item relative border-l-4 border-marrsgreen dark:border-carrigreen pl-4">
+                        <span aria-hidden="true" className="absolute -left-[10px] top-1 h-4 w-4 rounded-full bg-white dark:bg-[#1B2731] border-4 border-marrsgreen dark:border-carrigreen" />
                         <h4 className="text-xl font-semibold">{exp.title}</h4>
-                        <p className="text-blue-600 dark:text-blue-400">{exp.company}</p>
+                        <p className="text-marrsgreen dark:text-carrigreen font-medium">{exp.company}</p>
                         <p className="text-gray-600 dark:text-gray-400">{exp.period}</p>
                         <p className="mt-2">{exp.description}</p>
                       </div>
@@ -162,9 +191,9 @@ const AboutSection: React.FC = () => {
                   <h3 className="text-2xl font-bold mb-4">Education</h3>
                   <div className="space-y-6">
                     {siteConfig.aboutSection.education.map((edu, index) => (
-                      <div key={index} className="border-l-4 border-blue-500 pl-4">
+                      <div key={index} className="border-l-4 border-marrsgreen dark:border-carrigreen pl-4">
                         <h4 className="text-xl font-semibold">{edu.degree}</h4>
-                        <p className="text-blue-600 dark:text-blue-400">{edu.school}</p>
+                        <p className="text-marrsgreen dark:text-carrigreen font-medium">{edu.school}</p>
                         <p className="text-gray-600 dark:text-gray-400">{edu.period}</p>
                         <p className="mt-2">{edu.description}</p>
                       </div>
@@ -179,7 +208,7 @@ const AboutSection: React.FC = () => {
             <h3 className="text-2xl font-bold mb-4">Technologies I Work With</h3>
             <div className="flex flex-wrap gap-2 justify-center">
               {siteConfig.aboutSection.skills.map((skill, index) => (
-                <span key={index} className="px-4 py-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
+                <span key={index} className="skill-chip px-4 py-2 rounded-full bg-cardlight dark:bg-carddark text-gray-800 dark:text-gray-200 border border-transparent hover:border-marrsgreen dark:hover:border-carrigreen hover:-translate-y-0.5 transition-transform">
                   {skill}
                 </span>
               ))}

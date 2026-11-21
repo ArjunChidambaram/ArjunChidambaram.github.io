@@ -1,3 +1,4 @@
+import { SITE_URL } from "config/site.config";
 import Image from "next/image";
 import Script from "next/script";
 import { GetStaticPaths, GetStaticProps } from "next";
@@ -36,7 +37,7 @@ type Props = {
 
 const BlogLayout: React.FC<Props> = ({ post }) => {
   const { theme } = useTheme();
-  const postUrl = `${process.env.NEXT_PUBLIC_URL}/blog/posts/${post.slug}`;
+  const postUrl = `${SITE_URL}/blog/posts/${post.slug}`;
   return (
     <>
       {/* Facebook Plugin for comment & share */}
@@ -51,7 +52,7 @@ const BlogLayout: React.FC<Props> = ({ post }) => {
 
       <AppHead
         title={`${post.title} - Arjun Chidambaram Subbiah`}
-        url={`${process.env.NEXT_PUBLIC_URL}/blog/posts/${post.slug}`}
+        url={`${SITE_URL}/blog/posts/${post.slug}`}
         meta={post}
       />
       <div className="bg-bglight dark:bg-bgdark">
