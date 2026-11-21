@@ -7,7 +7,6 @@ import LinkButton from "../components/LinkButton";
 import { siteConfig } from "config/site.config";
 
 import Character from "@/components/Character";
-import laptop from "../public/laptop-illustration.webp";
 
 // Types out each role, pauses, deletes it, then moves to the next.
 const useTypewriter = (words: readonly string[]) => {
@@ -83,66 +82,34 @@ const HeroSection: React.FC = () => {
     gsap.fromTo(q(".hero-fade"), { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6, delay: 1.6, stagger: 0.15 });
 
     // the shadow shrinks as he rises and grows as he sinks
-    gsap.to(q(".float-shadow"), {
-      scaleX: 0.75,
-      opacity: 0.35,
-      duration: 2.5,
-      repeat: -1,
-      yoyo: true,
-      ease: "sine.inOut",
-    });
+    gsap.to(q(".hero-blob"), { rotation: 360, duration: 40, repeat: -1, ease: "none" });
 
     // illustration floating effect
     let imgTl = gsap.timeline({ repeat: -1 });
     imgTl
       .to(q(".image-animation"), 3, {
-        y: "-=30",
-        x: "+=20",
-        rotation: "-=2",
+        y: "-=14",
+        x: "+=6",
+        rotation: "-=1",
         ease: "power1.easeInOut",
       })
       .to(q(".image-animation"), 2, {
-        y: "+=30",
-        x: "-=20",
-        rotation: "-=2",
+        y: "+=14",
+        x: "-=6",
+        rotation: "-=1",
         ease: "power1.easeInOut",
       })
       .to(q(".image-animation"), 3, {
-        y: "-=20",
-        rotation: "+=2",
+        y: "-=10",
+        rotation: "+=1",
         ease: "power1.easeInOut",
       })
       .to(q(".image-animation"), 3, {
-        y: "+=20",
-        rotation: "+=2",
+        y: "+=10",
+        rotation: "+=1",
         ease: "power1.easeInOut",
       });
 
-    // laptop floating effect
-    let laptopTl = gsap.timeline({ repeat: -1 });
-    laptopTl
-      .to(q(".laptop"), 3, {
-        y: "-=10",
-        x: "+=10",
-        rotation: "-=1",
-        ease: "Power1.easeInOut",
-      })
-      .to(q(".laptop"), 2, {
-        y: "+=10",
-        x: "-=10",
-        rotation: "-=1",
-        ease: "power1.easeInOut",
-      })
-      .to(q(".laptop"), 3, {
-        y: "-=10",
-        rotation: "+=1",
-        ease: "power1.easeInOut",
-      })
-      .to(q(".laptop"), 3, {
-        y: "+=10",
-        rotation: "+=1",
-        ease: "power1.easeInOut",
-      });
   }, []);
 
   return (
@@ -158,31 +125,16 @@ const HeroSection: React.FC = () => {
       </span>
 
       {/* Temporarily hidden hero images - files preserved */}
-      <div className="character-wrap relative z-10 select-none mt-0 xs:mt-6 sm:mt-14 lg:mt-0 px-0 mx-auto lg:p-0 lg:basis-1/3">
-      <div className="image-animation">
-        <div className="relative w-72 md:w-80 h-80 flex items-center mx-auto">
-          <div className="absolute scale-90 xs:scale-95 mx-auto">
-            <Character
-              width={400}
-              priority
-              alt="Arjun Chidambaram Subbiah character illustration levitating with a Macbook"
-            />
-          </div>
-          <div className="laptop absolute top-14 sm:top-16 left-0 scale-[.41] xs:scale-[.45] pointer-events-none">
-            <Image
-              src={laptop}
-              width={559}
-              height={386}
-              aria-hidden="true"
-              alt="Laptop illustration"
-            />
-          </div>
-        </div>
-      </div>
+      <div className="character-wrap relative z-10 select-none mt-0 xs:mt-6 sm:mt-14 lg:mt-0 mx-auto lg:basis-1/3 flex justify-center">
+        {/* soft blob behind him, like the character sheet */}
         <div
           aria-hidden="true"
-          className="float-shadow mx-auto -mt-16 sm:-mt-20 h-5 w-48 rounded-[50%] bg-black/20 dark:bg-black/50 blur-md"
+          className="hero-blob absolute top-16 left-1/2 -translate-x-1/2 h-72 w-72 md:h-[23rem] md:w-[23rem] rounded-[42%_58%_55%_45%/48%_42%_58%_52%]"
+          style={{ backgroundColor: "rgba(0, 122, 122, 0.13)" }}
         />
+        <div className="image-animation relative">
+          <Character width={300} priority className="mx-auto" />
+        </div>
       </div>
 
       <div className="lg:basis-2/3 z-10 relative">
