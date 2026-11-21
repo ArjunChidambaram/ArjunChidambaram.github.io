@@ -1,38 +1,32 @@
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 
-import Door from "@/components/Door";
 import waveImg from "../public/character/wave.webp";
-import walkingImg from "../public/character/walking.webp";
 import celebratingImg from "../public/character/celebrating.webp";
 
 /**
- * Landing-page character. A door appears, he walks out of it, turns and
- * waves. When the hero scrolls out of view he's gone (the floating mini
- * version takes over); scroll back and he comes out of the door again.
+ * Landing-page character: Arjun waving hello. He pops up after the loader,
+ * then sways gently while little motion lines pulse by his hand. Click him and
+ * he celebrates. Scroll away and back and he pops up again.
  */
 
-type Pose = "wave" | "walking" | "celebrating";
-const SRC: Record<Pose, string> = { wave: waveImg.src, walking: walkingImg.src, celebrating: celebratingImg.src };
-const RATIO: Record<Pose, number> = { wave: 180 / 442, walking: 256 / 441, celebrating: 239 / 444 };
+type Pose = "wave" | "celebrating";
+const SRC: Record<Pose, string> = { wave: waveImg.src, celebrating: celebratingImg.src };
+const RATIO: Record<Pose, number> = { wave: 180 / 442, celebrating: 239 / 444 };
 
 type Props = { delay?: number };
 
 const HeroCharacter: React.FC<Props> = ({ delay = 1.3 }) => {
   const boxRef = useRef<HTMLDivElement>(null);
   const charRef = useRef<HTMLButtonElement>(null);
-  const doorRef = useRef<HTMLDivElement>(null);
   const marksRef = useRef<SVGSVGElement>(null);
-  const [pose, setPose] = useState<Pose>("walking");
+  const [pose, setPose] = useState<Pose>("wave");
   const [h, setH] = useState(420);
   const tl = useRef<gsap.core.Timeline>();
   const sway = useRef<gsap.core.Tween>();
 
-  const W = h * 0.9; // stage width
-  const doorW = h * 0.3;
-  const doorH = h * 1.1;
-  const doorLeft = W - doorW; // door on the right, so it opens away from the text
-  const finalLeft = h * 0.14; // where his waving pose stands (left edge)
+  const W = h * 0.8; // stage width
+  const finalLeft = (W - h * RATIO.wave) / 2; // centred
 
   useEffect(() => {
     const phone = window.matchMedia("(max-width: 640px)").matches;
@@ -41,12 +35,9 @@ const HeroCharacter: React.FC<Props> = ({ delay = 1.3 }) => {
 
   useEffect(() => {
     const ch = charRef.current;
-    const door = doorRef.current;
     const box = boxRef.current;
-    if (!ch || !door || !box) return;
+    if (!ch || !box) return;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const panel = door.querySelector(".door-panel");
-    const glow = door.querySelector(".door-glow");
     const startSway = () => {
       const marks = marksRef.current;
       sway.current?.kill();
@@ -58,34 +49,24 @@ const HeroCharacter: React.FC<Props> = ({ delay = 1.3 }) => {
       tl.current?.kill();
       sway.current?.kill();
       if (marksRef.current) gsap.killTweensOf(marksRef.current);
-      gsap.set(ch, { rotation: 0, opacity: 0, x: doorLeft + doorW * 0.5 - h * RATIO.walking * 0.5 });
-      gsap.set(door, { opacity: 0, scale: 0.7, transformOrigin: "50% 100%" });
-      gsap.set(panel, { rotationY: 0 });
-      gsap.set(glow, { opacity: 0 });
-      setPose("walking");
+      setPose("wave");
+      gsap.set(ch, { x: finalLeft, rotation: 0 });
 
       if (reduce) {
-        setPose("wave");
-        gsap.set(ch, { opacity: 1, x: finalLeft });
+        gsap.set(ch, { opacity: 1, y: 0, scale: 1 });
         return;
       }
 
-      const t = gsap.timeline({ delay: wait });
-      t.to(door, { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(2)" })
-        .to(panel, { rotationY: 100, duration: 0.5, ease: "power2.out" })
-        .to(glow, { opacity: 1, duration: 0.3 }, "<")
-        // he steps out of the light and walks to his spot
-        .to(ch, { opacity: 1, duration: 0.25 })
-        .to(ch, { x: finalLeft, duration: 1.2, ease: "none" }, "<")
-        .to(ch, { y: -6, duration: 0.2, yoyo: true, repeat: 5, ease: "sine.out" }, "<")
-        .call(() => setPose("wave"))
-        .fromTo(ch, { scale: 0.96 }, { scale: 1, duration: 0.3, ease: "back.out(3)", transformOrigin: "50% 100%" })
-        // the door closes behind him and disappears
-        .to(panel, { rotationY: 0, duration: 0.35, ease: "power2.in" }, "+=0.2")
-        .to(glow, { opacity: 0, duration: 0.2 }, "<")
-        .to(door, { opacity: 0, scale: 0.7, duration: 0.3, ease: "power2.in" })
+      // pops up from below, overshoots a little, then gives a big hello wobble
+      tl.current = gsap
+        .timeline({ delay: wait })
+        .fromTo(
+          ch,
+          { opacity: 0, y: 60, scale: 0.85, transformOrigin: "50% 100%" },
+          { opacity: 1, y: 0, scale: 1, duration: 0.7, ease: "back.out(1.8)" }
+        )
+        .to(ch, { rotation: -4, duration: 0.15, yoyo: true, repeat: 3, ease: "sine.inOut", transformOrigin: "50% 100%" })
         .call(startSway);
-      tl.current = t;
     };
 
     const blob = box.querySelector(".hero-blob");
@@ -93,7 +74,7 @@ const HeroCharacter: React.FC<Props> = ({ delay = 1.3 }) => {
 
     enter(delay);
 
-    // leave when the hero scrolls away; come back through the door on return
+    // hide when the hero scrolls away; pop up again on return
     let away = false;
     const io = new IntersectionObserver(
       ([e]) => {
@@ -116,7 +97,7 @@ const HeroCharacter: React.FC<Props> = ({ delay = 1.3 }) => {
       tl.current?.kill();
       sway.current?.kill();
     };
-  }, [h, W, doorW, doorLeft, finalLeft, delay]);
+  }, [h, W, finalLeft, delay]);
 
   const celebrate = () => {
     if (pose !== "wave") return;
@@ -141,7 +122,6 @@ const HeroCharacter: React.FC<Props> = ({ delay = 1.3 }) => {
           backgroundColor: "rgba(0, 122, 122, 0.13)",
         }}
       />
-      <Door ref={doorRef} width={doorW} height={doorH} hinge="right" className="absolute bottom-0 opacity-0" style={{ left: doorLeft }} />
       <button
         ref={charRef}
         type="button"
@@ -156,8 +136,6 @@ const HeroCharacter: React.FC<Props> = ({ delay = 1.3 }) => {
           alt="Illustration of Arjun Chidambaram Subbiah"
           draggable={false}
           className="h-full w-full select-none"
-          // the walking pose faces right; he walks left out of the door
-          style={{ transform: pose === "walking" ? "scaleX(-1)" : undefined }}
         />
         {pose === "wave" && (
           <svg
