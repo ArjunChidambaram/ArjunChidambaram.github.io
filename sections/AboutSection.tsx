@@ -124,7 +124,8 @@ const AboutSection: React.FC = () => {
   const aboutSection = useScrollActive(sectionRef);
   const { onSectionChange } = useSection();
   useEffect(() => {
-    aboutSection ? onSectionChange!("who am i?") : onSectionChange!("");
+    // only claim the section when entering; clearing it on exit could overwrite the next section
+    aboutSection && onSectionChange!("who am i?");
   }, [aboutSection, onSectionChange]);
 
   return (

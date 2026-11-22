@@ -5,9 +5,9 @@ import waveImg from "../public/character/wave.webp";
 import celebratingImg from "../public/character/celebrating.webp";
 
 /**
- * Landing-page character: Arjun waving hello. He pops up after the loader,
- * then sways gently while little motion lines pulse by his hand. Click him and
- * he celebrates. Scroll away and back and he pops up again.
+ * Landing-page character: Arjun waving hello. He stays in one place; little
+ * motion lines pulse by his hand, and clicking him switches to the
+ * celebrating pose for a moment.
  */
 
 type Pose = "wave" | "celebrating";
@@ -41,7 +41,6 @@ const HeroCharacter: React.FC<Props> = ({ delay = 1.3 }) => {
     const startSway = () => {
       const marks = marksRef.current;
       sway.current?.kill();
-      sway.current = gsap.to(ch, { rotation: 2.5, duration: 1.4, yoyo: true, repeat: -1, ease: "sine.inOut", transformOrigin: "50% 100%" });
       if (marks) gsap.fromTo(marks, { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.5, yoyo: true, repeat: -1, repeatDelay: 0.6, transformOrigin: "100% 100%" });
     };
 
@@ -57,20 +56,14 @@ const HeroCharacter: React.FC<Props> = ({ delay = 1.3 }) => {
         return;
       }
 
-      // pops up from below, overshoots a little, then gives a big hello wobble
+      // fades in where he stands
       tl.current = gsap
         .timeline({ delay: wait })
-        .fromTo(
-          ch,
-          { opacity: 0, y: 60, scale: 0.85, transformOrigin: "50% 100%" },
-          { opacity: 1, y: 0, scale: 1, duration: 0.7, ease: "back.out(1.8)" }
-        )
-        .to(ch, { rotation: -4, duration: 0.15, yoyo: true, repeat: 3, ease: "sine.inOut", transformOrigin: "50% 100%" })
+        .fromTo(ch, { opacity: 0 }, { opacity: 1, duration: 0.6, ease: "power1.out" })
         .call(startSway);
     };
 
-    const blob = box.querySelector(".hero-blob");
-    const spin = reduce ? null : gsap.to(blob, { rotation: 360, duration: 40, repeat: -1, ease: "none" });
+
 
     enter(delay);
 
@@ -93,7 +86,6 @@ const HeroCharacter: React.FC<Props> = ({ delay = 1.3 }) => {
     io.observe(box);
     return () => {
       io.disconnect();
-      spin?.kill();
       tl.current?.kill();
       sway.current?.kill();
     };
@@ -102,7 +94,6 @@ const HeroCharacter: React.FC<Props> = ({ delay = 1.3 }) => {
   const celebrate = () => {
     if (pose !== "wave") return;
     setPose("celebrating");
-    gsap.fromTo(charRef.current, { y: 0 }, { y: -24, duration: 0.25, yoyo: true, repeat: 1, ease: "power2.out" });
     setTimeout(() => setPose("wave"), 1400);
   };
 
