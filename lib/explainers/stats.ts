@@ -295,3 +295,40 @@ export const AA_FINAL_FP = AA_ZS.filter((z) => Math.abs(z[AB_DAYS - 1]) > 1.96).
 export const AA_PEEK_FP = AA_ZS.filter((z) => z.some((x) => Math.abs(x) > 1.96)).length / AA_ZS.length;
 /** An A/A test that looked "significant" on some day but not at the end (the peeking trap). */
 export const AA_EXAMPLE = AA_ZS.findIndex((z) => Math.abs(z[AB_DAYS - 1]) < 1 && z.slice(2, 8).some((x) => Math.abs(x) > 2.2));
+
+// ---------- bootstrap post ----------
+export const median = (xs: number[]) => {
+  const s = [...xs].sort((a, b) => a - b);
+  const m = s.length >> 1;
+  return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
+};
+export const quantile = (xs: number[], q: number) => {
+  const s = [...xs].sort((a, b) => a - b);
+  const pos = (s.length - 1) * q;
+  const lo = Math.floor(pos);
+  return s[lo] + (s[Math.min(lo + 1, s.length - 1)] - s[lo]) * (pos - lo);
+};
+export const BOOT_N = 50;
+/** The one sample we actually have: 50 orders from the new checkout. */
+export const BOOT_SAMPLE: number[] = (() => {
+  const r = rng(73);
+  return Array.from({ length: BOOT_N }, () => ORDERS[Math.floor(r() * ORDERS.length)]);
+})();
+/** Bootstrap resamples: which of the 50 orders each resample drew (indices), for the first few, plus statistics for 2,000. */
+export function bootstrap(xs: number[], stat: (s: number[]) => number, B: number, seed: number) {
+  const r = rng(seed);
+  return Array.from({ length: B }, () => stat(Array.from({ length: xs.length }, () => xs[Math.floor(r() * xs.length)])));
+}
+export const BOOT_DRAWS: number[][] = (() => {
+  const r = rng(32);
+  return Array.from({ length: 8 }, () => Array.from({ length: BOOT_N }, () => Math.floor(r() * BOOT_N)));
+})();
+export const BOOT_MEDIANS = bootstrap(BOOT_SAMPLE, median, 2000, 34);
+export const BOOT_MEANS = bootstrap(BOOT_SAMPLE, mean, 2000, 35);
+export const BOOT_P90 = bootstrap(BOOT_SAMPLE, (s) => quantile(s, 0.9), 2000, 36);
+/** What we could only see in a simulation: medians of 2,000 fresh samples of 50 from the population. */
+export const TRUE_MEDIANS: number[] = (() => {
+  const r = rng(33);
+  return Array.from({ length: 2000 }, () => median(Array.from({ length: BOOT_N }, () => ORDERS[Math.floor(r() * ORDERS.length)])));
+})();
+export const POP_MEDIAN = median(ORDERS);
