@@ -1,0 +1,1138 @@
+{
+"group_collapse": {
+"sql": "SELECT category, ROUND(AVG(price), 2) AS avg_price\nFROM products\nGROUP BY category\nORDER BY category;",
+"columns": [
+"category",
+"avg_price"
+],
+"rows": [
+[
+"Electronics",
+71.59
+],
+[
+"Fitness",
+41.87
+],
+[
+"Footwear",
+52.37
+],
+[
+"Grocery",
+7.74
+],
+[
+"Outdoor",
+83.39
+]
+],
+"total": 5
+},
+"window_keep": {
+"sql": "SELECT\n  name,\n  category,\n  price,\n  ROUND(AVG(price) OVER (PARTITION BY category), 2) AS category_avg\nFROM products\nORDER BY category, price DESC;",
+"columns": [
+"name",
+"category",
+"price",
+"category_avg"
+],
+"rows": [
+[
+"Smart Watch",
+"Electronics",
+199.0,
+71.59
+],
+[
+"Wireless Earbuds",
+"Electronics",
+79.0,
+71.59
+],
+[
+"Bluetooth Speaker",
+"Electronics",
+49.99,
+71.59
+],
+[
+"Phone Charger",
+"Electronics",
+19.99,
+71.59
+],
+[
+"USB-C Cable",
+"Electronics",
+9.99,
+71.59
+],
+[
+"Dumbbell Set",
+"Fitness",
+89.0,
+41.87
+],
+[
+"Yoga Mat",
+"Fitness",
+34.99,
+41.87
+],
+[
+"Foam Roller",
+"Fitness",
+24.0,
+41.87
+],
+[
+"Resistance Bands",
+"Fitness",
+19.5,
+41.87
+],
+[
+"Trail Running Shoes",
+"Footwear",
+89.99,
+52.37
+],
+[
+"Everyday Sneakers",
+"Footwear",
+59.99,
+52.37
+],
+[
+"Rain Boots",
+"Footwear",
+44.5,
+52.37
+],
+[
+"Wool Socks (3-pack)",
+"Footwear",
+14.99,
+52.37
+],
+[
+"Coffee Beans 1lb",
+"Grocery",
+12.49,
+7.74
+],
+[
+"Trail Mix",
+"Grocery",
+7.99,
+7.74
+],
+[
+"Green Tea (50 bags)",
+"Grocery",
+6.99,
+7.74
+],
+[
+"Dark Chocolate Bar",
+"Grocery",
+3.49,
+7.74
+],
+[
+"Two-Person Tent",
+"Outdoor",
+179.0,
+83.39
+],
+[
+"Sleeping Bag",
+"Outdoor",
+119.0,
+83.39
+],
+[
+"Daypack 20L",
+"Outdoor",
+64.0,
+83.39
+],
+[
+"Camping Lantern",
+"Outdoor",
+29.95,
+83.39
+],
+[
+"Insulated Water Bottle",
+"Outdoor",
+24.99,
+83.39
+]
+],
+"total": 22
+},
+"over_empty": {
+"sql": "SELECT\n  name,\n  price,\n  SUM(price) OVER ()                       AS total_of_all_prices,\n  ROUND(100 * price / SUM(price) OVER (), 1) AS pct_of_total\nFROM products\nORDER BY price DESC\nLIMIT 5;",
+"columns": [
+"name",
+"price",
+"total_of_all_prices",
+"pct_of_total"
+],
+"rows": [
+[
+"Smart Watch",
+199.0,
+1182.83,
+16.8
+],
+[
+"Two-Person Tent",
+179.0,
+1182.83,
+15.1
+],
+[
+"Sleeping Bag",
+119.0,
+1182.83,
+10.1
+],
+[
+"Trail Running Shoes",
+89.99,
+1182.83,
+7.6
+],
+[
+"Dumbbell Set",
+89.0,
+1182.83,
+7.5
+]
+],
+"total": 5
+},
+"vs_category": {
+"sql": "SELECT\n  name,\n  category,\n  price,\n  ROUND(price - AVG(price) OVER (PARTITION BY category), 2) AS vs_category_avg,\n  COUNT(*) OVER (PARTITION BY category)                     AS products_in_category\nFROM products\nORDER BY category, price DESC;",
+"columns": [
+"name",
+"category",
+"price",
+"vs_category_avg",
+"products_in_category"
+],
+"rows": [
+[
+"Smart Watch",
+"Electronics",
+199.0,
+127.41,
+5
+],
+[
+"Wireless Earbuds",
+"Electronics",
+79.0,
+7.41,
+5
+],
+[
+"Bluetooth Speaker",
+"Electronics",
+49.99,
+-21.6,
+5
+],
+[
+"Phone Charger",
+"Electronics",
+19.99,
+-51.6,
+5
+],
+[
+"USB-C Cable",
+"Electronics",
+9.99,
+-61.6,
+5
+],
+[
+"Dumbbell Set",
+"Fitness",
+89.0,
+47.13,
+4
+],
+[
+"Yoga Mat",
+"Fitness",
+34.99,
+-6.88,
+4
+],
+[
+"Foam Roller",
+"Fitness",
+24.0,
+-17.87,
+4
+],
+[
+"Resistance Bands",
+"Fitness",
+19.5,
+-22.37,
+4
+],
+[
+"Trail Running Shoes",
+"Footwear",
+89.99,
+37.62,
+4
+],
+[
+"Everyday Sneakers",
+"Footwear",
+59.99,
+7.62,
+4
+],
+[
+"Rain Boots",
+"Footwear",
+44.5,
+-7.87,
+4
+],
+[
+"Wool Socks (3-pack)",
+"Footwear",
+14.99,
+-37.38,
+4
+],
+[
+"Coffee Beans 1lb",
+"Grocery",
+12.49,
+4.75,
+4
+],
+[
+"Trail Mix",
+"Grocery",
+7.99,
+0.25,
+4
+],
+[
+"Green Tea (50 bags)",
+"Grocery",
+6.99,
+-0.75,
+4
+],
+[
+"Dark Chocolate Bar",
+"Grocery",
+3.49,
+-4.25,
+4
+],
+[
+"Two-Person Tent",
+"Outdoor",
+179.0,
+95.61,
+5
+],
+[
+"Sleeping Bag",
+"Outdoor",
+119.0,
+35.61,
+5
+],
+[
+"Daypack 20L",
+"Outdoor",
+64.0,
+-19.39,
+5
+],
+[
+"Camping Lantern",
+"Outdoor",
+29.95,
+-53.44,
+5
+],
+[
+"Insulated Water Bottle",
+"Outdoor",
+24.99,
+-58.4,
+5
+]
+],
+"total": 22
+},
+"row_number": {
+"sql": "SELECT\n  category,\n  name,\n  price,\n  ROW_NUMBER() OVER (PARTITION BY category ORDER BY price DESC) AS price_rank\nFROM products\nORDER BY category, price_rank;",
+"columns": [
+"category",
+"name",
+"price",
+"price_rank"
+],
+"rows": [
+[
+"Electronics",
+"Smart Watch",
+199.0,
+1
+],
+[
+"Electronics",
+"Wireless Earbuds",
+79.0,
+2
+],
+[
+"Electronics",
+"Bluetooth Speaker",
+49.99,
+3
+],
+[
+"Electronics",
+"Phone Charger",
+19.99,
+4
+],
+[
+"Electronics",
+"USB-C Cable",
+9.99,
+5
+],
+[
+"Fitness",
+"Dumbbell Set",
+89.0,
+1
+],
+[
+"Fitness",
+"Yoga Mat",
+34.99,
+2
+],
+[
+"Fitness",
+"Foam Roller",
+24.0,
+3
+],
+[
+"Fitness",
+"Resistance Bands",
+19.5,
+4
+],
+[
+"Footwear",
+"Trail Running Shoes",
+89.99,
+1
+],
+[
+"Footwear",
+"Everyday Sneakers",
+59.99,
+2
+],
+[
+"Footwear",
+"Rain Boots",
+44.5,
+3
+],
+[
+"Footwear",
+"Wool Socks (3-pack)",
+14.99,
+4
+],
+[
+"Grocery",
+"Coffee Beans 1lb",
+12.49,
+1
+],
+[
+"Grocery",
+"Trail Mix",
+7.99,
+2
+],
+[
+"Grocery",
+"Green Tea (50 bags)",
+6.99,
+3
+],
+[
+"Grocery",
+"Dark Chocolate Bar",
+3.49,
+4
+],
+[
+"Outdoor",
+"Two-Person Tent",
+179.0,
+1
+],
+[
+"Outdoor",
+"Sleeping Bag",
+119.0,
+2
+],
+[
+"Outdoor",
+"Daypack 20L",
+64.0,
+3
+],
+[
+"Outdoor",
+"Camping Lantern",
+29.95,
+4
+],
+[
+"Outdoor",
+"Insulated Water Bottle",
+24.99,
+5
+]
+],
+"total": 22
+},
+"ties": {
+"sql": "WITH customer_orders AS (\n  SELECT c.customer_id, c.first_name, COUNT(*) AS orders\n  FROM customers c\n  JOIN orders o ON o.customer_id = c.customer_id\n  GROUP BY c.customer_id, c.first_name\n)\nSELECT\n  first_name,\n  orders,\n  ROW_NUMBER() OVER (ORDER BY orders DESC) AS row_number,\n  RANK()       OVER (ORDER BY orders DESC) AS rank,\n  DENSE_RANK() OVER (ORDER BY orders DESC) AS dense_rank\nFROM customer_orders\nORDER BY orders DESC, first_name\nLIMIT 12;",
+"columns": [
+"first_name",
+"orders",
+"row_number",
+"rank",
+"dense_rank"
+],
+"rows": [
+[
+"Sofia",
+19,
+1,
+1,
+1
+],
+[
+"Noah",
+18,
+2,
+2,
+2
+],
+[
+"Kenji",
+15,
+3,
+3,
+3
+],
+[
+"Liam",
+13,
+4,
+4,
+4
+],
+[
+"Elijah",
+11,
+5,
+5,
+5
+],
+[
+"Sofia",
+11,
+7,
+5,
+5
+],
+[
+"Wei",
+11,
+6,
+5,
+5
+],
+[
+"Liam",
+10,
+8,
+8,
+6
+],
+[
+"Samuel",
+9,
+9,
+9,
+7
+],
+[
+"Zoe",
+9,
+10,
+9,
+7
+],
+[
+"Riley",
+8,
+11,
+11,
+8
+],
+[
+"Abigail",
+7,
+13,
+12,
+9
+]
+],
+"total": 12
+},
+"where_window": {
+"sql": "SELECT category, name, price,\n       ROW_NUMBER() OVER (PARTITION BY category ORDER BY price DESC) AS rn\nFROM products\nWHERE rn <= 2;",
+"error": "Binder Error: WHERE clause cannot contain window functions!"
+},
+"top_n": {
+"sql": "WITH ranked AS (\n  SELECT\n    category, name, price,\n    ROW_NUMBER() OVER (PARTITION BY category ORDER BY price DESC) AS rn\n  FROM products\n)\nSELECT category, name, price\nFROM ranked\nWHERE rn <= 2\nORDER BY category, rn;",
+"columns": [
+"category",
+"name",
+"price"
+],
+"rows": [
+[
+"Electronics",
+"Smart Watch",
+199.0
+],
+[
+"Electronics",
+"Wireless Earbuds",
+79.0
+],
+[
+"Fitness",
+"Dumbbell Set",
+89.0
+],
+[
+"Fitness",
+"Yoga Mat",
+34.99
+],
+[
+"Footwear",
+"Trail Running Shoes",
+89.99
+],
+[
+"Footwear",
+"Everyday Sneakers",
+59.99
+],
+[
+"Grocery",
+"Coffee Beans 1lb",
+12.49
+],
+[
+"Grocery",
+"Trail Mix",
+7.99
+],
+[
+"Outdoor",
+"Two-Person Tent",
+179.0
+],
+[
+"Outdoor",
+"Sleeping Bag",
+119.0
+]
+],
+"total": 10
+},
+"qualify": {
+"sql": "SELECT category, name, price\nFROM products\nQUALIFY ROW_NUMBER() OVER (PARTITION BY category ORDER BY price DESC) <= 2\nORDER BY category, price DESC;",
+"columns": [
+"category",
+"name",
+"price"
+],
+"rows": [
+[
+"Electronics",
+"Smart Watch",
+199.0
+],
+[
+"Electronics",
+"Wireless Earbuds",
+79.0
+],
+[
+"Fitness",
+"Dumbbell Set",
+89.0
+],
+[
+"Fitness",
+"Yoga Mat",
+34.99
+],
+[
+"Footwear",
+"Trail Running Shoes",
+89.99
+],
+[
+"Footwear",
+"Everyday Sneakers",
+59.99
+],
+[
+"Grocery",
+"Coffee Beans 1lb",
+12.49
+],
+[
+"Grocery",
+"Trail Mix",
+7.99
+],
+[
+"Outdoor",
+"Two-Person Tent",
+179.0
+],
+[
+"Outdoor",
+"Sleeping Bag",
+119.0
+]
+],
+"total": 10
+},
+"latest_per_customer": {
+"sql": "WITH ranked AS (\n  SELECT\n    customer_id, order_id, order_date, channel,\n    ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY order_date DESC, order_id DESC) AS rn\n  FROM orders\n)\nSELECT customer_id, order_id, order_date, channel\nFROM ranked\nWHERE rn = 1\nORDER BY customer_id\nLIMIT 6;",
+"columns": [
+"customer_id",
+"order_id",
+"order_date",
+"channel"
+],
+"rows": [
+[
+2,
+1374,
+"2025-12-14",
+"web"
+],
+[
+3,
+1312,
+"2025-11-28",
+"web"
+],
+[
+4,
+1392,
+"2025-12-19",
+"web"
+],
+[
+5,
+1393,
+"2025-12-19",
+"app"
+],
+[
+6,
+1287,
+"2025-11-24",
+"web"
+],
+[
+7,
+1190,
+"2025-09-09",
+"app"
+]
+],
+"total": 6
+},
+"rank_groups": {
+"sql": "SELECT\n  p.category,\n  SUM(i.quantity * i.unit_price)                             AS revenue,\n  RANK() OVER (ORDER BY SUM(i.quantity * i.unit_price) DESC) AS revenue_rank\nFROM order_items i\nJOIN products p ON p.product_id = i.product_id\nGROUP BY p.category\nORDER BY revenue_rank;",
+"columns": [
+"category",
+"revenue",
+"revenue_rank"
+],
+"rows": [
+[
+"Footwear",
+11577.14,
+1
+],
+[
+"Electronics",
+9928.32,
+2
+],
+[
+"Outdoor",
+8891.45,
+3
+],
+[
+"Fitness",
+3553.69,
+4
+],
+[
+"Grocery",
+2006.32,
+5
+]
+],
+"total": 5
+},
+"ntile": {
+"sql": "WITH value AS (\n  SELECT o.customer_id, SUM(i.quantity * i.unit_price) AS lifetime_value\n  FROM orders o\n  JOIN order_items i ON i.order_id = o.order_id\n  GROUP BY o.customer_id\n),\nq AS (\n  SELECT customer_id, lifetime_value, NTILE(4) OVER (ORDER BY lifetime_value DESC) AS quartile\n  FROM value\n)\nSELECT\n  quartile,\n  COUNT(*)                         AS customers,\n  ROUND(MIN(lifetime_value), 2)    AS min_value,\n  ROUND(MAX(lifetime_value), 2)    AS max_value,\n  ROUND(100 * SUM(lifetime_value) / SUM(SUM(lifetime_value)) OVER (), 1) AS pct_of_revenue\nFROM q\nGROUP BY quartile\nORDER BY quartile;",
+"columns": [
+"quartile",
+"customers",
+"min_value",
+"max_value",
+"pct_of_revenue"
+],
+"rows": [
+[
+1,
+34,
+325.91,
+1957.93,
+68.4
+],
+[
+2,
+33,
+160.11,
+319.6,
+20.6
+],
+[
+3,
+33,
+49.99,
+158.69,
+8.9
+],
+[
+4,
+33,
+7.99,
+49.98,
+2.0
+]
+],
+"total": 4
+},
+"percent_rank": {
+"sql": "SELECT\n  name,\n  price,\n  ROUND(PERCENT_RANK() OVER (ORDER BY price), 3) AS percent_rank,\n  ROUND(CUME_DIST()    OVER (ORDER BY price), 3) AS cume_dist\nFROM products\nORDER BY price DESC\nLIMIT 6;",
+"columns": [
+"name",
+"price",
+"percent_rank",
+"cume_dist"
+],
+"rows": [
+[
+"Smart Watch",
+199.0,
+1.0,
+1.0
+],
+[
+"Two-Person Tent",
+179.0,
+0.952,
+0.955
+],
+[
+"Sleeping Bag",
+119.0,
+0.905,
+0.909
+],
+[
+"Trail Running Shoes",
+89.99,
+0.857,
+0.864
+],
+[
+"Dumbbell Set",
+89.0,
+0.81,
+0.818
+],
+[
+"Wireless Earbuds",
+79.0,
+0.762,
+0.773
+]
+],
+"total": 6
+},
+"named_window": {
+"sql": "SELECT\n  category, name, price,\n  RANK()     OVER w AS price_rank,\n  MAX(price) OVER w2 AS top_price_in_category\nFROM products\nWINDOW w  AS (PARTITION BY category ORDER BY price DESC),\n       w2 AS (PARTITION BY category)\nORDER BY category, price_rank\nLIMIT 8;",
+"columns": [
+"category",
+"name",
+"price",
+"price_rank",
+"top_price_in_category"
+],
+"rows": [
+[
+"Electronics",
+"Smart Watch",
+199.0,
+1,
+199.0
+],
+[
+"Electronics",
+"Wireless Earbuds",
+79.0,
+2,
+199.0
+],
+[
+"Electronics",
+"Bluetooth Speaker",
+49.99,
+3,
+199.0
+],
+[
+"Electronics",
+"Phone Charger",
+19.99,
+4,
+199.0
+],
+[
+"Electronics",
+"USB-C Cable",
+9.99,
+5,
+199.0
+],
+[
+"Fitness",
+"Dumbbell Set",
+89.0,
+1,
+89.0
+],
+[
+"Fitness",
+"Yoga Mat",
+34.99,
+2,
+89.0
+],
+[
+"Fitness",
+"Foam Roller",
+24.0,
+3,
+89.0
+]
+],
+"total": 8
+},
+"ex1": {
+"sql": "WITH ranked AS (\n  SELECT\n    c.state, c.first_name, c.last_name, c.signup_date,\n    ROW_NUMBER() OVER (PARTITION BY c.state ORDER BY c.signup_date) AS rn\n  FROM customers c\n)\nSELECT state, first_name, last_name, signup_date\nFROM ranked\nWHERE rn = 1\nORDER BY state;",
+"columns": [
+"state",
+"first_name",
+"last_name",
+"signup_date"
+],
+"rows": [
+[
+"AR",
+"Fatima",
+"Clark",
+"2024-07-15"
+],
+[
+"AZ",
+"Nora",
+"Harris",
+"2024-11-16"
+],
+[
+"CA",
+"David",
+"Rodriguez",
+"2024-04-12"
+],
+[
+"CO",
+"Grace",
+"Thomas",
+"2024-02-26"
+],
+[
+"FL",
+"Aria",
+"Thomas",
+"2024-02-14"
+],
+[
+"GA",
+"Noah",
+"Martin",
+"2024-11-29"
+],
+[
+"IL",
+"David",
+"Gonzalez",
+"2024-03-18"
+],
+[
+"MA",
+"Samuel",
+"Davis",
+"2024-01-27"
+],
+[
+"NY",
+"Carter",
+"Davis",
+"2024-01-30"
+],
+[
+"OR",
+"Benjamin",
+"Johnson",
+"2024-01-16"
+],
+[
+"TX",
+"Zoe",
+"Gonzalez",
+"2024-01-24"
+],
+[
+"WA",
+"Arjun",
+"Thomas",
+"2024-02-28"
+]
+],
+"total": 12
+},
+"ex2": {
+"sql": "SELECT\n  order_id,\n  SUM(quantity * unit_price) AS value,\n  DENSE_RANK() OVER (ORDER BY SUM(quantity * unit_price) DESC) AS value_rank\nFROM order_items\nGROUP BY order_id\nQUALIFY value_rank <= 5\nORDER BY value_rank;",
+"columns": [
+"order_id",
+"value",
+"value_rank"
+],
+"rows": [
+[
+1301,
+537.0,
+1
+],
+[
+1342,
+530.04,
+2
+],
+[
+1240,
+486.98,
+3
+],
+[
+1365,
+443.37,
+4
+],
+[
+1309,
+432.49,
+5
+]
+],
+"total": 5
+},
+"ex3": {
+"sql": "SELECT\n  channel,\n  order_id,\n  order_date,\n  ROW_NUMBER() OVER (PARTITION BY channel ORDER BY order_date, order_id) AS nth_order_in_channel\nFROM orders\nQUALIFY nth_order_in_channel = 100;",
+"columns": [
+"channel",
+"order_id",
+"order_date",
+"nth_order_in_channel"
+],
+"rows": [
+[
+"web",
+1194,
+"2025-09-12",
+100
+],
+[
+"app",
+1311,
+"2025-11-27",
+100
+]
+],
+"total": 2
+}
+}
