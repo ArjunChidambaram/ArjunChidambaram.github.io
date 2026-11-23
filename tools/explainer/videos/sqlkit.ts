@@ -156,7 +156,7 @@ export function codePanel(v: Video, o: { x: number; y: number; lines: string[]; 
   const root = document.createElement("div");
   root.style.cssText = `position:absolute;left:${o.x}px;top:${o.y}px;${o.width ? `width:${o.width}px;` : ""}opacity:0;font-family:'DejaVu Sans Mono',monospace;font-size:${size}px;line-height:1.55;padding:18px 24px;border-radius:12px;background:${dark ? "#111827" : "#0F172A"};color:#E5E7EB;white-space:pre;`;
   stage.appendChild(root);
-  const KW = /\b(SELECT|FROM|WHERE|AND|OR|NOT|IN|IS|NULL|AS|ON|JOIN|LEFT|RIGHT|FULL|OUTER|INNER|CROSS|GROUP|BY|ORDER|HAVING|LIMIT|DISTINCT|CASE|WHEN|THEN|ELSE|END|WITH|RECURSIVE|UNION|ALL|OVER|PARTITION|ROWS|BETWEEN|PRECEDING|FOLLOWING|CURRENT|ROW|ASC|DESC|LIKE|EXISTS|INSERT|INTO|VALUES|UPDATE|SET|DELETE|CREATE|TABLE|INDEX|EXPLAIN|USING|QUALIFY|FILTER|INTERVAL|COALESCE)\b/g;
+  const KW = /\b(SELECT|FROM|WHERE|AND|OR|NOT|IN|IS|NULL|AS|ON|JOIN|LEFT|RIGHT|FULL|OUTER|INNER|CROSS|GROUP|BY|ORDER|HAVING|LIMIT|DISTINCT|CASE|WHEN|THEN|ELSE|END|WITH|RECURSIVE|UNION|ALL|OVER|PARTITION|ROWS|BETWEEN|PRECEDING|FOLLOWING|CURRENT|ROW|ASC|DESC|LIKE|EXISTS|INSERT|INTO|VALUES|UPDATE|SET|DELETE|CREATE|TABLE|INDEX|EXPLAIN|USING|QUALIFY|FILTER|INTERVAL|COALESCE|INTERSECT|EXCEPT|PIVOT|UNPIVOT|ON|GROUPING|SETS|ROLLUP)\b/g;
   const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
   const lineEls = o.lines.map((l) => {
     const d = document.createElement("div");

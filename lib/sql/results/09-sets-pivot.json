@@ -1,0 +1,777 @@
+{
+"union_all": {
+"sql": "SELECT first_name || ' ' || last_name AS name, 'customer' AS kind\nFROM customers\nWHERE customer_id <= 3\nUNION ALL\nSELECT name, 'employee' AS kind\nFROM employees\nWHERE employee_id <= 3;",
+"columns": [
+"name",
+"kind"
+],
+"rows": [
+[
+"Sophia Robinson",
+"customer"
+],
+[
+"Aiden Sanchez",
+"customer"
+],
+[
+"Wei Perez",
+"customer"
+],
+[
+"Dana Whitfield",
+"employee"
+],
+[
+"Marcus Chen",
+"employee"
+],
+[
+"Priya Raman",
+"employee"
+]
+],
+"total": 6
+},
+"union_dedupe": {
+"sql": "SELECT state FROM customers WHERE city IN ('Austin', 'Dallas')\nUNION\nSELECT state FROM customers WHERE city = 'Houston';",
+"columns": [
+"state"
+],
+"rows": [
+[
+"TX"
+]
+],
+"total": 1
+},
+"union_all_dupes": {
+"sql": "SELECT state FROM customers WHERE city IN ('Austin', 'Dallas')\nUNION ALL\nSELECT state FROM customers WHERE city = 'Houston';",
+"columns": [
+"state"
+],
+"rows": [
+[
+"TX"
+],
+[
+"TX"
+],
+[
+"TX"
+],
+[
+"TX"
+],
+[
+"TX"
+],
+[
+"TX"
+],
+[
+"TX"
+],
+[
+"TX"
+],
+[
+"TX"
+],
+[
+"TX"
+],
+[
+"TX"
+],
+[
+"TX"
+],
+[
+"TX"
+],
+[
+"TX"
+],
+[
+"TX"
+],
+[
+"TX"
+],
+[
+"TX"
+],
+[
+"TX"
+],
+[
+"TX"
+],
+[
+"TX"
+],
+[
+"TX"
+],
+[
+"TX"
+],
+[
+"TX"
+],
+[
+"TX"
+],
+[
+"TX"
+],
+[
+"TX"
+],
+[
+"TX"
+],
+[
+"TX"
+],
+[
+"TX"
+],
+[
+"TX"
+]
+],
+"total": 30
+},
+"union_mismatch": {
+"sql": "SELECT customer_id, first_name FROM customers\nUNION ALL\nSELECT employee_id FROM employees;",
+"error": "Binder Error: Set operations can only apply to expressions with the same number of result columns"
+},
+"union_positional": {
+"sql": "SELECT first_name, last_name FROM customers WHERE customer_id = 1\nUNION ALL\nSELECT title, name FROM employees WHERE employee_id = 1;",
+"columns": [
+"first_name",
+"last_name"
+],
+"rows": [
+[
+"Sophia",
+"Robinson"
+],
+[
+"CEO",
+"Dana Whitfield"
+]
+],
+"total": 2
+},
+"union_order": {
+"sql": "SELECT 'orders' AS metric, COUNT(*) AS value FROM orders\nUNION ALL\nSELECT 'customers', COUNT(*) FROM customers\nUNION ALL\nSELECT 'products', COUNT(*) FROM products\nORDER BY value DESC;",
+"columns": [
+"metric",
+"value"
+],
+"rows": [
+[
+"orders",
+420
+],
+[
+"customers",
+150
+],
+[
+"products",
+22
+]
+],
+"total": 3
+},
+"intersect": {
+"sql": "SELECT customer_id FROM orders WHERE order_date >= '2025-11-01' AND order_date < '2025-12-01'\nINTERSECT\nSELECT customer_id FROM orders WHERE order_date >= '2025-12-01'\nORDER BY customer_id\nLIMIT 8;",
+"columns": [
+"customer_id"
+],
+"rows": [
+[
+9
+],
+[
+12
+],
+[
+13
+],
+[
+15
+],
+[
+25
+],
+[
+28
+],
+[
+30
+],
+[
+36
+]
+],
+"total": 8
+},
+"set_counts": {
+"sql": "SELECT\n  (SELECT COUNT(*) FROM (SELECT customer_id FROM orders WHERE order_date >= '2025-11-01' AND order_date < '2025-12-01'\n                         INTERSECT\n                         SELECT customer_id FROM orders WHERE order_date >= '2025-12-01')) AS both_months,\n  (SELECT COUNT(*) FROM (SELECT customer_id FROM orders WHERE order_date >= '2025-11-01' AND order_date < '2025-12-01'\n                         EXCEPT\n                         SELECT customer_id FROM orders WHERE order_date >= '2025-12-01')) AS november_only,\n  (SELECT COUNT(*) FROM (SELECT customer_id FROM orders WHERE order_date >= '2025-12-01'\n                         EXCEPT\n                         SELECT customer_id FROM orders WHERE order_date >= '2025-11-01' AND order_date < '2025-12-01')) AS december_only;",
+"columns": [
+"both_months",
+"november_only",
+"december_only"
+],
+"rows": [
+[
+27,
+23,
+36
+]
+],
+"total": 1
+},
+"except": {
+"sql": "SELECT customer_id FROM orders WHERE order_date >= '2025-11-01' AND order_date < '2025-12-01'\nEXCEPT\nSELECT customer_id FROM orders WHERE order_date >= '2025-12-01'\nORDER BY customer_id;",
+"columns": [
+"customer_id"
+],
+"rows": [
+[
+3
+],
+[
+6
+],
+[
+14
+],
+[
+39
+],
+[
+46
+],
+[
+47
+],
+[
+55
+],
+[
+57
+],
+[
+79
+],
+[
+80
+],
+[
+82
+],
+[
+92
+],
+[
+99
+],
+[
+103
+],
+[
+106
+],
+[
+110
+],
+[
+115
+],
+[
+118
+],
+[
+127
+],
+[
+139
+],
+[
+140
+],
+[
+141
+],
+[
+146
+]
+],
+"total": 23
+},
+"long": {
+"sql": "SELECT date_trunc('month', order_date)::DATE AS month, channel, COUNT(*) AS orders\nFROM orders\nWHERE order_date >= '2025-09-01'\nGROUP BY month, channel\nORDER BY month, channel;",
+"columns": [
+"month",
+"channel",
+"orders"
+],
+"rows": [
+[
+"2025-09-01",
+"app",
+10
+],
+[
+"2025-09-01",
+"store",
+11
+],
+[
+"2025-09-01",
+"web",
+20
+],
+[
+"2025-10-01",
+"app",
+6
+],
+[
+"2025-10-01",
+"store",
+6
+],
+[
+"2025-10-01",
+"web",
+16
+],
+[
+"2025-11-01",
+"app",
+27
+],
+[
+"2025-11-01",
+"store",
+9
+],
+[
+"2025-11-01",
+"web",
+46
+],
+[
+"2025-12-01",
+"app",
+34
+],
+[
+"2025-12-01",
+"store",
+13
+],
+[
+"2025-12-01",
+"web",
+42
+]
+],
+"total": 12
+},
+"pivot_case": {
+"sql": "SELECT\n  date_trunc('month', order_date)::DATE           AS month,\n  COUNT(*) FILTER (WHERE channel = 'web')          AS web,\n  COUNT(*) FILTER (WHERE channel = 'app')          AS app,\n  COUNT(*) FILTER (WHERE channel = 'store')        AS store,\n  COUNT(*)                                         AS total\nFROM orders\nWHERE order_date >= '2025-09-01'\nGROUP BY month\nORDER BY month;",
+"columns": [
+"month",
+"web",
+"app",
+"store",
+"total"
+],
+"rows": [
+[
+"2025-09-01",
+20,
+10,
+11,
+41
+],
+[
+"2025-10-01",
+16,
+6,
+6,
+28
+],
+[
+"2025-11-01",
+46,
+27,
+9,
+82
+],
+[
+"2025-12-01",
+42,
+34,
+13,
+89
+]
+],
+"total": 4
+},
+"pivot_sum_case": {
+"sql": "SELECT\n  p.category,\n  SUM(CASE WHEN o.channel = 'web'   THEN i.quantity * i.unit_price ELSE 0 END) AS web,\n  SUM(CASE WHEN o.channel = 'app'   THEN i.quantity * i.unit_price ELSE 0 END) AS app,\n  SUM(CASE WHEN o.channel = 'store' THEN i.quantity * i.unit_price ELSE 0 END) AS store\nFROM order_items i\nJOIN orders o   ON o.order_id = i.order_id\nJOIN products p ON p.product_id = i.product_id\nGROUP BY p.category\nORDER BY p.category;",
+"columns": [
+"category",
+"web",
+"app",
+"store"
+],
+"rows": [
+[
+"Electronics",
+5285.81,
+3449.71,
+1192.8
+],
+[
+"Fitness",
+1683.27,
+1449.32,
+421.1
+],
+[
+"Footwear",
+6286.54,
+3082.2,
+2208.4
+],
+[
+"Grocery",
+1093.6,
+717.08,
+195.64
+],
+[
+"Outdoor",
+4517.77,
+3480.15,
+893.53
+]
+],
+"total": 5
+},
+"pivot_keyword": {
+"sql": "PIVOT (\n  SELECT date_trunc('month', order_date)::DATE AS month, channel\n  FROM orders\n  WHERE order_date >= '2025-09-01'\n)\nON channel\nUSING COUNT(*)\nORDER BY month;",
+"columns": [
+"month",
+"app",
+"store",
+"web"
+],
+"rows": [
+[
+"2025-09-01",
+10,
+11,
+20
+],
+[
+"2025-10-01",
+6,
+6,
+16
+],
+[
+"2025-11-01",
+27,
+9,
+46
+],
+[
+"2025-12-01",
+34,
+13,
+42
+]
+],
+"total": 4
+},
+"unpivot": {
+"sql": "WITH wide AS (\n  SELECT\n    date_trunc('month', order_date)::DATE    AS month,\n    COUNT(*) FILTER (WHERE channel = 'web')   AS web,\n    COUNT(*) FILTER (WHERE channel = 'app')   AS app,\n    COUNT(*) FILTER (WHERE channel = 'store') AS store\n  FROM orders\n  WHERE order_date >= '2025-11-01'\n  GROUP BY month\n)\nUNPIVOT wide\nON web, app, store\nINTO NAME channel VALUE orders\nORDER BY month, channel;",
+"columns": [
+"month",
+"channel",
+"orders"
+],
+"rows": [
+[
+"2025-11-01",
+"app",
+27
+],
+[
+"2025-11-01",
+"store",
+9
+],
+[
+"2025-11-01",
+"web",
+46
+],
+[
+"2025-12-01",
+"app",
+34
+],
+[
+"2025-12-01",
+"store",
+13
+],
+[
+"2025-12-01",
+"web",
+42
+]
+],
+"total": 6
+},
+"unpivot_union": {
+"sql": "WITH wide AS (\n  SELECT\n    date_trunc('month', order_date)::DATE    AS month,\n    COUNT(*) FILTER (WHERE channel = 'web')   AS web,\n    COUNT(*) FILTER (WHERE channel = 'app')   AS app,\n    COUNT(*) FILTER (WHERE channel = 'store') AS store\n  FROM orders\n  WHERE order_date >= '2025-11-01'\n  GROUP BY month\n)\nSELECT month, 'web' AS channel, web AS orders FROM wide\nUNION ALL SELECT month, 'app', app FROM wide\nUNION ALL SELECT month, 'store', store FROM wide\nORDER BY month, channel;",
+"columns": [
+"month",
+"channel",
+"orders"
+],
+"rows": [
+[
+"2025-11-01",
+"app",
+27
+],
+[
+"2025-11-01",
+"store",
+9
+],
+[
+"2025-11-01",
+"web",
+46
+],
+[
+"2025-12-01",
+"app",
+34
+],
+[
+"2025-12-01",
+"store",
+13
+],
+[
+"2025-12-01",
+"web",
+42
+]
+],
+"total": 6
+},
+"grouping_sets": {
+"sql": "SELECT\n  channel,\n  status,\n  COUNT(*) AS orders,\n  GROUPING(channel, status) AS level\nFROM orders\nGROUP BY GROUPING SETS ((channel), (status), ())\nORDER BY level, channel, status;",
+"columns": [
+"channel",
+"status",
+"orders",
+"level"
+],
+"rows": [
+[
+"app",
+null,
+144,
+1
+],
+[
+"store",
+null,
+59,
+1
+],
+[
+"web",
+null,
+217,
+1
+],
+[
+null,
+"cancelled",
+32,
+2
+],
+[
+null,
+"completed",
+373,
+2
+],
+[
+null,
+"returned",
+15,
+2
+],
+[
+null,
+null,
+420,
+3
+]
+],
+"total": 7
+},
+"full_outer_emulate": {
+"sql": "WITH planned(state, target) AS (VALUES ('TX', 30), ('CA', 20), ('NV', 5)),\n     actual AS (SELECT state, COUNT(*) AS customers FROM customers WHERE state IN ('TX', 'CA', 'WA') GROUP BY state)\nSELECT p.state, p.target, a.customers\nFROM planned p LEFT JOIN actual a ON a.state = p.state\nUNION ALL\nSELECT a.state, NULL, a.customers\nFROM actual a\nWHERE NOT EXISTS (SELECT 1 FROM planned p WHERE p.state = a.state)\nORDER BY state;",
+"columns": [
+"state",
+"target",
+"customers"
+],
+"rows": [
+[
+"CA",
+20,
+17
+],
+[
+"NV",
+5,
+null
+],
+[
+"TX",
+30,
+30
+],
+[
+"WA",
+null,
+15
+]
+],
+"total": 4
+},
+"ex1": {
+"sql": "SELECT name AS label, 'product' AS kind FROM products WHERE category = 'Fitness'\nUNION ALL\nSELECT DISTINCT category, 'category' FROM products\nORDER BY kind, label;",
+"columns": [
+"label",
+"kind"
+],
+"rows": [
+[
+"Electronics",
+"category"
+],
+[
+"Fitness",
+"category"
+],
+[
+"Footwear",
+"category"
+],
+[
+"Grocery",
+"category"
+],
+[
+"Outdoor",
+"category"
+],
+[
+"Dumbbell Set",
+"product"
+],
+[
+"Foam Roller",
+"product"
+],
+[
+"Resistance Bands",
+"product"
+],
+[
+"Yoga Mat",
+"product"
+]
+],
+"total": 9
+},
+"ex2": {
+"sql": "SELECT customer_id FROM sessions WHERE device = 'tablet' AND customer_id IS NOT NULL\nEXCEPT\nSELECT customer_id FROM sessions WHERE device = 'desktop'\nORDER BY customer_id;",
+"columns": [
+"customer_id"
+],
+"rows": [
+[
+92
+],
+[
+108
+],
+[
+132
+]
+],
+"total": 3
+},
+"ex3": {
+"sql": "SELECT\n  device,\n  COUNT(*) FILTER (WHERE source = 'search') AS search,\n  COUNT(*) FILTER (WHERE source = 'email')  AS email,\n  COUNT(*) FILTER (WHERE source = 'social') AS social,\n  COUNT(*) FILTER (WHERE source = 'direct') AS direct,\n  COUNT(*) FILTER (WHERE source = 'ads')    AS ads\nFROM sessions\nGROUP BY device\nORDER BY device;",
+"columns": [
+"device",
+"search",
+"email",
+"social",
+"direct",
+"ads"
+],
+"rows": [
+[
+"desktop",
+241,
+100,
+95,
+167,
+57
+],
+[
+"mobile",
+390,
+165,
+154,
+301,
+112
+],
+[
+"tablet",
+45,
+15,
+17,
+28,
+10
+]
+],
+"total": 3
+}
+}
