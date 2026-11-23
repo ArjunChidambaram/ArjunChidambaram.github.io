@@ -108,7 +108,7 @@ export function rng(seed: number) {
   };
 }
 
-export type ForestTree = { tree: Node; inBag: boolean[] };
+export type ForestTree = { tree: Node; inBag: boolean[]; counts: number[] };
 
 /** Bagging + one random feature considered per split (max_features = 1 of 2), fully grown trees. */
 export function growForest(nTrees: number, seed = 7, maxDepth = 12): ForestTree[] {
@@ -116,14 +116,16 @@ export function growForest(nTrees: number, seed = 7, maxDepth = 12): ForestTree[
   const out: ForestTree[] = [];
   for (let t = 0; t < nTrees; t++) {
     const inBag = TRAIN.map(() => false);
+    const counts = TRAIN.map(() => 0);
     const sample: Point[] = [];
     for (let i = 0; i < TRAIN.length; i++) {
       const j = Math.floor(r() * TRAIN.length);
       inBag[j] = true;
+      counts[j]++;
       sample.push(TRAIN[j]);
     }
     const tree = grow(sample, maxDepth, 0, () => [r() < 0.5 ? 0 : 1]);
-    out.push({ tree, inBag });
+    out.push({ tree, inBag, counts });
   }
   return out;
 }

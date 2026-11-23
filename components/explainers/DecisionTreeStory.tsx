@@ -44,7 +44,14 @@ const sx = (x: number) => PAD.l + ((x - XR[0]) / (XR[1] - XR[0])) * (CW - PAD.l 
 const sy = (y: number) => CH - PAD.b - ((y - YR[0]) / (YR[1] - YR[0])) * (CH - PAD.t - PAD.b);
 
 type Line = { x1: number; x2: number; y1: number; y2: number };
-function splitLines(node: Node, b = { x0: 0, x1: 12.5, y0: -0.5, y1: 8.5 }, out: Line[] = []): Line[] {
+export const HEAT_GX = 50;
+export const HEAT_GY = 36;
+/** grid cell centres in data units, row-major from the bottom-left */
+export const HEAT_CELLS: [number, number][] = Array.from({ length: HEAT_GX * HEAT_GY }, (_, k) => [
+  ((k % HEAT_GX) + 0.5) * (12.5 / HEAT_GX),
+  -0.5 + (Math.floor(k / HEAT_GX) + 0.5) * (9 / HEAT_GY),
+]);
+export function splitLines(node: Node, b = { x0: 0, x1: 12.5, y0: -0.5, y1: 8.5 }, out: Line[] = []): Line[] {
   if (node.leaf) return out;
   if (node.feature === 0) {
     out.push({ x1: node.threshold, x2: node.threshold, y1: b.y0, y2: b.y1 });
@@ -58,14 +65,26 @@ function splitLines(node: Node, b = { x0: 0, x1: 12.5, y0: -0.5, y1: 8.5 }, out:
   return out;
 }
 
-const Scatter: React.FC<{ rects?: Rect[]; lines?: Line[]; highlight?: [number, number] | null; label?: string; points?: typeof TRAIN }> = ({
-  rects = [],
-  lines = [],
-  highlight = null,
-  label,
-  points = TRAIN,
-}) => (
+export const Scatter: React.FC<{
+  rects?: Rect[];
+  lines?: Line[];
+  highlight?: [number, number] | null;
+  label?: string;
+  points?: typeof TRAIN;
+  /** vote share per heat-map cell (row-major, HEAT_GX x HEAT_GY), for the random forest */
+  heat?: number[] | null;
+  /** per-point radius multiplier and fade, for bootstrap samples */
+  counts?: number[] | null;
+}> = ({ rects = [], lines = [], highlight = null, label, points = TRAIN, heat = null, counts = null }) => (
   <svg viewBox={`0 0 ${CW} ${CH}`} className="w-full h-auto" role="img" aria-label={label ?? "Visitors by minutes on page and past purchases"}>
+    {heat &&
+      heat.map((v, k) => {
+        const i = k % HEAT_GX;
+        const j = Math.floor(k / HEAT_GX);
+        const w = (sx(12.5) - sx(0)) / HEAT_GX;
+        const h = (sy(-0.5) - sy(8.5)) / HEAT_GY;
+        return <rect key={k} x={sx(0) + i * w} y={sy(-0.5) - (j + 1) * h} width={w + 0.5} height={h + 0.5} fill={v >= 0.5 ? BUY : NO} opacity={0.06 + 0.36 * Math.abs(v - 0.5) * 2} />;
+      })}
     {rects.map((r, i) => (
       <rect
         key={i}
@@ -99,7 +118,16 @@ const Scatter: React.FC<{ rects?: Rect[]; lines?: Line[]; highlight?: [number, n
       <line key={i} x1={sx(l.x1)} x2={sx(l.x2)} y1={sy(l.y1)} y2={sy(l.y2)} stroke={SPLIT} strokeWidth={3} />
     ))}
     {points.map((p, i) => (
-      <circle key={i} cx={sx(p.x[0])} cy={sy(p.x[1])} r={6.5} fill={p.y ? BUY : NO} stroke="white" strokeWidth={1.5} />
+      <circle
+        key={i}
+        cx={sx(p.x[0])}
+        cy={sy(p.x[1])}
+        r={counts ? (counts[i] ? 5 + counts[i] * 3 : 4) : 6.5}
+        opacity={counts && !counts[i] ? 0.3 : 1}
+        fill={p.y ? BUY : NO}
+        stroke="white"
+        strokeWidth={1.5}
+      />
     ))}
     {highlight && <circle cx={sx(highlight[0])} cy={sy(highlight[1])} r={11} fill="#9B59D0" stroke="white" strokeWidth={3} />}
   </svg>
