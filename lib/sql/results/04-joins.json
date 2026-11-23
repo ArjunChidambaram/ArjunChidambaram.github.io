@@ -1,0 +1,875 @@
+{
+"orders_only": {
+"sql": "SELECT order_id, customer_id, order_date\nFROM orders\nLIMIT 3;",
+"columns": [
+"order_id",
+"customer_id",
+"order_date"
+],
+"rows": [
+[
+1001,
+85,
+"2025-01-06"
+],
+[
+1002,
+85,
+"2025-01-08"
+],
+[
+1003,
+9,
+"2025-01-10"
+]
+],
+"total": 3
+},
+"inner_basic": {
+"sql": "SELECT o.order_id, o.order_date, c.first_name, c.last_name, c.city\nFROM orders AS o\nJOIN customers AS c ON c.customer_id = o.customer_id\nORDER BY o.order_id\nLIMIT 6;",
+"columns": [
+"order_id",
+"order_date",
+"first_name",
+"last_name",
+"city"
+],
+"rows": [
+[
+1001,
+"2025-01-06",
+"Kenji",
+"Martin",
+"Miami"
+],
+[
+1002,
+"2025-01-08",
+"Kenji",
+"Martin",
+"Miami"
+],
+[
+1003,
+"2025-01-10",
+"Noah",
+"Davis",
+"Portland"
+],
+[
+1004,
+"2025-01-14",
+"Sebastian",
+"Robinson",
+"Denver"
+],
+[
+1005,
+"2025-01-14",
+"Riley",
+"Miller",
+"Boston"
+],
+[
+1006,
+"2025-01-15",
+"Carter",
+"Davis",
+"New York"
+]
+],
+"total": 6
+},
+"ambiguous": {
+"sql": "SELECT customer_id, first_name, order_id\nFROM orders\nJOIN customers ON customers.customer_id = orders.customer_id;",
+"error": "Binder Error: Ambiguous reference to column name \"customer_id\" (use: 'orders.customer_id' or 'customers.customer_id')"
+},
+"using": {
+"sql": "SELECT customer_id, first_name, order_id\nFROM orders\nJOIN customers USING (customer_id)\nORDER BY order_id\nLIMIT 4;",
+"columns": [
+"customer_id",
+"first_name",
+"order_id"
+],
+"rows": [
+[
+85,
+"Kenji",
+1001
+],
+[
+85,
+"Kenji",
+1002
+],
+[
+9,
+"Noah",
+1003
+],
+[
+5,
+"Sebastian",
+1004
+]
+],
+"total": 4
+},
+"three_tables": {
+"sql": "SELECT\n  p.category,\n  COUNT(DISTINCT o.order_id)          AS orders,\n  SUM(i.quantity * i.unit_price)      AS revenue\nFROM order_items AS i\nJOIN orders   AS o ON o.order_id   = i.order_id\nJOIN products AS p ON p.product_id = i.product_id\nWHERE o.status = 'completed'\nGROUP BY p.category\nORDER BY revenue DESC;",
+"columns": [
+"category",
+"orders",
+"revenue"
+],
+"rows": [
+[
+"Footwear",
+138,
+10478.93
+],
+[
+"Outdoor",
+101,
+8596.39
+],
+[
+"Electronics",
+147,
+8566.94
+],
+[
+"Fitness",
+73,
+3226.33
+],
+[
+"Grocery",
+153,
+1866.92
+]
+],
+"total": 5
+},
+"inner_drops": {
+"sql": "SELECT COUNT(*) AS customers_in_inner_join\nFROM (\n  SELECT DISTINCT c.customer_id\n  FROM customers c\n  JOIN orders o ON o.customer_id = c.customer_id\n) t;",
+"columns": [
+"customers_in_inner_join"
+],
+"rows": [
+[
+133
+]
+],
+"total": 1
+},
+"left_basic": {
+"sql": "SELECT c.customer_id, c.first_name, o.order_id, o.order_date\nFROM customers AS c\nLEFT JOIN orders AS o ON o.customer_id = c.customer_id\nWHERE c.customer_id IN (1, 6, 7, 11)\nORDER BY c.customer_id, o.order_id;",
+"columns": [
+"customer_id",
+"first_name",
+"order_id",
+"order_date"
+],
+"rows": [
+[
+1,
+"Sophia",
+null,
+null
+],
+[
+6,
+"Ethan",
+1125,
+"2025-07-06"
+],
+[
+6,
+"Ethan",
+1287,
+"2025-11-24"
+],
+[
+7,
+"Kenji",
+1190,
+"2025-09-09"
+],
+[
+11,
+"Henry",
+1127,
+"2025-07-10"
+],
+[
+11,
+"Henry",
+1165,
+"2025-08-14"
+]
+],
+"total": 6
+},
+"left_count_trap": {
+"sql": "SELECT\n  c.customer_id,\n  c.first_name,\n  COUNT(*)          AS count_star,\n  COUNT(o.order_id) AS orders\nFROM customers c\nLEFT JOIN orders o ON o.customer_id = c.customer_id\nWHERE c.customer_id IN (1, 6, 7, 11)\nGROUP BY c.customer_id, c.first_name\nORDER BY c.customer_id;",
+"columns": [
+"customer_id",
+"first_name",
+"count_star",
+"orders"
+],
+"rows": [
+[
+1,
+"Sophia",
+1,
+0
+],
+[
+6,
+"Ethan",
+2,
+2
+],
+[
+7,
+"Kenji",
+1,
+1
+],
+[
+11,
+"Henry",
+2,
+2
+]
+],
+"total": 4
+},
+"anti_join": {
+"sql": "SELECT c.customer_id, c.first_name, c.last_name, c.signup_date\nFROM customers AS c\nLEFT JOIN orders AS o ON o.customer_id = c.customer_id\nWHERE o.order_id IS NULL\nORDER BY c.signup_date DESC;",
+"columns": [
+"customer_id",
+"first_name",
+"last_name",
+"signup_date"
+],
+"rows": [
+[
+27,
+"Emma",
+"Robinson",
+"2025-10-25"
+],
+[
+1,
+"Sophia",
+"Robinson",
+"2025-10-02"
+],
+[
+148,
+"Zoe",
+"Thomas",
+"2025-06-16"
+],
+[
+142,
+"Benjamin",
+"Patel",
+"2025-05-27"
+],
+[
+124,
+"Henry",
+"Williams",
+"2025-04-18"
+],
+[
+96,
+"Logan",
+"Scott",
+"2025-04-10"
+],
+[
+50,
+"Wei",
+"Gonzalez",
+"2025-02-04"
+],
+[
+132,
+"Yuki",
+"Taylor",
+"2024-11-29"
+],
+[
+135,
+"Noah",
+"Martin",
+"2024-11-29"
+],
+[
+37,
+"Noah",
+"Perez",
+"2024-07-27"
+],
+[
+113,
+"Mason",
+"King",
+"2024-07-03"
+],
+[
+120,
+"Chloe",
+"White",
+"2024-06-28"
+],
+[
+22,
+"David",
+"Patel",
+"2024-06-23"
+],
+[
+19,
+"Sophia",
+"Anderson",
+"2024-05-22"
+],
+[
+122,
+"Benjamin",
+"Chen",
+"2024-05-11"
+],
+[
+77,
+"Arjun",
+"Thomas",
+"2024-02-28"
+],
+[
+105,
+"Yuki",
+"Jones",
+"2024-02-04"
+]
+],
+"total": 17
+},
+"not_exists": {
+"sql": "SELECT c.customer_id, c.first_name\nFROM customers AS c\nWHERE NOT EXISTS (\n  SELECT 1 FROM orders AS o WHERE o.customer_id = c.customer_id\n)\nLIMIT 5;",
+"columns": [
+"customer_id",
+"first_name"
+],
+"rows": [
+[
+122,
+"Benjamin"
+],
+[
+22,
+"David"
+],
+[
+132,
+"Yuki"
+],
+[
+37,
+"Noah"
+],
+[
+96,
+"Logan"
+]
+],
+"total": 5
+},
+"filter_where": {
+"sql": "SELECT COUNT(DISTINCT c.customer_id) AS customers\nFROM customers c\nLEFT JOIN orders o ON o.customer_id = c.customer_id\nWHERE o.order_date >= '2025-12-01';",
+"columns": [
+"customers"
+],
+"rows": [
+[
+63
+]
+],
+"total": 1
+},
+"filter_on": {
+"sql": "SELECT COUNT(DISTINCT c.customer_id) AS customers\nFROM customers c\nLEFT JOIN orders o\n  ON o.customer_id = c.customer_id\n AND o.order_date >= '2025-12-01';",
+"columns": [
+"customers"
+],
+"rows": [
+[
+150
+]
+],
+"total": 1
+},
+"filter_on_detail": {
+"sql": "SELECT\n  c.first_name,\n  COUNT(o.order_id) AS december_orders\nFROM customers c\nLEFT JOIN orders o\n  ON o.customer_id = c.customer_id\n AND o.order_date >= '2025-12-01'\nWHERE c.customer_id IN (1, 6, 7, 11, 36)\nGROUP BY c.customer_id, c.first_name\nORDER BY c.customer_id;",
+"columns": [
+"first_name",
+"december_orders"
+],
+"rows": [
+[
+"Sophia",
+0
+],
+[
+"Ethan",
+0
+],
+[
+"Kenji",
+0
+],
+[
+"Henry",
+0
+],
+[
+"Sofia",
+3
+]
+],
+"total": 5
+},
+"right_join": {
+"sql": "SELECT c.first_name, o.order_id\nFROM orders AS o\nRIGHT JOIN customers AS c ON c.customer_id = o.customer_id\nWHERE c.customer_id IN (1, 7);",
+"columns": [
+"first_name",
+"order_id"
+],
+"rows": [
+[
+"Kenji",
+1190
+],
+[
+"Sophia",
+null
+]
+],
+"total": 2
+},
+"full_join": {
+"sql": "WITH planned(state, target) AS (VALUES ('TX', 30), ('CA', 20), ('NV', 5)),\n     actual AS (SELECT state, COUNT(*) AS customers FROM customers WHERE state IN ('TX', 'CA', 'WA') GROUP BY state)\nSELECT\n  COALESCE(p.state, a.state) AS state,\n  p.target,\n  a.customers\nFROM planned p\nFULL OUTER JOIN actual a ON a.state = p.state\nORDER BY state;",
+"columns": [
+"state",
+"target",
+"customers"
+],
+"rows": [
+[
+"CA",
+20,
+17
+],
+[
+"NV",
+5,
+null
+],
+[
+"TX",
+30,
+30
+],
+[
+"WA",
+null,
+15
+]
+],
+"total": 4
+},
+"self_join": {
+"sql": "SELECT\n  e.name  AS employee,\n  e.title,\n  m.name  AS manager\nFROM employees AS e\nLEFT JOIN employees AS m ON m.employee_id = e.manager_id\nORDER BY e.employee_id;",
+"columns": [
+"employee",
+"title",
+"manager"
+],
+"rows": [
+[
+"Dana Whitfield",
+"CEO",
+null
+],
+[
+"Marcus Chen",
+"VP Operations",
+"Dana Whitfield"
+],
+[
+"Priya Raman",
+"VP Technology",
+"Dana Whitfield"
+],
+[
+"Luis Ortega",
+"Store Manager",
+"Marcus Chen"
+],
+[
+"Grace Kim",
+"Logistics Lead",
+"Marcus Chen"
+],
+[
+"Sam Okafor",
+"Data Science Manager",
+"Priya Raman"
+],
+[
+"Elena Petrova",
+"Engineering Manager",
+"Priya Raman"
+],
+[
+"Tom Becker",
+"Sales Associate",
+"Luis Ortega"
+],
+[
+"Aisha Bello",
+"Sales Associate",
+"Luis Ortega"
+],
+[
+"Ravi Shah",
+"Data Scientist",
+"Sam Okafor"
+],
+[
+"Hannah Weiss",
+"Data Analyst",
+"Sam Okafor"
+],
+[
+"Jin Park",
+"Software Engineer",
+"Elena Petrova"
+],
+[
+"Olivia Brooks",
+"Software Engineer",
+"Elena Petrova"
+],
+[
+"Mateo Silva",
+"Warehouse Associate",
+"Grace Kim"
+],
+[
+"Nina Rossi",
+"Junior Data Analyst",
+"Hannah Weiss"
+]
+],
+"total": 15
+},
+"cross_join": {
+"sql": "SELECT ch.channel, st.status\nFROM (SELECT DISTINCT channel FROM orders) ch\nCROSS JOIN (SELECT DISTINCT status FROM orders) st\nORDER BY ch.channel, st.status;",
+"columns": [
+"channel",
+"status"
+],
+"rows": [
+[
+"app",
+"cancelled"
+],
+[
+"app",
+"completed"
+],
+[
+"app",
+"returned"
+],
+[
+"store",
+"cancelled"
+],
+[
+"store",
+"completed"
+],
+[
+"store",
+"returned"
+],
+[
+"web",
+"cancelled"
+],
+[
+"web",
+"completed"
+],
+[
+"web",
+"returned"
+]
+],
+"total": 9
+},
+"cross_fill": {
+"sql": "WITH grid AS (\n  SELECT ch.channel, st.status\n  FROM (SELECT DISTINCT channel FROM orders) ch\n  CROSS JOIN (SELECT DISTINCT status FROM orders) st\n)\nSELECT g.channel, g.status, COUNT(o.order_id) AS december_orders\nFROM grid g\nLEFT JOIN orders o\n  ON o.channel = g.channel\n AND o.status  = g.status\n AND o.order_date >= '2025-12-01'\nGROUP BY g.channel, g.status\nORDER BY g.channel, g.status;",
+"columns": [
+"channel",
+"status",
+"december_orders"
+],
+"rows": [
+[
+"app",
+"cancelled",
+2
+],
+[
+"app",
+"completed",
+32
+],
+[
+"app",
+"returned",
+0
+],
+[
+"store",
+"cancelled",
+4
+],
+[
+"store",
+"completed",
+8
+],
+[
+"store",
+"returned",
+1
+],
+[
+"web",
+"cancelled",
+2
+],
+[
+"web",
+"completed",
+39
+],
+[
+"web",
+"returned",
+1
+]
+],
+"total": 9
+},
+"fanout_count": {
+"sql": "SELECT\n  COUNT(*)                   AS rows_after_join,\n  COUNT(DISTINCT o.order_id) AS actual_orders\nFROM orders o\nJOIN order_items i ON i.order_id = o.order_id;",
+"columns": [
+"rows_after_join",
+"actual_orders"
+],
+"rows": [
+[
+765,
+419
+]
+],
+"total": 1
+},
+"fanout_wrong": {
+"sql": "SELECT\n  c.segment,\n  COUNT(*)                       AS orders_wrong,\n  COUNT(DISTINCT o.order_id)     AS orders_right,\n  SUM(i.quantity * i.unit_price) AS revenue\nFROM customers c\nJOIN orders o      ON o.customer_id = c.customer_id\nJOIN order_items i ON i.order_id    = o.order_id\nGROUP BY c.segment;",
+"columns": [
+"segment",
+"orders_wrong",
+"orders_right",
+"revenue"
+],
+"rows": [
+[
+"consumer",
+578,
+314,
+27009.75
+],
+[
+"business",
+187,
+105,
+8947.17
+]
+],
+"total": 2
+},
+"null_keys": {
+"sql": "WITH a(k, x) AS (VALUES (1, 'a1'), (NULL, 'a-null')),\n     b(k, y) AS (VALUES (1, 'b1'), (NULL, 'b-null'))\nSELECT a.x, b.y\nFROM a JOIN b ON a.k = b.k;",
+"columns": [
+"x",
+"y"
+],
+"rows": [
+[
+"a1",
+"b1"
+]
+],
+"total": 1
+},
+"ex1": {
+"sql": "SELECT o.order_id, o.order_date, c.first_name, c.last_name\nFROM orders o\nJOIN customers c ON c.customer_id = o.customer_id\nWHERE c.state = 'WA'\nORDER BY o.order_date\nLIMIT 10;",
+"columns": [
+"order_id",
+"order_date",
+"first_name",
+"last_name"
+],
+"rows": [
+[
+1014,
+"2025-01-29",
+"Owen",
+"Brown"
+],
+[
+1015,
+"2025-01-29",
+"Zoe",
+"White"
+],
+[
+1020,
+"2025-02-06",
+"David",
+"Williams"
+],
+[
+1031,
+"2025-02-18",
+"Daniel",
+"Allen"
+],
+[
+1084,
+"2025-05-20",
+"Zoe",
+"White"
+],
+[
+1107,
+"2025-06-19",
+"Daniel",
+"Allen"
+],
+[
+1167,
+"2025-08-16",
+"Evelyn",
+"Gonzalez"
+],
+[
+1171,
+"2025-08-21",
+"Daniel",
+"Allen"
+],
+[
+1234,
+"2025-10-10",
+"Evelyn",
+"Garcia"
+],
+[
+1246,
+"2025-10-22",
+"Layla",
+"Walker"
+]
+],
+"total": 10
+},
+"ex2": {
+"sql": "SELECT p.product_id, p.name, COUNT(i.order_id) AS times_ordered\nFROM products p\nLEFT JOIN order_items i ON i.product_id = p.product_id\nGROUP BY p.product_id, p.name\nORDER BY times_ordered\nLIMIT 5;",
+"columns": [
+"product_id",
+"name",
+"times_ordered"
+],
+"rows": [
+[
+8,
+"Two-Person Tent",
+7
+],
+[
+21,
+"Dumbbell Set",
+9
+],
+[
+13,
+"Smart Watch",
+10
+],
+[
+9,
+"Sleeping Bag",
+14
+],
+[
+7,
+"Camping Lantern",
+16
+]
+],
+"total": 5
+},
+"ex3": {
+"sql": "SELECT c.state, SUM(i.quantity * i.unit_price) AS revenue\nFROM customers c\nJOIN orders o      ON o.customer_id = c.customer_id\nJOIN order_items i ON i.order_id    = o.order_id\nWHERE o.status = 'completed'\nGROUP BY c.state\nORDER BY revenue DESC\nLIMIT 5;",
+"columns": [
+"state",
+"revenue"
+],
+"rows": [
+[
+"TX",
+7782.78
+],
+[
+"CA",
+5571.81
+],
+[
+"FL",
+4932.37
+],
+[
+"CO",
+4288.58
+],
+[
+"OR",
+2233.52
+]
+],
+"total": 5
+}
+}
