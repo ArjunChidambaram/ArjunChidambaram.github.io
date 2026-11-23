@@ -27,7 +27,17 @@ function highlight(sql: string) {
     .join("");
 }
 
-const fmtCell = (v: Cell) => (v === null ? <span className="italic text-gray-400">NULL</span> : typeof v === "number" ? String(Number(v.toFixed(4))) : String(v));
+const fmtCell = (v: Cell) =>
+  v === null ? (
+    <span className="italic text-gray-400">NULL</span>
+  ) : typeof v === "number" ? (
+    String(Number(v.toFixed(4)))
+  ) : typeof v === "string" && v.includes("\n") ? (
+    // query plans and other multi-line text keep their layout
+    <span className="block whitespace-pre font-mono text-[12px] leading-[1.25]">{v}</span>
+  ) : (
+    String(v)
+  );
 
 export const ResultTable: React.FC<{ columns: string[]; rows: Cell[][]; total: number; max?: number; highlightCol?: string }> = ({ columns, rows, total, max = 12, highlightCol }) => {
   const [all, setAll] = useState(false);
@@ -183,4 +193,14 @@ export const SqlBlock: React.FC<{ q: Saved; title?: string; max?: number; hideRe
 /** A blank editor with the schema listed, for free experimentation. */
 export const SqlPlayground: React.FC<{ start?: string }> = ({ start = "SELECT *\nFROM customers\nLIMIT 5;" }) => (
   <SqlBlock q={{ sql: start, columns: [], rows: [], total: 0 }} title="Playground: any query you like" hideResult />
+);
+
+/** A read-only, highlighted SQL listing (for statements the live editor can't run, like BEGIN/COMMIT). */
+export const SqlCode: React.FC<{ sql: string; title?: string }> = ({ sql, title = "SQL (not runnable here)" }) => (
+  <figure className="my-6 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-carddark overflow-hidden not-prose">
+    <figcaption className="px-3 py-1.5 border-b border-gray-100 dark:border-gray-700 text-[13px] text-gray-500 dark:text-gray-400">{title}</figcaption>
+    <pre className="sq-code m-0 overflow-x-auto bg-[#0f172a] text-gray-100 text-[14px] leading-relaxed p-3" style={{ fontFamily: MONO }}>
+      <code dangerouslySetInnerHTML={{ __html: highlight(sql) }} />
+    </pre>
+  </figure>
 );
