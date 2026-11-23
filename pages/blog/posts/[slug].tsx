@@ -19,6 +19,7 @@ import LinearRegressionStory from "@/components/explainers/LinearRegressionStory
 import LogisticRegressionStory from "@/components/explainers/LogisticRegressionStory";
 import DecisionTreeStory from "@/components/explainers/DecisionTreeStory";
 import RandomForestStory from "@/components/explainers/RandomForestStory";
+import SVMStory from "@/components/explainers/SVMStory";
 
 // Animated explainers, keyed by the `explainer` field in a post's frontmatter.
 const EXPLAINERS: Record<string, { node: JSX.Element }> = {
@@ -26,6 +27,7 @@ const EXPLAINERS: Record<string, { node: JSX.Element }> = {
   "logistic-regression": { node: <LogisticRegressionStory /> },
   "decision-tree": { node: <DecisionTreeStory /> },
   "random-forest": { node: <RandomForestStory /> },
+  svm: { node: <SVMStory /> },
 };
 
 export interface MdxMeta extends Meta {
