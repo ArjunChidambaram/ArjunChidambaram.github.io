@@ -17,11 +17,13 @@ import DateTime from "@/components/DateTime";
 import HeadCategory from "@/components/blog/HeadCategory";
 import LinearRegressionStory from "@/components/explainers/LinearRegressionStory";
 import LogisticRegressionStory from "@/components/explainers/LogisticRegressionStory";
+import DecisionTreeStory from "@/components/explainers/DecisionTreeStory";
 
 // Animated explainers, keyed by the `explainer` field in a post's frontmatter.
 const EXPLAINERS: Record<string, { node: JSX.Element }> = {
   "linear-regression": { node: <LinearRegressionStory /> },
   "logistic-regression": { node: <LogisticRegressionStory /> },
+  "decision-tree": { node: <DecisionTreeStory /> },
 };
 
 export interface MdxMeta extends Meta {
