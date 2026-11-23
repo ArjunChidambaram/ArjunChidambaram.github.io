@@ -10,7 +10,7 @@ export const SQL_SERIES: { n: number; slug: string; title: string; live: boolean
   { n: 8, slug: "sql-dates-strings-cleaning-explained", title: "Dates, strings and cleaning data", live: true },
   { n: 9, slug: "sql-set-operations-pivoting-explained", title: "UNION, pivoting and conditional aggregation", live: true },
   { n: 10, slug: "sql-recursive-ctes-explained", title: "Recursive CTEs", live: true },
-  { n: 11, slug: "sql-analytics-patterns-explained", title: "Analytics patterns: funnels, retention, sessions", live: false },
+  { n: 11, slug: "sql-analytics-patterns-explained", title: "Analytics patterns: funnels, retention, sessions", live: true },
   { n: 12, slug: "sql-data-modeling-dml-explained", title: "Tables, keys, INSERT/UPDATE and transactions", live: false },
   { n: 13, slug: "sql-performance-indexes-explained", title: "Performance: indexes and query plans", live: false },
 ];

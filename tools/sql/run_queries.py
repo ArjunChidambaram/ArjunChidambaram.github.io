@@ -56,6 +56,7 @@ def main(only=None):
         out = {}
         for b in parse(path):
             rec = {"sql": b["sql"]}
+            con.execute("BEGIN TRANSACTION")  # like the browser editor: every block is rolled back
             try:
                 # run every statement; keep the result of the last one
                 cur = con.execute(b["sql"])
@@ -72,6 +73,8 @@ def main(only=None):
                 rec["error"] = msg
                 if not b["error"]:
                     print(f"  ERROR {name}.{b['id']}: {msg}", file=sys.stderr)
+            finally:
+                con.execute("ROLLBACK")
             out[b["id"]] = rec
         with open(os.path.join(OUTDIR, name + ".json"), "w") as f:
             json.dump(out, f, indent=0, default=str)

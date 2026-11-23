@@ -1,0 +1,649 @@
+{
+"denormalized": {
+"sql": "SELECT o.order_id, o.order_date, c.first_name, c.last_name, c.email, c.city,\n       p.name AS product, p.category, oi.quantity, oi.unit_price\nFROM orders o\nJOIN customers c   ON c.customer_id = o.customer_id\nJOIN order_items oi ON oi.order_id = o.order_id\nJOIN products p    ON p.product_id = oi.product_id\nWHERE c.customer_id = 85\nORDER BY o.order_date\nLIMIT 8;",
+"columns": [
+"order_id",
+"order_date",
+"first_name",
+"last_name",
+"email",
+"city",
+"product",
+"category",
+"quantity",
+"unit_price"
+],
+"rows": [
+[
+1001,
+"2025-01-06",
+"Kenji",
+"Martin",
+"kenji.martin@example.com",
+"Miami",
+"Dark Chocolate Bar",
+"Grocery",
+1,
+3.49
+],
+[
+1002,
+"2025-01-08",
+"Kenji",
+"Martin",
+"kenji.martin@example.com",
+"Miami",
+"Phone Charger",
+"Electronics",
+1,
+16.99
+],
+[
+1009,
+"2025-01-25",
+"Kenji",
+"Martin",
+"kenji.martin@example.com",
+"Miami",
+"Wireless Earbuds",
+"Electronics",
+2,
+79.0
+],
+[
+1064,
+"2025-04-27",
+"Kenji",
+"Martin",
+"kenji.martin@example.com",
+"Miami",
+"USB-C Cable",
+"Electronics",
+1,
+9.99
+],
+[
+1064,
+"2025-04-27",
+"Kenji",
+"Martin",
+"kenji.martin@example.com",
+"Miami",
+"Green Tea (50 bags)",
+"Grocery",
+1,
+6.99
+],
+[
+1111,
+"2025-06-21",
+"Kenji",
+"Martin",
+"kenji.martin@example.com",
+"Miami",
+"Resistance Bands",
+"Fitness",
+1,
+19.5
+],
+[
+1112,
+"2025-06-21",
+"Kenji",
+"Martin",
+"kenji.martin@example.com",
+"Miami",
+"Wireless Earbuds",
+"Electronics",
+1,
+79.0
+],
+[
+1112,
+"2025-06-21",
+"Kenji",
+"Martin",
+"kenji.martin@example.com",
+"Miami",
+"Dark Chocolate Bar",
+"Grocery",
+1,
+3.49
+]
+],
+"total": 8
+},
+"redundancy": {
+"sql": "WITH wide AS (\n  SELECT c.email, c.city\n  FROM orders o\n  JOIN customers c    ON c.customer_id = o.customer_id\n  JOIN order_items oi ON oi.order_id = o.order_id\n)\nSELECT\n  COUNT(*)              AS rows_in_wide_table,\n  COUNT(DISTINCT email) AS distinct_customers,\n  ROUND(COUNT(*) * 1.0 / COUNT(DISTINCT email), 1) AS copies_of_each_email\nFROM wide;",
+"columns": [
+"rows_in_wide_table",
+"distinct_customers",
+"copies_of_each_email"
+],
+"rows": [
+[
+765,
+128,
+6.0
+]
+],
+"total": 1
+},
+"create": {
+"sql": "CREATE TABLE reviews (\n  review_id   INTEGER PRIMARY KEY,\n  product_id  INTEGER NOT NULL REFERENCES products (product_id),\n  customer_id INTEGER NOT NULL REFERENCES customers (customer_id),\n  rating      INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5),\n  title       VARCHAR,\n  created_at  DATE DEFAULT DATE '2025-12-31'\n);\n\nINSERT INTO reviews (review_id, product_id, customer_id, rating, title) VALUES\n  (1, 3, 85, 5, 'Best purchase this year'),\n  (2, 3, 12, 4, 'Good, a bit loud'),\n  (3, 7, 85, 2, NULL);\n\nSELECT * FROM reviews;",
+"columns": [
+"review_id",
+"product_id",
+"customer_id",
+"rating",
+"title",
+"created_at"
+],
+"rows": [
+[
+1,
+3,
+85,
+5,
+"Best purchase this year",
+"2025-12-31"
+],
+[
+2,
+3,
+12,
+4,
+"Good, a bit loud",
+"2025-12-31"
+],
+[
+3,
+7,
+85,
+2,
+null,
+"2025-12-31"
+]
+],
+"total": 3
+},
+"pk_dup": {
+"sql": "CREATE TABLE reviews (\n  review_id INTEGER PRIMARY KEY,\n  product_id INTEGER NOT NULL REFERENCES products (product_id),\n  rating INTEGER CHECK (rating BETWEEN 1 AND 5)\n);\nINSERT INTO reviews VALUES (1, 3, 5);\nINSERT INTO reviews VALUES (1, 7, 4);   -- same review_id again",
+"error": "Constraint Error: PRIMARY KEY or UNIQUE constraint violation: duplicate key \"1\""
+},
+"check_fail": {
+"sql": "CREATE TABLE reviews (\n  review_id INTEGER PRIMARY KEY,\n  product_id INTEGER NOT NULL REFERENCES products (product_id),\n  rating INTEGER CHECK (rating BETWEEN 1 AND 5)\n);\nINSERT INTO reviews VALUES (1, 3, 6);   -- a 6-star review",
+"error": "Constraint Error: CHECK constraint failed on table \"reviews\" with expression CHECK((rating BETWEEN 1 AND 5))"
+},
+"notnull_fail": {
+"sql": "CREATE TABLE reviews (\n  review_id INTEGER PRIMARY KEY,\n  product_id INTEGER NOT NULL REFERENCES products (product_id),\n  rating INTEGER CHECK (rating BETWEEN 1 AND 5)\n);\nINSERT INTO reviews VALUES (1, NULL, 5);   -- which product?",
+"error": "Constraint Error: NOT NULL constraint failed: reviews.product_id"
+},
+"fk_fail": {
+"sql": "CREATE TABLE reviews (\n  review_id INTEGER PRIMARY KEY,\n  product_id INTEGER NOT NULL REFERENCES products (product_id),\n  rating INTEGER CHECK (rating BETWEEN 1 AND 5)\n);\nINSERT INTO reviews VALUES (1, 999, 5);   -- there is no product 999",
+"error": "Constraint Error: Violates foreign key constraint because key \"product_id: 999\" does not exist in the referenced table"
+},
+"orphans": {
+"sql": "SELECT\n  (SELECT COUNT(*) FROM order_items oi\n   WHERE NOT EXISTS (SELECT 1 FROM orders o WHERE o.order_id = oi.order_id))       AS items_without_order,\n  (SELECT COUNT(*) FROM orders o\n   WHERE NOT EXISTS (SELECT 1 FROM customers c WHERE c.customer_id = o.customer_id)) AS orders_without_customer,\n  (SELECT COUNT(*) FROM orders o\n   WHERE NOT EXISTS (SELECT 1 FROM order_items oi WHERE oi.order_id = o.order_id))   AS orders_without_items;",
+"columns": [
+"items_without_order",
+"orders_without_customer",
+"orders_without_items"
+],
+"rows": [
+[
+0,
+0,
+1
+]
+],
+"total": 1
+},
+"dup_check": {
+"sql": "SELECT order_id, product_id, COUNT(*) AS copies\nFROM order_items\nGROUP BY order_id, product_id\nHAVING COUNT(*) > 1\nORDER BY copies DESC\nLIMIT 5;",
+"columns": [
+"order_id",
+"product_id",
+"copies"
+],
+"rows": [],
+"total": 0
+},
+"insert_select": {
+"sql": "CREATE TABLE vip_customers (\n  customer_id INTEGER PRIMARY KEY,\n  lifetime_spend DECIMAL(10, 2)\n);\n\nINSERT INTO vip_customers\nSELECT o.customer_id, SUM(oi.quantity * oi.unit_price)\nFROM orders o JOIN order_items oi USING (order_id)\nWHERE o.status = 'completed'\nGROUP BY o.customer_id\nHAVING SUM(oi.quantity * oi.unit_price) > 800;\n\nSELECT COUNT(*) AS vips, MIN(lifetime_spend) AS smallest, MAX(lifetime_spend) AS largest\nFROM vip_customers;",
+"columns": [
+"vips",
+"smallest",
+"largest"
+],
+"rows": [
+[
+12,
+809.01,
+1857.95
+]
+],
+"total": 1
+},
+"ctas": {
+"sql": "CREATE TABLE monthly_revenue AS\nSELECT\n  CAST(date_trunc('month', o.order_date) AS DATE) AS month,\n  SUM(oi.quantity * oi.unit_price)                 AS revenue\nFROM orders o JOIN order_items oi USING (order_id)\nWHERE o.status = 'completed'\nGROUP BY ALL;\n\nSELECT * FROM monthly_revenue ORDER BY month DESC LIMIT 4;",
+"columns": [
+"month",
+"revenue"
+],
+"rows": [
+[
+"2025-12-01",
+6726.35
+],
+[
+"2025-11-01",
+6236.12
+],
+[
+"2025-10-01",
+2052.54
+],
+[
+"2025-09-01",
+3338.22
+]
+],
+"total": 4
+},
+"update": {
+"sql": "UPDATE products\nSET price = ROUND(price * 1.10, 2)\nWHERE category = 'Grocery';\n\nSELECT name, category, price FROM products WHERE category = 'Grocery' ORDER BY price DESC;",
+"columns": [
+"name",
+"category",
+"price"
+],
+"rows": [
+[
+"Coffee Beans 1lb",
+"Grocery",
+13.74
+],
+[
+"Trail Mix",
+"Grocery",
+8.79
+],
+[
+"Green Tea (50 bags)",
+"Grocery",
+7.69
+],
+[
+"Dark Chocolate Bar",
+"Grocery",
+3.84
+]
+],
+"total": 4
+},
+"update_returning": {
+"sql": "-- customer 85 sent back everything they ordered in November\nUPDATE orders\nSET status = 'returned'\nWHERE customer_id = 85\n  AND order_date BETWEEN DATE '2025-11-01' AND DATE '2025-11-30'\n  AND status = 'completed'\nRETURNING order_id, order_date, status;",
+"columns": [
+"order_id",
+"order_date",
+"status"
+],
+"rows": [
+[
+1269,
+"2025-11-21",
+"returned"
+],
+[
+1281,
+"2025-11-23",
+"returned"
+],
+[
+1310,
+"2025-11-27",
+"returned"
+]
+],
+"total": 3
+},
+"update_all_oops": {
+"sql": "UPDATE customers SET city = 'Austin';   -- forgot the WHERE\n\nSELECT city, COUNT(*) AS customers FROM customers GROUP BY city;",
+"columns": [
+"city",
+"customers"
+],
+"rows": [
+[
+"Austin",
+150
+]
+],
+"total": 1
+},
+"update_from": {
+"sql": "UPDATE order_items\nSET unit_price = p.price\nFROM products p\nWHERE p.product_id = order_items.product_id\n  AND order_items.order_id = 1001;\n\nSELECT oi.product_id, p.name, oi.quantity, oi.unit_price\nFROM order_items oi JOIN products p USING (product_id)\nWHERE oi.order_id = 1001;",
+"columns": [
+"product_id",
+"name",
+"quantity",
+"unit_price"
+],
+"rows": [
+[
+17,
+"Dark Chocolate Bar",
+1,
+3.49
+]
+],
+"total": 1
+},
+"delete": {
+"sql": "DELETE FROM orders\nWHERE order_id NOT IN (SELECT order_id FROM order_items)\nRETURNING *;",
+"columns": [
+"order_id",
+"customer_id",
+"order_date",
+"status",
+"channel"
+],
+"rows": [
+[
+1420,
+25,
+"2025-12-30",
+"cancelled",
+"web"
+]
+],
+"total": 1
+},
+"delete_count": {
+"sql": "DELETE FROM orders WHERE status = 'cancelled';\n\nSELECT status, COUNT(*) AS orders FROM orders GROUP BY status ORDER BY orders DESC;",
+"columns": [
+"status",
+"orders"
+],
+"rows": [
+[
+"completed",
+373
+],
+[
+"returned",
+15
+]
+],
+"total": 2
+},
+"delete_safe": {
+"sql": "-- 1. look first\nSELECT COUNT(*) AS would_delete\nFROM sessions\nWHERE customer_id IS NULL AND started_at < TIMESTAMP '2025-11-08';",
+"columns": [
+"would_delete"
+],
+"rows": [
+[
+185
+]
+],
+"total": 1
+},
+"upsert": {
+"sql": "CREATE TABLE inventory (\n  product_id INTEGER PRIMARY KEY,\n  on_hand    INTEGER NOT NULL\n);\nINSERT INTO inventory VALUES (1, 40), (2, 15), (3, 8);\n\n-- a delivery arrives: some products are new, some already exist\nINSERT INTO inventory VALUES (3, 20), (4, 12)\nON CONFLICT (product_id) DO UPDATE SET on_hand = inventory.on_hand + excluded.on_hand;\n\nSELECT * FROM inventory ORDER BY product_id;",
+"columns": [
+"product_id",
+"on_hand"
+],
+"rows": [
+[
+1,
+40
+],
+[
+2,
+15
+],
+[
+3,
+28
+],
+[
+4,
+12
+]
+],
+"total": 4
+},
+"alter": {
+"sql": "ALTER TABLE products ADD COLUMN in_stock BOOLEAN DEFAULT true;\nALTER TABLE products RENAME COLUMN name TO product_name;\n\nSELECT product_id, product_name, price, in_stock FROM products LIMIT 3;",
+"columns": [
+"product_id",
+"product_name",
+"price",
+"in_stock"
+],
+"rows": [
+[
+1,
+"Trail Running Shoes",
+89.99,
+true
+],
+[
+2,
+"Everyday Sneakers",
+59.99,
+true
+],
+[
+3,
+"Rain Boots",
+44.5,
+true
+]
+],
+"total": 3
+},
+"view": {
+"sql": "CREATE VIEW order_totals AS\nSELECT o.order_id, o.customer_id, o.order_date, o.status,\n       SUM(oi.quantity * oi.unit_price) AS order_total\nFROM orders o\nJOIN order_items oi USING (order_id)\nGROUP BY ALL;\n\nSELECT status, COUNT(*) AS orders, ROUND(AVG(order_total), 2) AS avg_total\nFROM order_totals\nGROUP BY status;",
+"columns": [
+"status",
+"orders",
+"avg_total"
+],
+"rows": [
+[
+"returned",
+15,
+74.0
+],
+[
+"completed",
+373,
+87.76
+],
+[
+"cancelled",
+31,
+68.11
+]
+],
+"total": 3
+},
+"types": {
+"sql": "SELECT\n  0.1 + 0.2 = 0.3                        AS decimal_math_ok,\n  0.1::DOUBLE + 0.2::DOUBLE = 0.3::DOUBLE AS float_math_ok,\n  (0.1::DOUBLE + 0.2::DOUBLE)::VARCHAR   AS float_sum,\n  CAST('2025-12-31' AS DATE) + 1         AS next_day,\n  'abc' < 'abd'                          AS text_compare;",
+"columns": [
+"decimal_math_ok",
+"float_math_ok",
+"float_sum",
+"next_day",
+"text_compare"
+],
+"rows": [
+[
+true,
+false,
+"0.30000000000000004",
+"2026-01-01",
+true
+]
+],
+"total": 1
+},
+"star": {
+"sql": "SELECT\n  d.category,\n  c.segment,\n  o.channel,\n  SUM(f.quantity * f.unit_price) AS revenue\nFROM order_items f                                   -- fact: one row per item sold\nJOIN orders o    ON o.order_id = f.order_id          -- order details\nJOIN products d  ON d.product_id = f.product_id      -- product dimension\nJOIN customers c ON c.customer_id = o.customer_id    -- customer dimension\nWHERE o.status = 'completed'\nGROUP BY ALL\nORDER BY revenue DESC\nLIMIT 6;",
+"columns": [
+"category",
+"segment",
+"channel",
+"revenue"
+],
+"rows": [
+[
+"Footwear",
+"consumer",
+"web",
+4694.06
+],
+[
+"Electronics",
+"consumer",
+"web",
+4324.73
+],
+[
+"Outdoor",
+"consumer",
+"web",
+3086.89
+],
+[
+"Outdoor",
+"consumer",
+"app",
+2382.26
+],
+[
+"Electronics",
+"consumer",
+"app",
+2294.91
+],
+[
+"Footwear",
+"consumer",
+"app",
+1485.56
+]
+],
+"total": 6
+},
+"ex1": {
+"sql": "CREATE TABLE wishlist (\n  customer_id INTEGER NOT NULL REFERENCES customers (customer_id),\n  product_id  INTEGER NOT NULL REFERENCES products (product_id),\n  added_on    DATE NOT NULL,\n  PRIMARY KEY (customer_id, product_id)\n);\nINSERT INTO wishlist VALUES (85, 3, DATE '2025-12-01'), (85, 7, DATE '2025-12-02'), (12, 3, DATE '2025-12-05');\nSELECT w.customer_id, p.name, w.added_on\nFROM wishlist w JOIN products p USING (product_id)\nORDER BY w.added_on;",
+"columns": [
+"customer_id",
+"name",
+"added_on"
+],
+"rows": [
+[
+85,
+"Rain Boots",
+"2025-12-01"
+],
+[
+85,
+"Camping Lantern",
+"2025-12-02"
+],
+[
+12,
+"Rain Boots",
+"2025-12-05"
+]
+],
+"total": 3
+},
+"ex2": {
+"sql": "UPDATE customers\nSET segment = 'business'\nWHERE customer_id IN (\n  SELECT customer_id FROM orders GROUP BY customer_id HAVING COUNT(*) >= 8\n)\nRETURNING customer_id, first_name, segment;",
+"columns": [
+"customer_id",
+"first_name",
+"segment"
+],
+"rows": [
+[
+9,
+"Noah",
+"business"
+],
+[
+15,
+"Sofia",
+"business"
+],
+[
+28,
+"Elijah",
+"business"
+],
+[
+30,
+"Zoe",
+"business"
+],
+[
+36,
+"Sofia",
+"business"
+],
+[
+56,
+"Riley",
+"business"
+],
+[
+69,
+"Liam",
+"business"
+],
+[
+72,
+"Samuel",
+"business"
+],
+[
+85,
+"Kenji",
+"business"
+],
+[
+138,
+"Liam",
+"business"
+],
+[
+145,
+"Wei",
+"business"
+]
+],
+"total": 11
+},
+"ex3": {
+"sql": "DELETE FROM events\nWHERE session_id IN (SELECT session_id FROM sessions WHERE device = 'tablet');\n\nSELECT COUNT(*) AS events_left,\n       COUNT(*) FILTER (WHERE session_id IN (SELECT session_id FROM sessions WHERE device = 'tablet')) AS tablet_events_left\nFROM events;",
+"columns": [
+"events_left",
+"tablet_events_left"
+],
+"rows": [
+[
+3911,
+0
+]
+],
+"total": 1
+}
+}
