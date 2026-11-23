@@ -1,0 +1,846 @@
+{
+"events_peek": {
+"sql": "SELECT session_id, event_time, event_type, product_id\nFROM events\nWHERE session_id IN (2, 3)\nORDER BY session_id, event_time;",
+"columns": [
+"session_id",
+"event_time",
+"event_type",
+"product_id"
+],
+"rows": [
+[
+2,
+"2025-11-01 20:54:04",
+"view_product",
+14
+],
+[
+2,
+"2025-11-01 20:57:16",
+"view_product",
+11
+],
+[
+2,
+"2025-11-01 21:02:15",
+"add_to_cart",
+14
+],
+[
+2,
+"2025-11-01 21:05:04",
+"checkout",
+14
+],
+[
+2,
+"2025-11-01 21:09:41",
+"purchase",
+14
+],
+[
+3,
+"2025-11-01 22:03:01",
+"view_product",
+11
+]
+],
+"total": 6
+},
+"funnel": {
+"sql": "WITH steps AS (\n  SELECT\n    COUNT(DISTINCT session_id)                                                AS sessions,\n    COUNT(DISTINCT session_id) FILTER (WHERE event_type = 'view_product')     AS viewed,\n    COUNT(DISTINCT session_id) FILTER (WHERE event_type = 'add_to_cart')      AS carted,\n    COUNT(DISTINCT session_id) FILTER (WHERE event_type = 'checkout')         AS checked_out,\n    COUNT(DISTINCT session_id) FILTER (WHERE event_type = 'purchase')         AS purchased\n  FROM events\n)\nSELECT *, ROUND(100.0 * purchased / viewed, 1) AS overall_conversion_pct\nFROM steps;",
+"columns": [
+"sessions",
+"viewed",
+"carted",
+"checked_out",
+"purchased",
+"overall_conversion_pct"
+],
+"rows": [
+[
+1897,
+1897,
+825,
+473,
+322,
+17.0
+]
+],
+"total": 1
+},
+"funnel_long": {
+"sql": "WITH counts AS (\n  SELECT event_type, COUNT(DISTINCT session_id) AS sessions\n  FROM events\n  GROUP BY event_type\n),\nordered AS (\n  SELECT\n    CASE event_type WHEN 'view_product' THEN 1 WHEN 'add_to_cart' THEN 2\n                    WHEN 'checkout' THEN 3 ELSE 4 END AS step,\n    event_type, sessions\n  FROM counts\n)\nSELECT\n  step, event_type, sessions,\n  ROUND(100.0 * sessions / FIRST_VALUE(sessions) OVER (ORDER BY step), 1) AS pct_of_top,\n  ROUND(100.0 * sessions / LAG(sessions) OVER (ORDER BY step), 1)         AS pct_of_previous\nFROM ordered\nORDER BY step;",
+"columns": [
+"step",
+"event_type",
+"sessions",
+"pct_of_top",
+"pct_of_previous"
+],
+"rows": [
+[
+1,
+"view_product",
+1897,
+100.0,
+null
+],
+[
+2,
+"add_to_cart",
+825,
+43.5,
+43.5
+],
+[
+3,
+"checkout",
+473,
+24.9,
+57.3
+],
+[
+4,
+"purchase",
+322,
+17.0,
+68.1
+]
+],
+"total": 4
+},
+"funnel_device": {
+"sql": "SELECT\n  s.device,\n  COUNT(DISTINCT e.session_id)                                            AS sessions,\n  COUNT(DISTINCT e.session_id) FILTER (WHERE e.event_type = 'add_to_cart') AS carted,\n  COUNT(DISTINCT e.session_id) FILTER (WHERE e.event_type = 'purchase')    AS purchased,\n  ROUND(100.0 * COUNT(DISTINCT e.session_id) FILTER (WHERE e.event_type = 'purchase')\n              / COUNT(DISTINCT e.session_id), 1)                          AS conversion_pct\nFROM events e\nJOIN sessions s ON s.session_id = e.session_id\nGROUP BY s.device\nORDER BY conversion_pct DESC;",
+"columns": [
+"device",
+"sessions",
+"carted",
+"purchased",
+"conversion_pct"
+],
+"rows": [
+[
+"tablet",
+115,
+56,
+27,
+23.5
+],
+[
+"mobile",
+1122,
+483,
+193,
+17.2
+],
+[
+"desktop",
+660,
+286,
+102,
+15.5
+]
+],
+"total": 3
+},
+"funnel_strict": {
+"sql": "WITH firsts AS (\n  SELECT\n    session_id,\n    MIN(event_time) FILTER (WHERE event_type = 'view_product') AS t_view,\n    MIN(event_time) FILTER (WHERE event_type = 'add_to_cart')  AS t_cart,\n    MIN(event_time) FILTER (WHERE event_type = 'checkout')     AS t_checkout,\n    MIN(event_time) FILTER (WHERE event_type = 'purchase')     AS t_purchase\n  FROM events\n  GROUP BY session_id\n)\nSELECT\n  COUNT(t_view)                                      AS viewed,\n  COUNT(*) FILTER (WHERE t_cart > t_view)            AS then_carted,\n  COUNT(*) FILTER (WHERE t_checkout > t_cart AND t_cart > t_view) AS then_checked_out,\n  COUNT(*) FILTER (WHERE t_purchase > t_checkout AND t_checkout > t_cart AND t_cart > t_view) AS then_purchased,\n  ROUND(MEDIAN(EXTRACT(EPOCH FROM t_purchase - t_view) / 60), 1) AS median_minutes_view_to_purchase\nFROM firsts;",
+"columns": [
+"viewed",
+"then_carted",
+"then_checked_out",
+"then_purchased",
+"median_minutes_view_to_purchase"
+],
+"rows": [
+[
+1897,
+825,
+473,
+322,
+10.9
+]
+],
+"total": 1
+},
+"cohort_first": {
+"sql": "SELECT\n  customer_id,\n  MIN(order_date)                          AS first_order,\n  CAST(date_trunc('month', MIN(order_date)) AS DATE) AS cohort_month\nFROM orders\nGROUP BY customer_id\nORDER BY customer_id\nLIMIT 5;",
+"columns": [
+"customer_id",
+"first_order",
+"cohort_month"
+],
+"rows": [
+[
+2,
+"2025-10-01",
+"2025-10-01"
+],
+[
+3,
+"2025-11-11",
+"2025-11-01"
+],
+[
+4,
+"2025-02-18",
+"2025-02-01"
+],
+[
+5,
+"2025-01-14",
+"2025-01-01"
+],
+[
+6,
+"2025-07-06",
+"2025-07-01"
+]
+],
+"total": 5
+},
+"cohorts": {
+"sql": "WITH firsts AS (\n  SELECT customer_id, date_trunc('month', MIN(order_date)) AS cohort\n  FROM orders\n  GROUP BY customer_id\n),\nactivity AS (\n  SELECT DISTINCT\n    o.customer_id,\n    f.cohort,\n    date_diff('month', f.cohort, date_trunc('month', o.order_date)) AS month_number\n  FROM orders o\n  JOIN firsts f USING (customer_id)\n)\nSELECT\n  CAST(cohort AS DATE) AS cohort,\n  month_number,\n  COUNT(*) AS active_customers\nFROM activity\nWHERE cohort >= DATE '2025-07-01'\nGROUP BY cohort, month_number\nORDER BY cohort, month_number\nLIMIT 12;",
+"columns": [
+"cohort",
+"month_number",
+"active_customers"
+],
+"rows": [
+[
+"2025-07-01",
+0,
+10
+],
+[
+"2025-07-01",
+1,
+2
+],
+[
+"2025-07-01",
+3,
+1
+],
+[
+"2025-07-01",
+4,
+2
+],
+[
+"2025-07-01",
+5,
+1
+],
+[
+"2025-08-01",
+0,
+8
+],
+[
+"2025-08-01",
+1,
+2
+],
+[
+"2025-08-01",
+2,
+3
+],
+[
+"2025-08-01",
+3,
+2
+],
+[
+"2025-08-01",
+4,
+4
+],
+[
+"2025-09-01",
+0,
+6
+],
+[
+"2025-09-01",
+2,
+2
+]
+],
+"total": 12
+},
+"retention": {
+"sql": "WITH firsts AS (\n  SELECT customer_id, date_trunc('month', MIN(order_date)) AS cohort\n  FROM orders\n  GROUP BY customer_id\n),\nactivity AS (\n  SELECT DISTINCT o.customer_id, f.cohort,\n         date_diff('month', f.cohort, date_trunc('month', o.order_date)) AS m\n  FROM orders o JOIN firsts f USING (customer_id)\n)\nSELECT\n  strftime(cohort, '%Y-%m')                                       AS cohort,\n  COUNT(*) FILTER (WHERE m = 0)                                   AS customers,\n  CASE WHEN cohort + INTERVAL 1 MONTH <= DATE '2025-12-01' -- month 1 has happened\n       THEN ROUND(100.0 * COUNT(*) FILTER (WHERE m = 1) / COUNT(*) FILTER (WHERE m = 0)) END AS m1_pct,\n  CASE WHEN cohort + INTERVAL 2 MONTH <= DATE '2025-12-01' -- month 2 has happened\n       THEN ROUND(100.0 * COUNT(*) FILTER (WHERE m = 2) / COUNT(*) FILTER (WHERE m = 0)) END AS m2_pct,\n  CASE WHEN cohort + INTERVAL 3 MONTH <= DATE '2025-12-01' -- month 3 has happened\n       THEN ROUND(100.0 * COUNT(*) FILTER (WHERE m = 3) / COUNT(*) FILTER (WHERE m = 0)) END AS m3_pct\nFROM activity\nGROUP BY cohort\nORDER BY cohort;",
+"columns": [
+"cohort",
+"customers",
+"m1_pct",
+"m2_pct",
+"m3_pct"
+],
+"rows": [
+[
+"2025-01",
+12,
+17.0,
+17.0,
+33.0
+],
+[
+"2025-02",
+13,
+15.0,
+8.0,
+31.0
+],
+[
+"2025-03",
+7,
+43.0,
+29.0,
+29.0
+],
+[
+"2025-04",
+8,
+38.0,
+13.0,
+13.0
+],
+[
+"2025-05",
+9,
+11.0,
+11.0,
+44.0
+],
+[
+"2025-06",
+8,
+13.0,
+25.0,
+50.0
+],
+[
+"2025-07",
+10,
+20.0,
+0.0,
+10.0
+],
+[
+"2025-08",
+8,
+25.0,
+38.0,
+25.0
+],
+[
+"2025-09",
+6,
+0.0,
+33.0,
+33.0
+],
+[
+"2025-10",
+11,
+36.0,
+36.0,
+null
+],
+[
+"2025-11",
+20,
+30.0,
+null,
+null
+],
+[
+"2025-12",
+21,
+null,
+null,
+null
+]
+],
+"total": 12
+},
+"repeat_gap": {
+"sql": "WITH gaps AS (\n  SELECT\n    customer_id,\n    order_date - LAG(order_date) OVER (PARTITION BY customer_id ORDER BY order_date) AS days_since_previous\n  FROM orders\n  WHERE status <> 'cancelled'\n)\nSELECT\n  COUNT(DISTINCT customer_id)                                    AS customers,\n  COUNT(DISTINCT customer_id) FILTER (WHERE days_since_previous IS NOT NULL) AS repeat_customers,\n  MEDIAN(days_since_previous)                                    AS median_days_between_orders,\n  QUANTILE_CONT(days_since_previous, 0.9)                        AS p90_days\nFROM gaps;",
+"columns": [
+"customers",
+"repeat_customers",
+"median_days_between_orders",
+"p90_days"
+],
+"rows": [
+[
+132,
+64,
+20.0,
+117.5
+]
+],
+"total": 1
+},
+"active": {
+"sql": "SELECT\n  CAST(started_at AS DATE)                                       AS day,\n  COUNT(DISTINCT customer_id)                                    AS active_customers,\n  ROUND(AVG(COUNT(DISTINCT customer_id)) OVER (\n    ORDER BY CAST(started_at AS DATE) ROWS BETWEEN 6 PRECEDING AND CURRENT ROW), 1) AS avg_7d\nFROM sessions\nWHERE customer_id IS NOT NULL\nGROUP BY CAST(started_at AS DATE)\nORDER BY day\nLIMIT 10;",
+"columns": [
+"day",
+"active_customers",
+"avg_7d"
+],
+"rows": [
+[
+"2025-11-01",
+38,
+38.0
+],
+[
+"2025-11-02",
+33,
+35.5
+],
+[
+"2025-11-03",
+45,
+38.7
+],
+[
+"2025-11-04",
+29,
+36.3
+],
+[
+"2025-11-05",
+36,
+36.2
+],
+[
+"2025-11-06",
+39,
+36.7
+],
+[
+"2025-11-07",
+32,
+36.0
+],
+[
+"2025-11-08",
+41,
+36.4
+],
+[
+"2025-11-09",
+27,
+35.6
+],
+[
+"2025-11-10",
+27,
+33.0
+]
+],
+"total": 10
+},
+"wau": {
+"sql": "SELECT\n  d.day,\n  COUNT(DISTINCT s.customer_id) AS active_last_7_days\nFROM (SELECT DISTINCT CAST(started_at AS DATE) AS day FROM sessions) d\nJOIN sessions s\n  ON CAST(s.started_at AS DATE) BETWEEN d.day - 6 AND d.day\nWHERE s.customer_id IS NOT NULL\n  AND d.day >= DATE '2025-11-07'\nGROUP BY d.day\nORDER BY d.day\nLIMIT 7;",
+"columns": [
+"day",
+"active_last_7_days"
+],
+"rows": [
+[
+"2025-11-07",
+126
+],
+[
+"2025-11-08",
+127
+],
+[
+"2025-11-09",
+127
+],
+[
+"2025-11-10",
+126
+],
+[
+"2025-11-11",
+130
+],
+[
+"2025-11-12",
+127
+],
+[
+"2025-11-13",
+126
+]
+],
+"total": 7
+},
+"sessionize_flags": {
+"sql": "WITH ev AS (\n  SELECT s.customer_id, e.event_time, e.event_type\n  FROM events e\n  JOIN sessions s ON s.session_id = e.session_id\n  WHERE s.customer_id = 127\n)\nSELECT\n  event_time,\n  event_type,\n  event_time - LAG(event_time) OVER (ORDER BY event_time) AS gap,\n  CASE WHEN LAG(event_time) OVER (ORDER BY event_time) IS NULL\n         OR event_time - LAG(event_time) OVER (ORDER BY event_time) > INTERVAL 30 MINUTE\n       THEN 1 ELSE 0 END AS new_session\nFROM ev\nORDER BY event_time\nLIMIT 10;",
+"columns": [
+"event_time",
+"event_type",
+"gap",
+"new_session"
+],
+"rows": [
+[
+"2025-11-01 13:17:03",
+"view_product",
+null,
+1
+],
+[
+"2025-11-02 16:25:48",
+"view_product",
+"1 day, 3:08:45",
+1
+],
+[
+"2025-11-03 18:19:08",
+"view_product",
+"1 day, 1:53:20",
+1
+],
+[
+"2025-11-03 18:20:50",
+"view_product",
+"0:01:42",
+0
+],
+[
+"2025-11-03 18:24:55",
+"add_to_cart",
+"0:04:05",
+0
+],
+[
+"2025-11-04 17:36:07",
+"view_product",
+"23:11:12",
+1
+],
+[
+"2025-11-04 17:40:58",
+"add_to_cart",
+"0:04:51",
+0
+],
+[
+"2025-11-04 17:47:05",
+"checkout",
+"0:06:07",
+0
+],
+[
+"2025-11-05 15:15:28",
+"view_product",
+"21:28:23",
+1
+],
+[
+"2025-11-06 21:37:32",
+"view_product",
+"1 day, 6:22:04",
+1
+]
+],
+"total": 10
+},
+"sessionize": {
+"sql": "WITH ev AS (\n  SELECT s.customer_id, e.event_time, e.event_type\n  FROM events e\n  JOIN sessions s ON s.session_id = e.session_id\n  WHERE s.customer_id IS NOT NULL\n),\nflagged AS (\n  SELECT *,\n    CASE WHEN event_time - LAG(event_time) OVER w > INTERVAL 30 MINUTE\n              OR LAG(event_time) OVER w IS NULL\n         THEN 1 ELSE 0 END AS new_session\n  FROM ev\n  WINDOW w AS (PARTITION BY customer_id ORDER BY event_time)\n),\nnumbered AS (\n  SELECT *,\n    SUM(new_session) OVER (PARTITION BY customer_id ORDER BY event_time) AS session_number\n  FROM flagged\n)\nSELECT\n  customer_id, session_number,\n  MIN(event_time) AS started,\n  MAX(event_time) AS ended,\n  COUNT(*)        AS events,\n  BOOL_OR(event_type = 'purchase') AS purchased\nFROM numbered\nWHERE customer_id = 127\nGROUP BY customer_id, session_number\nORDER BY session_number\nLIMIT 8;",
+"columns": [
+"customer_id",
+"session_number",
+"started",
+"ended",
+"events",
+"purchased"
+],
+"rows": [
+[
+127,
+1,
+"2025-11-01 13:17:03",
+"2025-11-01 13:17:03",
+1,
+false
+],
+[
+127,
+2,
+"2025-11-02 16:25:48",
+"2025-11-02 16:25:48",
+1,
+false
+],
+[
+127,
+3,
+"2025-11-03 18:19:08",
+"2025-11-03 18:24:55",
+3,
+false
+],
+[
+127,
+4,
+"2025-11-04 17:36:07",
+"2025-11-04 17:47:05",
+3,
+false
+],
+[
+127,
+5,
+"2025-11-05 15:15:28",
+"2025-11-05 15:15:28",
+1,
+false
+],
+[
+127,
+6,
+"2025-11-06 21:37:32",
+"2025-11-06 21:37:32",
+1,
+false
+],
+[
+127,
+7,
+"2025-11-09 13:35:31",
+"2025-11-09 13:46:01",
+4,
+false
+],
+[
+127,
+8,
+"2025-11-13 20:17:30",
+"2025-11-13 20:19:38",
+2,
+false
+]
+],
+"total": 8
+},
+"ab_rates": {
+"sql": "WITH per_session AS (\n  SELECT\n    x.session_id,\n    x.variant,\n    COALESCE(BOOL_OR(e.event_type = 'purchase'), false) AS converted\n  FROM experiment x\n  LEFT JOIN events e ON e.session_id = x.session_id\n  GROUP BY x.session_id, x.variant\n)\nSELECT\n  variant,\n  COUNT(*)                                  AS sessions,\n  COUNT(*) FILTER (WHERE converted)         AS conversions,\n  ROUND(100.0 * AVG(converted::INT), 2)     AS conversion_pct\nFROM per_session\nGROUP BY variant\nORDER BY variant;",
+"columns": [
+"variant",
+"sessions",
+"conversions",
+"conversion_pct"
+],
+"rows": [
+[
+"A",
+947,
+157,
+16.58
+],
+[
+"B",
+950,
+165,
+17.37
+]
+],
+"total": 2
+},
+"ab_test": {
+"sql": "WITH per_session AS (\n  SELECT x.session_id, x.variant,\n         COALESCE(BOOL_OR(e.event_type = 'purchase'), false)::INT AS converted\n  FROM experiment x\n  LEFT JOIN events e ON e.session_id = x.session_id\n  GROUP BY x.session_id, x.variant\n),\ng AS (\n  SELECT\n    COUNT(*) FILTER (WHERE variant = 'A')          AS n_a,\n    COUNT(*) FILTER (WHERE variant = 'B')          AS n_b,\n    AVG(converted) FILTER (WHERE variant = 'A')    AS p_a,\n    AVG(converted) FILTER (WHERE variant = 'B')    AS p_b,\n    AVG(converted)                                 AS p_pool\n  FROM per_session\n)\nSELECT\n  ROUND(100 * p_a, 2)                                            AS a_pct,\n  ROUND(100 * p_b, 2)                                            AS b_pct,\n  ROUND(100 * (p_b - p_a), 2)                                    AS lift_pts,\n  ROUND((p_b - p_a) / SQRT(p_pool * (1 - p_pool) * (1.0 / n_a + 1.0 / n_b)), 2) AS z,\n  ROUND(100 * (p_b - p_a - 1.96 * SQRT(p_a * (1 - p_a) / n_a + p_b * (1 - p_b) / n_b)), 2) AS ci_low_pts,\n  ROUND(100 * (p_b - p_a + 1.96 * SQRT(p_a * (1 - p_a) / n_a + p_b * (1 - p_b) / n_b)), 2) AS ci_high_pts\nFROM g;",
+"columns": [
+"a_pct",
+"b_pct",
+"lift_pts",
+"z",
+"ci_low_pts",
+"ci_high_pts"
+],
+"rows": [
+[
+16.58,
+17.37,
+0.79,
+0.46,
+-2.59,
+4.17
+]
+],
+"total": 1
+},
+"srm": {
+"sql": "SELECT\n  variant,\n  COUNT(*) AS sessions,\n  ROUND(100.0 * COUNT(*) / SUM(COUNT(*)) OVER (), 2) AS pct_of_traffic\nFROM experiment\nGROUP BY variant\nORDER BY variant;",
+"columns": [
+"variant",
+"sessions",
+"pct_of_traffic"
+],
+"rows": [
+[
+"A",
+947,
+49.92
+],
+[
+"B",
+950,
+50.08
+]
+],
+"total": 2
+},
+"rfm": {
+"sql": "WITH per_customer AS (\n  SELECT\n    o.customer_id,\n    DATE '2026-01-01' - MAX(o.order_date)     AS recency_days,\n    COUNT(DISTINCT o.order_id)                AS frequency,\n    SUM(oi.quantity * oi.unit_price)          AS monetary\n  FROM orders o\n  JOIN order_items oi USING (order_id)\n  WHERE o.status <> 'cancelled'\n  GROUP BY o.customer_id\n),\nscored AS (\n  SELECT *,\n    NTILE(3) OVER (ORDER BY recency_days DESC) AS r,\n    NTILE(3) OVER (ORDER BY frequency)         AS f,\n    NTILE(3) OVER (ORDER BY monetary)          AS m\n  FROM per_customer\n)\nSELECT\n  CASE\n    WHEN r = 3 AND f = 3 THEN 'champions'\n    WHEN r = 3           THEN 'recent'\n    WHEN r = 1 AND f >= 2 THEN 'at risk'\n    WHEN r = 1           THEN 'lapsed'\n    ELSE 'steady'\n  END AS rfm_segment,\n  COUNT(*)                     AS customers,\n  ROUND(AVG(recency_days))     AS avg_recency_days,\n  ROUND(AVG(frequency), 1)     AS avg_orders,\n  ROUND(AVG(monetary))         AS avg_spend\nFROM scored\nGROUP BY rfm_segment\nORDER BY avg_spend DESC;",
+"columns": [
+"rfm_segment",
+"customers",
+"avg_recency_days",
+"avg_orders",
+"avg_spend"
+],
+"rows": [
+[
+"champions",
+22,
+14.0,
+6.8,
+633.0
+],
+[
+"steady",
+44,
+39.0,
+3.3,
+296.0
+],
+[
+"at risk",
+15,
+142.0,
+2.5,
+224.0
+],
+[
+"recent",
+22,
+15.0,
+1.3,
+82.0
+],
+[
+"lapsed",
+29,
+204.0,
+1.0,
+60.0
+]
+],
+"total": 5
+},
+"ex1": {
+"sql": "SELECT\n  s.source,\n  COUNT(DISTINCT e.session_id) AS sessions,\n  ROUND(100.0 * COUNT(DISTINCT e.session_id) FILTER (WHERE e.event_type = 'add_to_cart') / COUNT(DISTINCT e.session_id), 1) AS cart_pct,\n  ROUND(100.0 * COUNT(DISTINCT e.session_id) FILTER (WHERE e.event_type = 'purchase') / COUNT(DISTINCT e.session_id), 1) AS purchase_pct\nFROM events e\nJOIN sessions s USING (session_id)\nGROUP BY s.source\nORDER BY purchase_pct DESC;",
+"columns": [
+"source",
+"sessions",
+"cart_pct",
+"purchase_pct"
+],
+"rows": [
+[
+"ads",
+179,
+50.8,
+20.7
+],
+[
+"direct",
+496,
+44.2,
+18.5
+],
+[
+"search",
+676,
+43.9,
+16.6
+],
+[
+"social",
+266,
+41.0,
+16.2
+],
+[
+"email",
+280,
+38.9,
+13.6
+]
+],
+"total": 5
+},
+"ex2": {
+"sql": "WITH firsts AS (\n  SELECT customer_id, date_trunc('month', MIN(order_date)) AS cohort\n  FROM orders GROUP BY customer_id\n),\nactivity AS (\n  SELECT DISTINCT o.customer_id, f.cohort,\n         date_diff('month', f.cohort, date_trunc('month', o.order_date)) AS m\n  FROM orders o JOIN firsts f USING (customer_id)\n)\nSELECT\n  c.segment,\n  COUNT(*) FILTER (WHERE a.m = 0) AS customers,\n  ROUND(100.0 * COUNT(*) FILTER (WHERE a.m = 1) / COUNT(*) FILTER (WHERE a.m = 0), 1) AS m1_retention_pct\nFROM activity a\nJOIN customers c USING (customer_id)\nWHERE a.cohort < DATE '2025-12-01'\nGROUP BY c.segment;",
+"columns": [
+"segment",
+"customers",
+"m1_retention_pct"
+],
+"rows": [
+[
+"consumer",
+90,
+21.1
+],
+[
+"business",
+22,
+31.8
+]
+],
+"total": 2
+},
+"ex3": {
+"sql": "WITH per_session AS (\n  SELECT x.session_id, x.variant, s.device,\n         COALESCE(BOOL_OR(e.event_type = 'purchase'), false)::INT AS converted\n  FROM experiment x\n  JOIN sessions s ON s.session_id = x.session_id\n  LEFT JOIN events e ON e.session_id = x.session_id\n  GROUP BY x.session_id, x.variant, s.device\n)\nSELECT\n  device,\n  ROUND(100 * AVG(converted) FILTER (WHERE variant = 'A'), 2) AS a_pct,\n  ROUND(100 * AVG(converted) FILTER (WHERE variant = 'B'), 2) AS b_pct,\n  COUNT(*) AS sessions\nFROM per_session\nGROUP BY device\nORDER BY device;",
+"columns": [
+"device",
+"a_pct",
+"b_pct",
+"sessions"
+],
+"rows": [
+[
+"desktop",
+16.16,
+14.76,
+660
+],
+[
+"mobile",
+15.95,
+18.44,
+1122
+],
+[
+"tablet",
+24.59,
+22.22,
+115
+]
+],
+"total": 3
+}
+}

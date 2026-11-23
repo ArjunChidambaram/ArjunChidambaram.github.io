@@ -1,0 +1,696 @@
+{
+"count": {
+"sql": "WITH RECURSIVE numbers(n) AS (\n  SELECT 1                   -- anchor: where to start\n  UNION ALL\n  SELECT n + 1 FROM numbers  -- recursive step: build on the last rows\n  WHERE n < 10               -- stop condition\n)\nSELECT n FROM numbers;",
+"columns": [
+"n"
+],
+"rows": [
+[
+1
+],
+[
+2
+],
+[
+3
+],
+[
+4
+],
+[
+5
+],
+[
+6
+],
+[
+7
+],
+[
+8
+],
+[
+9
+],
+[
+10
+]
+],
+"total": 10
+},
+"calendar": {
+"sql": "WITH RECURSIVE days(day) AS (\n  SELECT DATE '2025-12-24'\n  UNION ALL\n  SELECT CAST(day + INTERVAL 1 DAY AS DATE) FROM days\n  WHERE day < DATE '2025-12-31'\n)\nSELECT d.day, COUNT(o.order_id) AS orders\nFROM days d\nLEFT JOIN orders o ON o.order_date = d.day\nGROUP BY d.day\nORDER BY d.day;",
+"columns": [
+"day",
+"orders"
+],
+"rows": [
+[
+"2025-12-24",
+0
+],
+[
+"2025-12-25",
+2
+],
+[
+"2025-12-26",
+1
+],
+[
+"2025-12-27",
+0
+],
+[
+"2025-12-28",
+2
+],
+[
+"2025-12-29",
+0
+],
+[
+"2025-12-30",
+1
+],
+[
+"2025-12-31",
+1
+]
+],
+"total": 8
+},
+"employees": {
+"sql": "SELECT employee_id, name, title, manager_id\nFROM employees\nORDER BY employee_id;",
+"columns": [
+"employee_id",
+"name",
+"title",
+"manager_id"
+],
+"rows": [
+[
+1,
+"Dana Whitfield",
+"CEO",
+null
+],
+[
+2,
+"Marcus Chen",
+"VP Operations",
+1
+],
+[
+3,
+"Priya Raman",
+"VP Technology",
+1
+],
+[
+4,
+"Luis Ortega",
+"Store Manager",
+2
+],
+[
+5,
+"Grace Kim",
+"Logistics Lead",
+2
+],
+[
+6,
+"Sam Okafor",
+"Data Science Manager",
+3
+],
+[
+7,
+"Elena Petrova",
+"Engineering Manager",
+3
+],
+[
+8,
+"Tom Becker",
+"Sales Associate",
+4
+],
+[
+9,
+"Aisha Bello",
+"Sales Associate",
+4
+],
+[
+10,
+"Ravi Shah",
+"Data Scientist",
+6
+],
+[
+11,
+"Hannah Weiss",
+"Data Analyst",
+6
+],
+[
+12,
+"Jin Park",
+"Software Engineer",
+7
+],
+[
+13,
+"Olivia Brooks",
+"Software Engineer",
+7
+],
+[
+14,
+"Mateo Silva",
+"Warehouse Associate",
+5
+],
+[
+15,
+"Nina Rossi",
+"Junior Data Analyst",
+11
+]
+],
+"total": 15
+},
+"chain_up": {
+"sql": "WITH RECURSIVE chain AS (\n  SELECT employee_id, name, title, manager_id, 0 AS steps_up\n  FROM employees\n  WHERE name = 'Nina Rossi'\n  UNION ALL\n  SELECT e.employee_id, e.name, e.title, e.manager_id, c.steps_up + 1\n  FROM employees e\n  JOIN chain c ON e.employee_id = c.manager_id\n)\nSELECT steps_up, name, title\nFROM chain\nORDER BY steps_up;",
+"columns": [
+"steps_up",
+"name",
+"title"
+],
+"rows": [
+[
+0,
+"Nina Rossi",
+"Junior Data Analyst"
+],
+[
+1,
+"Hannah Weiss",
+"Data Analyst"
+],
+[
+2,
+"Sam Okafor",
+"Data Science Manager"
+],
+[
+3,
+"Priya Raman",
+"VP Technology"
+],
+[
+4,
+"Dana Whitfield",
+"CEO"
+]
+],
+"total": 5
+},
+"org_down": {
+"sql": "WITH RECURSIVE org AS (\n  SELECT employee_id, name, title, 0 AS depth, name AS path\n  FROM employees\n  WHERE manager_id IS NULL\n  UNION ALL\n  SELECT e.employee_id, e.name, e.title, o.depth + 1, o.path || ' > ' || e.name\n  FROM employees e\n  JOIN org o ON e.manager_id = o.employee_id\n)\nSELECT depth, repeat('    ', depth) || name AS org_chart, title\nFROM org\nORDER BY path;",
+"columns": [
+"depth",
+"org_chart",
+"title"
+],
+"rows": [
+[
+0,
+"Dana Whitfield",
+"CEO"
+],
+[
+1,
+"    Marcus Chen",
+"VP Operations"
+],
+[
+2,
+"        Grace Kim",
+"Logistics Lead"
+],
+[
+3,
+"            Mateo Silva",
+"Warehouse Associate"
+],
+[
+2,
+"        Luis Ortega",
+"Store Manager"
+],
+[
+3,
+"            Aisha Bello",
+"Sales Associate"
+],
+[
+3,
+"            Tom Becker",
+"Sales Associate"
+],
+[
+1,
+"    Priya Raman",
+"VP Technology"
+],
+[
+2,
+"        Elena Petrova",
+"Engineering Manager"
+],
+[
+3,
+"            Jin Park",
+"Software Engineer"
+],
+[
+3,
+"            Olivia Brooks",
+"Software Engineer"
+],
+[
+2,
+"        Sam Okafor",
+"Data Science Manager"
+],
+[
+3,
+"            Hannah Weiss",
+"Data Analyst"
+],
+[
+4,
+"                Nina Rossi",
+"Junior Data Analyst"
+],
+[
+3,
+"            Ravi Shah",
+"Data Scientist"
+]
+],
+"total": 15
+},
+"subtree": {
+"sql": "WITH RECURSIVE team AS (\n  SELECT employee_id, name, title, 0 AS depth\n  FROM employees\n  WHERE name = 'Priya Raman'\n  UNION ALL\n  SELECT e.employee_id, e.name, e.title, t.depth + 1\n  FROM employees e\n  JOIN team t ON e.manager_id = t.employee_id\n)\nSELECT depth, name, title\nFROM team\nORDER BY depth, name;",
+"columns": [
+"depth",
+"name",
+"title"
+],
+"rows": [
+[
+0,
+"Priya Raman",
+"VP Technology"
+],
+[
+1,
+"Elena Petrova",
+"Engineering Manager"
+],
+[
+1,
+"Sam Okafor",
+"Data Science Manager"
+],
+[
+2,
+"Hannah Weiss",
+"Data Analyst"
+],
+[
+2,
+"Jin Park",
+"Software Engineer"
+],
+[
+2,
+"Olivia Brooks",
+"Software Engineer"
+],
+[
+2,
+"Ravi Shah",
+"Data Scientist"
+],
+[
+3,
+"Nina Rossi",
+"Junior Data Analyst"
+]
+],
+"total": 8
+},
+"headcount": {
+"sql": "WITH RECURSIVE pairs AS (\n  -- every (manager, person below them) pair, at any distance\n  SELECT manager_id AS boss, employee_id AS person\n  FROM employees\n  WHERE manager_id IS NOT NULL\n  UNION ALL\n  SELECT e.manager_id, p.person\n  FROM pairs p\n  JOIN employees e ON e.employee_id = p.boss\n  WHERE e.manager_id IS NOT NULL\n)\nSELECT m.name, m.title, COUNT(*) AS people_below\nFROM pairs p\nJOIN employees m ON m.employee_id = p.boss\nGROUP BY m.name, m.title\nORDER BY people_below DESC;",
+"columns": [
+"name",
+"title",
+"people_below"
+],
+"rows": [
+[
+"Dana Whitfield",
+"CEO",
+14
+],
+[
+"Priya Raman",
+"VP Technology",
+7
+],
+[
+"Marcus Chen",
+"VP Operations",
+5
+],
+[
+"Sam Okafor",
+"Data Science Manager",
+3
+],
+[
+"Elena Petrova",
+"Engineering Manager",
+2
+],
+[
+"Luis Ortega",
+"Store Manager",
+2
+],
+[
+"Hannah Weiss",
+"Data Analyst",
+1
+],
+[
+"Grace Kim",
+"Logistics Lead",
+1
+]
+],
+"total": 8
+},
+"guard": {
+"sql": "WITH RECURSIVE numbers(n) AS (\n  SELECT 1\n  UNION ALL\n  SELECT n * 2 FROM numbers\n  WHERE n < 1000000   -- without this the query would never finish\n)\nSELECT COUNT(*) AS rows, MAX(n) AS largest FROM numbers;",
+"columns": [
+"rows",
+"largest"
+],
+"rows": [
+[
+21,
+1048576
+]
+],
+"total": 1
+},
+"compound": {
+"sql": "WITH RECURSIVE forecast(month, customers) AS (\n  SELECT 0, 133.0\n  UNION ALL\n  SELECT month + 1, customers * 1.05\n  FROM forecast\n  WHERE month < 12\n)\nSELECT month, ROUND(customers) AS customers_if_5pct_monthly_growth\nFROM forecast\nWHERE month IN (0, 3, 6, 9, 12);",
+"columns": [
+"month",
+"customers_if_5pct_monthly_growth"
+],
+"rows": [
+[
+0,
+133.0
+],
+[
+3,
+154.0
+],
+[
+6,
+178.0
+],
+[
+9,
+206.0
+],
+[
+12,
+239.0
+]
+],
+"total": 5
+},
+"islands_days": {
+"sql": "WITH order_days AS (\n  SELECT DISTINCT order_date AS day\n  FROM orders\n  WHERE order_date >= '2025-11-01'\n),\ngrouped AS (\n  SELECT\n    day,\n    ROW_NUMBER() OVER (ORDER BY day)                       AS rn,\n    day - CAST(ROW_NUMBER() OVER (ORDER BY day) AS INTEGER) AS island\n  FROM order_days\n)\nSELECT day, rn, island\nFROM grouped\nORDER BY day\nLIMIT 10;",
+"columns": [
+"day",
+"rn",
+"island"
+],
+"rows": [
+[
+"2025-11-01",
+1,
+"2025-10-31"
+],
+[
+"2025-11-02",
+2,
+"2025-10-31"
+],
+[
+"2025-11-03",
+3,
+"2025-10-31"
+],
+[
+"2025-11-04",
+4,
+"2025-10-31"
+],
+[
+"2025-11-07",
+5,
+"2025-11-02"
+],
+[
+"2025-11-08",
+6,
+"2025-11-02"
+],
+[
+"2025-11-10",
+7,
+"2025-11-03"
+],
+[
+"2025-11-11",
+8,
+"2025-11-03"
+],
+[
+"2025-11-14",
+9,
+"2025-11-05"
+],
+[
+"2025-11-17",
+10,
+"2025-11-07"
+]
+],
+"total": 10
+},
+"islands": {
+"sql": "WITH order_days AS (\n  SELECT DISTINCT order_date AS day\n  FROM orders\n  WHERE order_date >= '2025-11-01'\n),\ngrouped AS (\n  SELECT day, day - CAST(ROW_NUMBER() OVER (ORDER BY day) AS INTEGER) AS island\n  FROM order_days\n)\nSELECT MIN(day) AS streak_start, MAX(day) AS streak_end, COUNT(*) AS days_in_a_row\nFROM grouped\nGROUP BY island\nORDER BY days_in_a_row DESC, streak_start\nLIMIT 5;",
+"columns": [
+"streak_start",
+"streak_end",
+"days_in_a_row"
+],
+"rows": [
+[
+"2025-11-20",
+"2025-12-23",
+34
+],
+[
+"2025-11-01",
+"2025-11-04",
+4
+],
+[
+"2025-11-07",
+"2025-11-08",
+2
+],
+[
+"2025-11-10",
+"2025-11-11",
+2
+],
+[
+"2025-12-25",
+"2025-12-26",
+2
+]
+],
+"total": 5
+},
+"gaps": {
+"sql": "WITH order_days AS (\n  SELECT DISTINCT order_date AS day FROM orders WHERE order_date >= '2025-11-01'\n)\nSELECT\n  day AS last_day_with_orders,\n  LEAD(day) OVER (ORDER BY day) AS next_day_with_orders,\n  LEAD(day) OVER (ORDER BY day) - day - 1 AS empty_days\nFROM order_days\nQUALIFY empty_days > 0\nORDER BY empty_days DESC\nLIMIT 5;",
+"columns": [
+"last_day_with_orders",
+"next_day_with_orders",
+"empty_days"
+],
+"rows": [
+[
+"2025-11-04",
+"2025-11-07",
+2
+],
+[
+"2025-11-14",
+"2025-11-17",
+2
+],
+[
+"2025-11-17",
+"2025-11-20",
+2
+],
+[
+"2025-11-11",
+"2025-11-14",
+2
+],
+[
+"2025-11-08",
+"2025-11-10",
+1
+]
+],
+"total": 5
+},
+"ex1": {
+"sql": "WITH RECURSIVE chain AS (\n  SELECT employee_id, name, manager_id, 0 AS level\n  FROM employees WHERE name = 'Mateo Silva'\n  UNION ALL\n  SELECT e.employee_id, e.name, e.manager_id, c.level + 1\n  FROM employees e JOIN chain c ON e.employee_id = c.manager_id\n)\nSELECT level, name FROM chain ORDER BY level;",
+"columns": [
+"level",
+"name"
+],
+"rows": [
+[
+0,
+"Mateo Silva"
+],
+[
+1,
+"Grace Kim"
+],
+[
+2,
+"Marcus Chen"
+],
+[
+3,
+"Dana Whitfield"
+]
+],
+"total": 4
+},
+"ex2": {
+"sql": "WITH RECURSIVE weeks(week_start) AS (\n  SELECT DATE '2025-11-03'\n  UNION ALL\n  SELECT CAST(week_start + INTERVAL 7 DAY AS DATE) FROM weeks WHERE week_start < DATE '2025-12-22'\n)\nSELECT w.week_start, COUNT(o.order_id) AS orders\nFROM weeks w\nLEFT JOIN orders o ON o.order_date >= w.week_start AND o.order_date < w.week_start + INTERVAL 7 DAY\nGROUP BY w.week_start\nORDER BY w.week_start;",
+"columns": [
+"week_start",
+"orders"
+],
+"rows": [
+[
+"2025-11-03",
+5
+],
+[
+"2025-11-10",
+6
+],
+[
+"2025-11-17",
+24
+],
+[
+"2025-11-24",
+45
+],
+[
+"2025-12-01",
+21
+],
+[
+"2025-12-08",
+26
+],
+[
+"2025-12-15",
+29
+],
+[
+"2025-12-22",
+11
+]
+],
+"total": 8
+},
+"ex3": {
+"sql": "WITH customer_days AS (\n  SELECT DISTINCT customer_id, CAST(started_at AS DATE) AS day\n  FROM sessions\n  WHERE customer_id IS NOT NULL\n),\ngrouped AS (\n  SELECT customer_id, day,\n         day - CAST(ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY day) AS INTEGER) AS island\n  FROM customer_days\n)\nSELECT customer_id, MIN(day) AS start, MAX(day) AS finish, COUNT(*) AS consecutive_days\nFROM grouped\nGROUP BY customer_id, island\nORDER BY consecutive_days DESC, customer_id\nLIMIT 5;",
+"columns": [
+"customer_id",
+"start",
+"finish",
+"consecutive_days"
+],
+"rows": [
+[
+127,
+"2025-11-01",
+"2025-11-06",
+6
+],
+[
+135,
+"2025-11-12",
+"2025-11-17",
+6
+],
+[
+142,
+"2025-11-07",
+"2025-11-12",
+6
+],
+[
+148,
+"2025-11-08",
+"2025-11-12",
+5
+],
+[
+150,
+"2025-11-04",
+"2025-11-08",
+5
+]
+],
+"total": 5
+}
+}
