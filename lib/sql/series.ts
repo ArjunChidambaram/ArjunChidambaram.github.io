@@ -6,7 +6,7 @@ export const SQL_SERIES: { n: number; slug: string; title: string; live: boolean
   { n: 4, slug: "sql-joins-explained", title: "JOINs", live: true },
   { n: 5, slug: "sql-subqueries-ctes-explained", title: "Subqueries and CTEs", live: true },
   { n: 6, slug: "sql-window-functions-ranking-explained", title: "Window functions I: ranking", live: true },
-  { n: 7, slug: "sql-window-functions-running-totals-explained", title: "Window functions II: LAG, LEAD and running totals", live: false },
+  { n: 7, slug: "sql-window-functions-running-totals-explained", title: "Window functions II: LAG, LEAD and running totals", live: true },
   { n: 8, slug: "sql-dates-strings-cleaning-explained", title: "Dates, strings and cleaning data", live: false },
   { n: 9, slug: "sql-set-operations-pivoting-explained", title: "UNION, pivoting and conditional aggregation", live: false },
   { n: 10, slug: "sql-recursive-ctes-explained", title: "Recursive CTEs", live: false },

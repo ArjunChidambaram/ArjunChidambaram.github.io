@@ -1,0 +1,1186 @@
+{
+"daily": {
+"sql": "WITH daily AS (\n  SELECT o.order_date AS day, COUNT(DISTINCT o.order_id) AS orders, SUM(i.quantity * i.unit_price) AS revenue\n  FROM orders o\n  JOIN order_items i ON i.order_id = o.order_id\n  WHERE o.status = 'completed' AND o.order_date >= '2025-12-01'\n  GROUP BY o.order_date\n)\nSELECT * FROM daily ORDER BY day LIMIT 8;",
+"columns": [
+"day",
+"orders",
+"revenue"
+],
+"rows": [
+[
+"2025-12-01",
+1,
+13.98
+],
+[
+"2025-12-02",
+2,
+254.96
+],
+[
+"2025-12-03",
+6,
+392.7
+],
+[
+"2025-12-04",
+1,
+530.04
+],
+[
+"2025-12-05",
+3,
+434.54
+],
+[
+"2025-12-06",
+2,
+181.43
+],
+[
+"2025-12-07",
+4,
+354.92
+],
+[
+"2025-12-08",
+4,
+312.43
+]
+],
+"total": 8
+},
+"lag_lead": {
+"sql": "WITH daily AS (\n  SELECT o.order_date AS day, SUM(i.quantity * i.unit_price) AS revenue\n  FROM orders o JOIN order_items i ON i.order_id = o.order_id\n  WHERE o.status = 'completed' AND o.order_date >= '2025-12-01'\n  GROUP BY o.order_date\n)\nSELECT\n  day,\n  revenue,\n  LAG(revenue)  OVER (ORDER BY day) AS previous_day,\n  LEAD(revenue) OVER (ORDER BY day) AS next_day,\n  revenue - LAG(revenue) OVER (ORDER BY day) AS change\nFROM daily\nORDER BY day\nLIMIT 8;",
+"columns": [
+"day",
+"revenue",
+"previous_day",
+"next_day",
+"change"
+],
+"rows": [
+[
+"2025-12-01",
+13.98,
+null,
+254.96,
+null
+],
+[
+"2025-12-02",
+254.96,
+13.98,
+392.7,
+240.98
+],
+[
+"2025-12-03",
+392.7,
+254.96,
+530.04,
+137.74
+],
+[
+"2025-12-04",
+530.04,
+392.7,
+434.54,
+137.34
+],
+[
+"2025-12-05",
+434.54,
+530.04,
+181.43,
+-95.5
+],
+[
+"2025-12-06",
+181.43,
+434.54,
+354.92,
+-253.11
+],
+[
+"2025-12-07",
+354.92,
+181.43,
+312.43,
+173.49
+],
+[
+"2025-12-08",
+312.43,
+354.92,
+158.98,
+-42.49
+]
+],
+"total": 8
+},
+"lag_pct": {
+"sql": "WITH monthly AS (\n  SELECT date_trunc('month', o.order_date)::DATE AS month, SUM(i.quantity * i.unit_price) AS revenue\n  FROM orders o JOIN order_items i ON i.order_id = o.order_id\n  WHERE o.status = 'completed'\n  GROUP BY month\n)\nSELECT\n  month,\n  revenue,\n  LAG(revenue) OVER (ORDER BY month) AS last_month,\n  ROUND(100.0 * (revenue - LAG(revenue) OVER (ORDER BY month)) / LAG(revenue) OVER (ORDER BY month), 1) AS pct_change\nFROM monthly\nORDER BY month;",
+"columns": [
+"month",
+"revenue",
+"last_month",
+"pct_change"
+],
+"rows": [
+[
+"2025-01-01",
+1036.17,
+null,
+null
+],
+[
+"2025-02-01",
+1336.54,
+1036.17,
+29.0
+],
+[
+"2025-03-01",
+1466.16,
+1336.54,
+9.7
+],
+[
+"2025-04-01",
+1080.76,
+1466.16,
+-26.3
+],
+[
+"2025-05-01",
+1642.17,
+1080.76,
+51.9
+],
+[
+"2025-06-01",
+1707.01,
+1642.17,
+3.9
+],
+[
+"2025-07-01",
+3802.55,
+1707.01,
+122.8
+],
+[
+"2025-08-01",
+2310.92,
+3802.55,
+-39.2
+],
+[
+"2025-09-01",
+3338.22,
+2310.92,
+44.5
+],
+[
+"2025-10-01",
+2052.54,
+3338.22,
+-38.5
+],
+[
+"2025-11-01",
+6236.12,
+2052.54,
+203.8
+],
+[
+"2025-12-01",
+6726.35,
+6236.12,
+7.9
+]
+],
+"total": 12
+},
+"lag_default": {
+"sql": "SELECT\n  month,\n  orders,\n  LAG(orders, 1, 0) OVER (ORDER BY month) AS last_month_or_zero,\n  LAG(orders, 3)    OVER (ORDER BY month) AS three_months_ago\nFROM (\n  SELECT date_trunc('month', order_date)::DATE AS month, COUNT(*) AS orders\n  FROM orders\n  GROUP BY month\n) m\nORDER BY month\nLIMIT 6;",
+"columns": [
+"month",
+"orders",
+"last_month_or_zero",
+"three_months_ago"
+],
+"rows": [
+[
+"2025-01-01",
+16,
+0,
+null
+],
+[
+"2025-02-01",
+18,
+16,
+null
+],
+[
+"2025-03-01",
+15,
+18,
+null
+],
+[
+"2025-04-01",
+18,
+15,
+16
+],
+[
+"2025-05-01",
+26,
+18,
+18
+],
+[
+"2025-06-01",
+25,
+26,
+15
+]
+],
+"total": 6
+},
+"days_between": {
+"sql": "SELECT\n  customer_id,\n  order_id,\n  order_date,\n  LAG(order_date) OVER (PARTITION BY customer_id ORDER BY order_date, order_id) AS previous_order,\n  order_date - LAG(order_date) OVER (PARTITION BY customer_id ORDER BY order_date, order_id) AS days_since_previous\nFROM orders\nWHERE customer_id IN (2, 3)\nORDER BY customer_id, order_date;",
+"columns": [
+"customer_id",
+"order_id",
+"order_date",
+"previous_order",
+"days_since_previous"
+],
+"rows": [
+[
+2,
+1222,
+"2025-10-01",
+null,
+null
+],
+[
+2,
+1229,
+"2025-10-08",
+"2025-10-01",
+7
+],
+[
+2,
+1374,
+"2025-12-14",
+"2025-10-08",
+67
+],
+[
+3,
+1259,
+"2025-11-11",
+null,
+null
+],
+[
+3,
+1296,
+"2025-11-26",
+"2025-11-11",
+15
+],
+[
+3,
+1312,
+"2025-11-28",
+"2025-11-26",
+2
+]
+],
+"total": 6
+},
+"gap_stats": {
+"sql": "WITH gaps AS (\n  SELECT\n    customer_id,\n    order_date - LAG(order_date) OVER (PARTITION BY customer_id ORDER BY order_date, order_id) AS gap\n  FROM orders\n)\nSELECT\n  COUNT(gap)                       AS repeat_orders,\n  ROUND(AVG(gap), 1)               AS avg_days_between_orders,\n  MEDIAN(gap)                      AS median_days\nFROM gaps;",
+"columns": [
+"repeat_orders",
+"avg_days_between_orders",
+"median_days"
+],
+"rows": [
+[
+287,
+41.0,
+19.0
+]
+],
+"total": 1
+},
+"running": {
+"sql": "WITH daily AS (\n  SELECT o.order_date AS day, SUM(i.quantity * i.unit_price) AS revenue\n  FROM orders o JOIN order_items i ON i.order_id = o.order_id\n  WHERE o.status = 'completed' AND o.order_date >= '2025-12-01'\n  GROUP BY o.order_date\n)\nSELECT\n  day,\n  revenue,\n  SUM(revenue) OVER (ORDER BY day) AS month_to_date\nFROM daily\nORDER BY day\nLIMIT 10;",
+"columns": [
+"day",
+"revenue",
+"month_to_date"
+],
+"rows": [
+[
+"2025-12-01",
+13.98,
+13.98
+],
+[
+"2025-12-02",
+254.96,
+268.94
+],
+[
+"2025-12-03",
+392.7,
+661.64
+],
+[
+"2025-12-04",
+530.04,
+1191.68
+],
+[
+"2025-12-05",
+434.54,
+1626.22
+],
+[
+"2025-12-06",
+181.43,
+1807.65
+],
+[
+"2025-12-07",
+354.92,
+2162.57
+],
+[
+"2025-12-08",
+312.43,
+2475.0
+],
+[
+"2025-12-09",
+158.98,
+2633.98
+],
+[
+"2025-12-10",
+66.95,
+2700.93
+]
+],
+"total": 10
+},
+"running_reset": {
+"sql": "WITH monthly AS (\n  SELECT date_trunc('month', o.order_date)::DATE AS month, SUM(i.quantity * i.unit_price) AS revenue\n  FROM orders o JOIN order_items i ON i.order_id = o.order_id\n  WHERE o.status = 'completed'\n  GROUP BY month\n)\nSELECT\n  month,\n  revenue,\n  SUM(revenue) OVER (PARTITION BY quarter(month) ORDER BY month) AS quarter_to_date,\n  SUM(revenue) OVER (ORDER BY month)                             AS year_to_date\nFROM monthly\nORDER BY month;",
+"columns": [
+"month",
+"revenue",
+"quarter_to_date",
+"year_to_date"
+],
+"rows": [
+[
+"2025-01-01",
+1036.17,
+1036.17,
+1036.17
+],
+[
+"2025-02-01",
+1336.54,
+2372.71,
+2372.71
+],
+[
+"2025-03-01",
+1466.16,
+3838.87,
+3838.87
+],
+[
+"2025-04-01",
+1080.76,
+1080.76,
+4919.63
+],
+[
+"2025-05-01",
+1642.17,
+2722.93,
+6561.8
+],
+[
+"2025-06-01",
+1707.01,
+4429.94,
+8268.81
+],
+[
+"2025-07-01",
+3802.55,
+3802.55,
+12071.36
+],
+[
+"2025-08-01",
+2310.92,
+6113.47,
+14382.28
+],
+[
+"2025-09-01",
+3338.22,
+9451.69,
+17720.5
+],
+[
+"2025-10-01",
+2052.54,
+2052.54,
+19773.04
+],
+[
+"2025-11-01",
+6236.12,
+8288.66,
+26009.16
+],
+[
+"2025-12-01",
+6726.35,
+15015.01,
+32735.51
+]
+],
+"total": 12
+},
+"range_vs_rows": {
+"sql": "SELECT\n  order_id,\n  order_date,\n  COUNT(*) OVER (ORDER BY order_date)                                      AS default_range,\n  COUNT(*) OVER (ORDER BY order_date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS rows_frame,\n  COUNT(*) OVER (ORDER BY order_date, order_id)                           AS unique_order\nFROM orders\nWHERE order_date BETWEEN '2025-12-19' AND '2025-12-21'\nORDER BY order_date, order_id;",
+"columns": [
+"order_id",
+"order_date",
+"default_range",
+"rows_frame",
+"unique_order"
+],
+"rows": [
+[
+1392,
+"2025-12-19",
+6,
+1,
+1
+],
+[
+1393,
+"2025-12-19",
+6,
+2,
+2
+],
+[
+1394,
+"2025-12-19",
+6,
+3,
+3
+],
+[
+1395,
+"2025-12-19",
+6,
+4,
+4
+],
+[
+1396,
+"2025-12-19",
+6,
+5,
+5
+],
+[
+1397,
+"2025-12-19",
+6,
+6,
+6
+],
+[
+1398,
+"2025-12-20",
+9,
+7,
+7
+],
+[
+1399,
+"2025-12-20",
+9,
+8,
+8
+],
+[
+1400,
+"2025-12-20",
+9,
+9,
+9
+],
+[
+1401,
+"2025-12-21",
+16,
+10,
+10
+],
+[
+1402,
+"2025-12-21",
+16,
+11,
+11
+],
+[
+1403,
+"2025-12-21",
+16,
+12,
+12
+],
+[
+1404,
+"2025-12-21",
+16,
+13,
+13
+],
+[
+1405,
+"2025-12-21",
+16,
+14,
+14
+],
+[
+1406,
+"2025-12-21",
+16,
+15,
+15
+],
+[
+1407,
+"2025-12-21",
+16,
+16,
+16
+]
+],
+"total": 16
+},
+"moving_avg": {
+"sql": "WITH daily AS (\n  SELECT o.order_date AS day, SUM(i.quantity * i.unit_price) AS revenue\n  FROM orders o JOIN order_items i ON i.order_id = o.order_id\n  WHERE o.status = 'completed' AND o.order_date >= '2025-11-01'\n  GROUP BY o.order_date\n)\nSELECT\n  day,\n  revenue,\n  ROUND(AVG(revenue) OVER (ORDER BY day ROWS BETWEEN 6 PRECEDING AND CURRENT ROW), 2) AS avg_last_7_rows,\n  COUNT(*)            OVER (ORDER BY day ROWS BETWEEN 6 PRECEDING AND CURRENT ROW)     AS rows_in_window\nFROM daily\nORDER BY day\nLIMIT 10;",
+"columns": [
+"day",
+"revenue",
+"avg_last_7_rows",
+"rows_in_window"
+],
+"rows": [
+[
+"2025-11-01",
+21.96,
+21.96,
+1
+],
+[
+"2025-11-02",
+3.49,
+12.72,
+2
+],
+[
+"2025-11-03",
+199.94,
+75.13,
+3
+],
+[
+"2025-11-04",
+173.98,
+99.84,
+4
+],
+[
+"2025-11-08",
+6.98,
+81.27,
+5
+],
+[
+"2025-11-10",
+72.93,
+79.88,
+6
+],
+[
+"2025-11-11",
+19.99,
+71.32,
+7
+],
+[
+"2025-11-14",
+314.93,
+113.18,
+7
+],
+[
+"2025-11-17",
+282.97,
+153.1,
+7
+],
+[
+"2025-11-20",
+37.48,
+129.89,
+7
+]
+],
+"total": 10
+},
+"moving_avg_days": {
+"sql": "WITH daily AS (\n  SELECT o.order_date AS day, SUM(i.quantity * i.unit_price) AS revenue\n  FROM orders o JOIN order_items i ON i.order_id = o.order_id\n  WHERE o.status = 'completed' AND o.order_date >= '2025-11-01'\n  GROUP BY o.order_date\n),\ncalendar AS (\n  SELECT CAST(d AS DATE) AS day\n  FROM generate_series(DATE '2025-11-01', DATE '2025-12-31', INTERVAL 1 DAY) AS t(d)\n),\nfilled AS (\n  SELECT c.day, COALESCE(d.revenue, 0) AS revenue\n  FROM calendar c\n  LEFT JOIN daily d ON d.day = c.day\n)\nSELECT\n  day,\n  revenue,\n  ROUND(AVG(revenue) OVER (ORDER BY day ROWS BETWEEN 6 PRECEDING AND CURRENT ROW), 2) AS avg_last_7_days\nFROM filled\nORDER BY day\nLIMIT 10;",
+"columns": [
+"day",
+"revenue",
+"avg_last_7_days"
+],
+"rows": [
+[
+"2025-11-01",
+21.96,
+21.96
+],
+[
+"2025-11-02",
+3.49,
+12.72
+],
+[
+"2025-11-03",
+199.94,
+75.13
+],
+[
+"2025-11-04",
+173.98,
+99.84
+],
+[
+"2025-11-05",
+0.0,
+79.87
+],
+[
+"2025-11-06",
+0.0,
+66.56
+],
+[
+"2025-11-07",
+0.0,
+57.05
+],
+[
+"2025-11-08",
+6.98,
+54.91
+],
+[
+"2025-11-09",
+0.0,
+54.41
+],
+[
+"2025-11-10",
+72.93,
+36.27
+]
+],
+"total": 10
+},
+"range_interval": {
+"sql": "WITH daily AS (\n  SELECT o.order_date AS day, SUM(i.quantity * i.unit_price) AS revenue\n  FROM orders o JOIN order_items i ON i.order_id = o.order_id\n  WHERE o.status = 'completed' AND o.order_date >= '2025-11-01'\n  GROUP BY o.order_date\n)\nSELECT\n  day,\n  revenue,\n  SUM(revenue) OVER (ORDER BY day RANGE BETWEEN INTERVAL 6 DAYS PRECEDING AND CURRENT ROW) AS revenue_last_7_days\nFROM daily\nORDER BY day\nLIMIT 8;",
+"columns": [
+"day",
+"revenue",
+"revenue_last_7_days"
+],
+"rows": [
+[
+"2025-11-01",
+21.96,
+21.96
+],
+[
+"2025-11-02",
+3.49,
+25.45
+],
+[
+"2025-11-03",
+199.94,
+225.39
+],
+[
+"2025-11-04",
+173.98,
+399.37
+],
+[
+"2025-11-08",
+6.98,
+384.39
+],
+[
+"2025-11-10",
+72.93,
+253.89
+],
+[
+"2025-11-11",
+19.99,
+99.9
+],
+[
+"2025-11-14",
+314.93,
+414.83
+]
+],
+"total": 8
+},
+"centered": {
+"sql": "WITH monthly AS (\n  SELECT date_trunc('month', order_date)::DATE AS month, COUNT(*) AS orders\n  FROM orders\n  GROUP BY month\n)\nSELECT\n  month,\n  orders,\n  ROUND(AVG(orders) OVER (ORDER BY month ROWS BETWEEN 1 PRECEDING AND 1 FOLLOWING), 1) AS centered_3_month_avg\nFROM monthly\nORDER BY month;",
+"columns": [
+"month",
+"orders",
+"centered_3_month_avg"
+],
+"rows": [
+[
+"2025-01-01",
+16,
+17.0
+],
+[
+"2025-02-01",
+18,
+16.3
+],
+[
+"2025-03-01",
+15,
+17.0
+],
+[
+"2025-04-01",
+18,
+19.7
+],
+[
+"2025-05-01",
+26,
+23.0
+],
+[
+"2025-06-01",
+25,
+26.3
+],
+[
+"2025-07-01",
+28,
+29.0
+],
+[
+"2025-08-01",
+34,
+34.3
+],
+[
+"2025-09-01",
+41,
+34.3
+],
+[
+"2025-10-01",
+28,
+50.3
+],
+[
+"2025-11-01",
+82,
+66.3
+],
+[
+"2025-12-01",
+89,
+85.5
+]
+],
+"total": 12
+},
+"first_last": {
+"sql": "SELECT\n  category,\n  name,\n  price,\n  FIRST_VALUE(name) OVER (PARTITION BY category ORDER BY price DESC) AS priciest,\n  LAST_VALUE(name)  OVER (PARTITION BY category ORDER BY price DESC) AS last_value_default,\n  LAST_VALUE(name)  OVER (PARTITION BY category ORDER BY price DESC\n                          ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS cheapest\nFROM products\nWHERE category IN ('Footwear', 'Fitness')\nORDER BY category, price DESC;",
+"columns": [
+"category",
+"name",
+"price",
+"priciest",
+"last_value_default",
+"cheapest"
+],
+"rows": [
+[
+"Fitness",
+"Dumbbell Set",
+89.0,
+"Dumbbell Set",
+"Dumbbell Set",
+"Resistance Bands"
+],
+[
+"Fitness",
+"Yoga Mat",
+34.99,
+"Dumbbell Set",
+"Yoga Mat",
+"Resistance Bands"
+],
+[
+"Fitness",
+"Foam Roller",
+24.0,
+"Dumbbell Set",
+"Foam Roller",
+"Resistance Bands"
+],
+[
+"Fitness",
+"Resistance Bands",
+19.5,
+"Dumbbell Set",
+"Resistance Bands",
+"Resistance Bands"
+],
+[
+"Footwear",
+"Trail Running Shoes",
+89.99,
+"Trail Running Shoes",
+"Trail Running Shoes",
+"Wool Socks (3-pack)"
+],
+[
+"Footwear",
+"Everyday Sneakers",
+59.99,
+"Trail Running Shoes",
+"Everyday Sneakers",
+"Wool Socks (3-pack)"
+],
+[
+"Footwear",
+"Rain Boots",
+44.5,
+"Trail Running Shoes",
+"Rain Boots",
+"Wool Socks (3-pack)"
+],
+[
+"Footwear",
+"Wool Socks (3-pack)",
+14.99,
+"Trail Running Shoes",
+"Wool Socks (3-pack)",
+"Wool Socks (3-pack)"
+]
+],
+"total": 8
+},
+"pareto": {
+"sql": "WITH product_revenue AS (\n  SELECT p.name, SUM(i.quantity * i.unit_price) AS revenue\n  FROM order_items i JOIN products p ON p.product_id = i.product_id\n  GROUP BY p.name\n)\nSELECT\n  name,\n  revenue,\n  ROUND(100 * SUM(revenue) OVER (ORDER BY revenue DESC ROWS UNBOUNDED PRECEDING)\n            / SUM(revenue) OVER (), 1) AS cumulative_pct\nFROM product_revenue\nORDER BY revenue DESC\nLIMIT 8;",
+"columns": [
+"name",
+"revenue",
+"cumulative_pct"
+],
+"rows": [
+[
+"Trail Running Shoes",
+5160.91,
+14.4
+],
+[
+"Everyday Sneakers",
+4502.23,
+26.9
+],
+[
+"Wireless Earbuds",
+3278.5,
+36.0
+],
+[
+"Daypack 20L",
+2684.8,
+43.5
+],
+[
+"Smart Watch",
+2636.75,
+50.8
+],
+[
+"Sleeping Bag",
+2344.3,
+57.3
+],
+[
+"Bluetooth Speaker",
+2022.07,
+62.9
+],
+[
+"Two-Person Tent",
+1790.0,
+67.9
+]
+],
+"total": 8
+},
+"ex1": {
+"sql": "WITH weekly AS (\n  SELECT date_trunc('week', order_date)::DATE AS week, COUNT(*) AS orders\n  FROM orders\n  WHERE order_date >= '2025-10-01'\n  GROUP BY week\n)\nSELECT week, orders, orders - LAG(orders) OVER (ORDER BY week) AS change_vs_last_week\nFROM weekly\nORDER BY week;",
+"columns": [
+"week",
+"orders",
+"change_vs_last_week"
+],
+"rows": [
+[
+"2025-09-29",
+7,
+null
+],
+[
+"2025-10-06",
+7,
+0
+],
+[
+"2025-10-13",
+7,
+0
+],
+[
+"2025-10-20",
+7,
+0
+],
+[
+"2025-10-27",
+2,
+-5
+],
+[
+"2025-11-03",
+5,
+3
+],
+[
+"2025-11-10",
+6,
+1
+],
+[
+"2025-11-17",
+24,
+18
+],
+[
+"2025-11-24",
+45,
+21
+],
+[
+"2025-12-01",
+21,
+-24
+],
+[
+"2025-12-08",
+26,
+5
+],
+[
+"2025-12-15",
+29,
+3
+],
+[
+"2025-12-22",
+11,
+-18
+],
+[
+"2025-12-29",
+2,
+-9
+]
+],
+"total": 14
+},
+"ex2": {
+"sql": "SELECT\n  customer_id,\n  order_id,\n  order_date,\n  ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY order_date, order_id) AS nth_order,\n  COUNT(*) OVER (PARTITION BY customer_id ORDER BY order_date, order_id\n                 ROWS UNBOUNDED PRECEDING) AS running_count\nFROM orders\nWHERE customer_id = 9\nORDER BY order_date\nLIMIT 6;",
+"columns": [
+"customer_id",
+"order_id",
+"order_date",
+"nth_order",
+"running_count"
+],
+"rows": [
+[
+9,
+1003,
+"2025-01-10",
+1,
+1
+],
+[
+9,
+1011,
+"2025-01-27",
+2,
+2
+],
+[
+9,
+1044,
+"2025-03-19",
+3,
+3
+],
+[
+9,
+1062,
+"2025-04-27",
+4,
+4
+],
+[
+9,
+1071,
+"2025-05-06",
+5,
+5
+],
+[
+9,
+1086,
+"2025-05-24",
+6,
+6
+]
+],
+"total": 6
+},
+"ex3": {
+"sql": "WITH first_orders AS (\n  SELECT customer_id, MIN(order_date) AS first_order\n  FROM orders\n  GROUP BY customer_id\n),\nmonthly AS (\n  SELECT date_trunc('month', first_order)::DATE AS month, COUNT(*) AS new_customers\n  FROM first_orders\n  GROUP BY month\n)\nSELECT month, new_customers, SUM(new_customers) OVER (ORDER BY month) AS total_customers\nFROM monthly\nORDER BY month;",
+"columns": [
+"month",
+"new_customers",
+"total_customers"
+],
+"rows": [
+[
+"2025-01-01",
+12,
+12
+],
+[
+"2025-02-01",
+13,
+25
+],
+[
+"2025-03-01",
+7,
+32
+],
+[
+"2025-04-01",
+8,
+40
+],
+[
+"2025-05-01",
+9,
+49
+],
+[
+"2025-06-01",
+8,
+57
+],
+[
+"2025-07-01",
+10,
+67
+],
+[
+"2025-08-01",
+8,
+75
+],
+[
+"2025-09-01",
+6,
+81
+],
+[
+"2025-10-01",
+11,
+92
+],
+[
+"2025-11-01",
+20,
+112
+],
+[
+"2025-12-01",
+21,
+133
+]
+],
+"total": 12
+}
+}
