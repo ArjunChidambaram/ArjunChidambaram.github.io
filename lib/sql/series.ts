@@ -2,7 +2,7 @@
 export const SQL_SERIES: { n: number; slug: string; title: string; live: boolean }[] = [
   { n: 1, slug: "sql-select-where-explained", title: "SELECT, FROM and WHERE", live: true },
   { n: 2, slug: "sql-sorting-case-explained", title: "Sorting, LIMIT, DISTINCT and CASE", live: true },
-  { n: 3, slug: "sql-group-by-explained", title: "GROUP BY and aggregation", live: false },
+  { n: 3, slug: "sql-group-by-explained", title: "GROUP BY and aggregation", live: true },
   { n: 4, slug: "sql-joins-explained", title: "JOINs", live: false },
   { n: 5, slug: "sql-subqueries-ctes-explained", title: "Subqueries and CTEs", live: false },
   { n: 6, slug: "sql-window-functions-ranking-explained", title: "Window functions I: ranking", live: false },
