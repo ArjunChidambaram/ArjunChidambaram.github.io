@@ -1,0 +1,753 @@
+{
+"types": {
+"sql": "SELECT\n  DATE '2025-11-28'                      AS a_date,\n  TIMESTAMP '2025-11-28 14:35:00'        AS a_timestamp,\n  INTERVAL 3 DAY                         AS an_interval,\n  DATE '2025-11-28' + INTERVAL 3 DAY     AS three_days_later,\n  DATE '2025-12-25' - DATE '2025-11-28'  AS days_between;",
+"columns": [
+"a_date",
+"a_timestamp",
+"an_interval",
+"three_days_later",
+"days_between"
+],
+"rows": [
+[
+"2025-11-28",
+"2025-11-28 14:35:00",
+"3 days, 0:00:00",
+"2025-12-01 00:00:00",
+27
+]
+],
+"total": 1
+},
+"extract": {
+"sql": "SELECT\n  started_at,\n  EXTRACT(year FROM started_at)   AS year,\n  EXTRACT(month FROM started_at)  AS month,\n  EXTRACT(day FROM started_at)    AS day,\n  EXTRACT(hour FROM started_at)   AS hour,\n  dayname(started_at)             AS weekday,\n  EXTRACT(isodow FROM started_at) AS iso_weekday\nFROM sessions\nORDER BY session_id\nLIMIT 4;",
+"columns": [
+"started_at",
+"year",
+"month",
+"day",
+"hour",
+"weekday",
+"iso_weekday"
+],
+"rows": [
+[
+"2025-11-01 07:24:34",
+2025,
+11,
+1,
+7,
+"Saturday",
+6
+],
+[
+"2025-11-01 20:51:43",
+2025,
+11,
+1,
+20,
+"Saturday",
+6
+],
+[
+"2025-11-01 21:58:38",
+2025,
+11,
+1,
+21,
+"Saturday",
+6
+],
+[
+"2025-11-01 11:23:28",
+2025,
+11,
+1,
+11,
+"Saturday",
+6
+]
+],
+"total": 4
+},
+"by_hour": {
+"sql": "SELECT\n  EXTRACT(hour FROM started_at) AS hour,\n  COUNT(*)                      AS sessions\nFROM sessions\nGROUP BY hour\nORDER BY hour;",
+"columns": [
+"hour",
+"sessions"
+],
+"rows": [
+[
+6,
+95
+],
+[
+7,
+90
+],
+[
+8,
+113
+],
+[
+9,
+117
+],
+[
+10,
+117
+],
+[
+11,
+123
+],
+[
+12,
+105
+],
+[
+13,
+118
+],
+[
+14,
+104
+],
+[
+15,
+122
+],
+[
+16,
+111
+],
+[
+17,
+125
+],
+[
+18,
+94
+],
+[
+19,
+122
+],
+[
+20,
+111
+],
+[
+21,
+118
+],
+[
+22,
+112
+]
+],
+"total": 17
+},
+"by_weekday": {
+"sql": "SELECT\n  dayname(started_at)           AS weekday,\n  EXTRACT(isodow FROM started_at) AS d,\n  COUNT(*)                      AS sessions,\n  ROUND(COUNT(*) / COUNT(DISTINCT started_at::DATE), 1) AS per_day\nFROM sessions\nGROUP BY ALL\nORDER BY d;",
+"columns": [
+"weekday",
+"d",
+"sessions",
+"per_day"
+],
+"rows": [
+[
+"Monday",
+1,
+300,
+75.0
+],
+[
+"Tuesday",
+2,
+261,
+65.3
+],
+[
+"Wednesday",
+3,
+260,
+65.0
+],
+[
+"Thursday",
+4,
+278,
+69.5
+],
+[
+"Friday",
+5,
+253,
+63.3
+],
+[
+"Saturday",
+6,
+295,
+73.8
+],
+[
+"Sunday",
+7,
+250,
+62.5
+]
+],
+"total": 7
+},
+"trunc": {
+"sql": "SELECT\n  started_at,\n  date_trunc('hour',  started_at) AS hour,\n  date_trunc('day',   started_at) AS day,\n  date_trunc('week',  started_at) AS week_starting_monday,\n  date_trunc('month', started_at) AS month\nFROM sessions\nWHERE session_id = 1500;",
+"columns": [
+"started_at",
+"hour",
+"day",
+"week_starting_monday",
+"month"
+],
+"rows": [
+[
+"2025-11-23 17:45:29",
+"2025-11-23 17:00:00",
+"2025-11-23 00:00:00",
+"2025-11-17 00:00:00",
+"2025-11-01 00:00:00"
+]
+],
+"total": 1
+},
+"diff": {
+"sql": "SELECT\n  c.customer_id,\n  c.signup_date,\n  MIN(o.order_date)                                AS first_order,\n  date_diff('day', c.signup_date, MIN(o.order_date)) AS days_to_first_order\nFROM customers c\nJOIN orders o ON o.customer_id = c.customer_id\nGROUP BY c.customer_id, c.signup_date\nORDER BY c.customer_id\nLIMIT 6;",
+"columns": [
+"customer_id",
+"signup_date",
+"first_order",
+"days_to_first_order"
+],
+"rows": [
+[
+2,
+"2025-09-16",
+"2025-10-01",
+15
+],
+[
+3,
+"2025-10-31",
+"2025-11-11",
+11
+],
+[
+4,
+"2024-12-20",
+"2025-02-18",
+60
+],
+[
+5,
+"2024-11-18",
+"2025-01-14",
+57
+],
+[
+6,
+"2025-06-21",
+"2025-07-06",
+15
+],
+[
+7,
+"2025-08-25",
+"2025-09-09",
+15
+]
+],
+"total": 6
+},
+"add_interval": {
+"sql": "SELECT\n  order_id,\n  order_date,\n  order_date + INTERVAL 30 DAY      AS return_deadline,\n  order_date + INTERVAL 1 MONTH     AS one_month_later,\n  last_day(order_date)              AS end_of_month\nFROM orders\nWHERE order_id IN (1001, 1050, 1340);",
+"columns": [
+"order_id",
+"order_date",
+"return_deadline",
+"one_month_later",
+"end_of_month"
+],
+"rows": [
+[
+1001,
+"2025-01-06",
+"2025-02-05 00:00:00",
+"2025-02-06 00:00:00",
+"2025-01-31"
+],
+[
+1050,
+"2025-04-03",
+"2025-05-03 00:00:00",
+"2025-05-03 00:00:00",
+"2025-04-30"
+],
+[
+1340,
+"2025-12-03",
+"2026-01-02 00:00:00",
+"2026-01-03 00:00:00",
+"2025-12-31"
+]
+],
+"total": 3
+},
+"timestamp_filter_wrong": {
+"sql": "SELECT COUNT(*) AS sessions\nFROM sessions\nWHERE started_at BETWEEN '2025-11-27' AND '2025-11-28';",
+"columns": [
+"sessions"
+],
+"rows": [
+[
+57
+]
+],
+"total": 1
+},
+"timestamp_filter_right": {
+"sql": "SELECT COUNT(*) AS sessions\nFROM sessions\nWHERE started_at >= '2025-11-27' AND started_at < '2025-11-29';",
+"columns": [
+"sessions"
+],
+"rows": [
+[
+125
+]
+],
+"total": 1
+},
+"format": {
+"sql": "SELECT\n  order_date,\n  strftime(order_date, '%b %d, %Y')  AS pretty,\n  strftime(order_date, '%Y-%m')      AS year_month,\n  strftime(order_date, '%A')         AS weekday\nFROM orders\nWHERE order_id = 1340;",
+"columns": [
+"order_date",
+"pretty",
+"year_month",
+"weekday"
+],
+"rows": [
+[
+"2025-12-03",
+"Dec 03, 2025",
+"2025-12",
+"Wednesday"
+]
+],
+"total": 1
+},
+"strings": {
+"sql": "SELECT\n  email,\n  LENGTH(email)                       AS length,\n  UPPER(first_name)                   AS upper_name,\n  SUBSTRING(email, 1, 5)              AS first_five,\n  POSITION('@' IN email)              AS at_position,\n  SPLIT_PART(email, '@', 1)           AS local_part,\n  SPLIT_PART(email, '@', 2)           AS domain,\n  REPLACE(email, '@example.com', '')  AS without_domain\nFROM customers\nWHERE customer_id IN (1, 2);",
+"columns": [
+"email",
+"length",
+"upper_name",
+"first_five",
+"at_position",
+"local_part",
+"domain",
+"without_domain"
+],
+"rows": [
+[
+"sophia.robinson@example.com",
+27,
+"SOPHIA",
+"sophi",
+16,
+"sophia.robinson",
+"example.com",
+"sophia.robinson"
+],
+[
+"aiden.sanchez@example.com",
+25,
+"AIDEN",
+"aiden",
+14,
+"aiden.sanchez",
+"example.com",
+"aiden.sanchez"
+]
+],
+"total": 2
+},
+"concat": {
+"sql": "SELECT\n  first_name || ' ' || last_name                AS with_pipes,\n  CONCAT(first_name, ' ', last_name)            AS with_concat,\n  CONCAT_WS(', ', city, state)                  AS location,\n  first_name || ' from ' || city                AS pipes_with_null\nFROM customers\nWHERE customer_id IN (1, 51);",
+"columns": [
+"with_pipes",
+"with_concat",
+"location",
+"pipes_with_null"
+],
+"rows": [
+[
+"Sophia Robinson",
+"Sophia Robinson",
+"Austin, TX",
+"Sophia from Austin"
+],
+[
+"Chloe Lee",
+"Chloe Lee",
+"OR",
+null
+]
+],
+"total": 2
+},
+"regex": {
+"sql": "SELECT\n  name,\n  regexp_matches(name, '\\d')                        AS has_digit,\n  regexp_extract(name, '(\\d+)', 1)                  AS first_number,\n  regexp_replace(name, '\\s*\\(.*\\)', '')             AS without_parentheses\nFROM products\nWHERE name SIMILAR TO '.*[0-9].*';",
+"columns": [
+"name",
+"has_digit",
+"first_number",
+"without_parentheses"
+],
+"rows": [
+[
+"Wool Socks (3-pack)",
+true,
+"3",
+"Wool Socks"
+],
+[
+"Daypack 20L",
+true,
+"20",
+"Daypack 20L"
+],
+[
+"Coffee Beans 1lb",
+true,
+"1",
+"Coffee Beans 1lb"
+],
+[
+"Green Tea (50 bags)",
+true,
+"50",
+"Green Tea"
+]
+],
+"total": 4
+},
+"messy": {
+"sql": "WITH signups_raw(id, email, city, age, referral) AS (\n  VALUES\n    (1, '  Ava.Smith@Example.com ', 'austin',      '34',  'Email'),\n    (2, 'liam.jones@example.com',   'AUSTIN ',     '41',  ''),\n    (3, 'ava.smith@example.com',    'Austin',      'n/a', 'email '),\n    (4, NULL,                       '',            '29',  'Social'),\n    (5, 'noah@example.com',         'Dallas',      ' 52', NULL)\n)\nSELECT * FROM signups_raw;",
+"columns": [
+"id",
+"email",
+"city",
+"age",
+"referral"
+],
+"rows": [
+[
+1,
+"  Ava.Smith@Example.com ",
+"austin",
+"34",
+"Email"
+],
+[
+2,
+"liam.jones@example.com",
+"AUSTIN ",
+"41",
+""
+],
+[
+3,
+"ava.smith@example.com",
+"Austin",
+"n/a",
+"email "
+],
+[
+4,
+null,
+"",
+"29",
+"Social"
+],
+[
+5,
+"noah@example.com",
+"Dallas",
+" 52",
+null
+]
+],
+"total": 5
+},
+"cleaned": {
+"sql": "WITH signups_raw(id, email, city, age, referral) AS (\n  VALUES\n    (1, '  Ava.Smith@Example.com ', 'austin',      '34',  'Email'),\n    (2, 'liam.jones@example.com',   'AUSTIN ',     '41',  ''),\n    (3, 'ava.smith@example.com',    'Austin',      'n/a', 'email '),\n    (4, NULL,                       '',            '29',  'Social'),\n    (5, 'noah@example.com',         'Dallas',      ' 52', NULL)\n)\nSELECT\n  id,\n  LOWER(TRIM(email))                              AS email,\n  NULLIF(UPPER(LEFT(TRIM(city), 1)) || LOWER(SUBSTRING(TRIM(city), 2)), '') AS city,\n  TRY_CAST(TRIM(age) AS INTEGER)                  AS age,\n  COALESCE(LOWER(NULLIF(TRIM(referral), '')), 'unknown') AS referral\nFROM signups_raw;",
+"columns": [
+"id",
+"email",
+"city",
+"age",
+"referral"
+],
+"rows": [
+[
+1,
+"ava.smith@example.com",
+"Austin",
+34,
+"email"
+],
+[
+2,
+"liam.jones@example.com",
+"Austin",
+41,
+"unknown"
+],
+[
+3,
+"ava.smith@example.com",
+"Austin",
+null,
+"email"
+],
+[
+4,
+null,
+null,
+29,
+"social"
+],
+[
+5,
+"noah@example.com",
+"Dallas",
+52,
+"unknown"
+]
+],
+"total": 5
+},
+"dedupe": {
+"sql": "WITH signups_raw(id, email) AS (\n  VALUES (1, '  Ava.Smith@Example.com '), (2, 'liam.jones@example.com'), (3, 'ava.smith@example.com'), (5, 'noah@example.com')\n),\ncleaned AS (\n  SELECT id, LOWER(TRIM(email)) AS email FROM signups_raw\n)\nSELECT email, COUNT(*) AS signups, MIN(id) AS first_id\nFROM cleaned\nGROUP BY email\nHAVING COUNT(*) > 1;",
+"columns": [
+"email",
+"signups",
+"first_id"
+],
+"rows": [
+[
+"ava.smith@example.com",
+2,
+1
+]
+],
+"total": 1
+},
+"dup_customers": {
+"sql": "SELECT LOWER(email) AS email, COUNT(*) AS customers, STRING_AGG(customer_id::VARCHAR, ', ') AS ids\nFROM customers\nWHERE email IS NOT NULL\nGROUP BY LOWER(email)\nHAVING COUNT(*) > 1;",
+"columns": [
+"email",
+"customers",
+"ids"
+],
+"rows": [
+[
+"evelyn.nguyen@example.com",
+2,
+"13, 42"
+]
+],
+"total": 1
+},
+"cast_fail": {
+"sql": "SELECT CAST('n/a' AS INTEGER) AS age;",
+"error": "Conversion Error: Could not convert string 'n/a' to INT32"
+},
+"nullif_div": {
+"sql": "SELECT\n  channel,\n  COUNT(*) FILTER (WHERE status = 'returned')  AS returned,\n  COUNT(*) FILTER (WHERE status = 'cancelled' AND order_date >= '2025-12-20') AS late_dec_cancels,\n  ROUND(COUNT(*) FILTER (WHERE status = 'returned')\n    / NULLIF(COUNT(*) FILTER (WHERE status = 'cancelled' AND order_date >= '2025-12-20'), 0), 2) AS returns_per_late_cancel\nFROM orders\nGROUP BY channel\nORDER BY channel;",
+"columns": [
+"channel",
+"returned",
+"late_dec_cancels",
+"returns_per_late_cancel"
+],
+"rows": [
+[
+"app",
+5,
+2,
+2.5
+],
+[
+"store",
+2,
+0,
+null
+],
+[
+"web",
+8,
+1,
+8.0
+]
+],
+"total": 3
+},
+"null_audit": {
+"sql": "SELECT\n  COUNT(*)                     AS rows,\n  COUNT(*) - COUNT(email)      AS missing_email,\n  COUNT(*) - COUNT(city)       AS missing_city,\n  COUNT(*) - COUNT(state)      AS missing_state,\n  COUNT(DISTINCT LOWER(email)) AS distinct_emails\nFROM customers;",
+"columns": [
+"rows",
+"missing_email",
+"missing_city",
+"missing_state",
+"distinct_emails"
+],
+"rows": [
+[
+150,
+5,
+2,
+0,
+144
+]
+],
+"total": 1
+},
+"orphan_check": {
+"sql": "SELECT o.order_id, o.order_date, o.status\nFROM orders o\nWHERE NOT EXISTS (SELECT 1 FROM order_items i WHERE i.order_id = o.order_id);",
+"columns": [
+"order_id",
+"order_date",
+"status"
+],
+"rows": [
+[
+1420,
+"2025-12-30",
+"cancelled"
+]
+],
+"total": 1
+},
+"ex1": {
+"sql": "SELECT\n  date_trunc('week', started_at)::DATE AS week,\n  COUNT(*)                             AS sessions,\n  COUNT(*) FILTER (WHERE device = 'mobile') AS mobile\nFROM sessions\nGROUP BY week\nORDER BY week;",
+"columns": [
+"week",
+"sessions",
+"mobile"
+],
+"rows": [
+[
+"2025-10-27",
+123,
+77
+],
+[
+"2025-11-03",
+478,
+274
+],
+[
+"2025-11-10",
+500,
+307
+],
+[
+"2025-11-17",
+460,
+270
+],
+[
+"2025-11-24",
+336,
+194
+]
+],
+"total": 5
+},
+"ex2": {
+"sql": "SELECT SPLIT_PART(LOWER(email), '@', 2) AS domain, COUNT(*) AS customers\nFROM customers\nWHERE email IS NOT NULL\nGROUP BY domain;",
+"columns": [
+"domain",
+"customers"
+],
+"rows": [
+[
+"example.com",
+145
+]
+],
+"total": 1
+},
+"ex3": {
+"sql": "SELECT\n  customer_id,\n  first_name,\n  signup_date,\n  date_diff('day', signup_date, DATE '2025-12-31') AS days_as_customer\nFROM customers\nWHERE signup_date >= DATE '2025-12-31' - INTERVAL 60 DAY\nORDER BY signup_date;",
+"columns": [
+"customer_id",
+"first_name",
+"signup_date",
+"days_as_customer"
+],
+"rows": [
+[
+43,
+"Sebastian",
+"2025-11-06",
+55
+],
+[
+117,
+"Benjamin",
+"2025-11-07",
+54
+],
+[
+13,
+"Evelyn",
+"2025-11-08",
+53
+],
+[
+49,
+"Daniel",
+"2025-11-08",
+53
+],
+[
+115,
+"Ella",
+"2025-11-09",
+52
+],
+[
+130,
+"Ava",
+"2025-11-20",
+41
+],
+[
+81,
+"Sophia",
+"2025-11-24",
+37
+],
+[
+59,
+"Daniel",
+"2025-11-29",
+32
+]
+],
+"total": 8
+}
+}
