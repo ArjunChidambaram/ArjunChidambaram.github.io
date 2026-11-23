@@ -1,0 +1,795 @@
+{
+"agg_all": {
+"sql": "SELECT\n  COUNT(*)                         AS line_items,\n  SUM(quantity)                    AS units,\n  SUM(quantity * unit_price)       AS revenue,\n  AVG(unit_price)                  AS avg_price,\n  MIN(unit_price)                  AS cheapest,\n  MAX(unit_price)                  AS priciest\nFROM order_items;",
+"columns": [
+"line_items",
+"units",
+"revenue",
+"avg_price",
+"cheapest",
+"priciest"
+],
+"rows": [
+[
+765,
+993,
+35956.92,
+35.557163,
+2.97,
+199.0
+]
+],
+"total": 1
+},
+"count_variants": {
+"sql": "SELECT\n  COUNT(*)              AS rows,\n  COUNT(email)          AS with_email,\n  COUNT(city)           AS with_city,\n  COUNT(DISTINCT state) AS states\nFROM customers;",
+"columns": [
+"rows",
+"with_email",
+"with_city",
+"states"
+],
+"rows": [
+[
+150,
+145,
+148,
+12
+]
+],
+"total": 1
+},
+"avg_nulls": {
+"sql": "SELECT\n  AVG(score)                 AS avg_ignoring_nulls,\n  AVG(COALESCE(score, 0))    AS avg_nulls_as_zero,\n  SUM(score) / COUNT(*)      AS sum_over_all_rows\nFROM (VALUES (10), (20), (NULL), (30)) AS t(score);",
+"columns": [
+"avg_ignoring_nulls",
+"avg_nulls_as_zero",
+"sum_over_all_rows"
+],
+"rows": [
+[
+20.0,
+15.0,
+15.0
+]
+],
+"total": 1
+},
+"group_channel": {
+"sql": "SELECT channel, COUNT(*) AS orders\nFROM orders\nGROUP BY channel\nORDER BY orders DESC;",
+"columns": [
+"channel",
+"orders"
+],
+"rows": [
+[
+"web",
+217
+],
+[
+"app",
+144
+],
+[
+"store",
+59
+]
+],
+"total": 3
+},
+"group_two": {
+"sql": "SELECT channel, status, COUNT(*) AS orders\nFROM orders\nGROUP BY channel, status\nORDER BY channel, status;",
+"columns": [
+"channel",
+"status",
+"orders"
+],
+"rows": [
+[
+"app",
+"cancelled",
+11
+],
+[
+"app",
+"completed",
+128
+],
+[
+"app",
+"returned",
+5
+],
+[
+"store",
+"cancelled",
+10
+],
+[
+"store",
+"completed",
+47
+],
+[
+"store",
+"returned",
+2
+],
+[
+"web",
+"cancelled",
+11
+],
+[
+"web",
+"completed",
+198
+],
+[
+"web",
+"returned",
+8
+]
+],
+"total": 9
+},
+"group_product": {
+"sql": "SELECT\n  product_id,\n  COUNT(*)                     AS times_ordered,\n  SUM(quantity)                AS units,\n  SUM(quantity * unit_price)   AS revenue\nFROM order_items\nGROUP BY product_id\nORDER BY revenue DESC\nLIMIT 5;",
+"columns": [
+"product_id",
+"times_ordered",
+"units",
+"revenue"
+],
+"rows": [
+[
+1,
+40,
+59,
+5160.91
+],
+[
+2,
+59,
+77,
+4502.23
+],
+[
+10,
+35,
+43,
+3278.5
+],
+[
+6,
+33,
+43,
+2684.8
+],
+[
+13,
+10,
+14,
+2636.75
+]
+],
+"total": 5
+},
+"group_month": {
+"sql": "SELECT\n  date_trunc('month', order_date)::DATE AS month,\n  COUNT(*)                         AS orders\nFROM orders\nGROUP BY month\nORDER BY month;",
+"columns": [
+"month",
+"orders"
+],
+"rows": [
+[
+"2025-01-01",
+16
+],
+[
+"2025-02-01",
+18
+],
+[
+"2025-03-01",
+15
+],
+[
+"2025-04-01",
+18
+],
+[
+"2025-05-01",
+26
+],
+[
+"2025-06-01",
+25
+],
+[
+"2025-07-01",
+28
+],
+[
+"2025-08-01",
+34
+],
+[
+"2025-09-01",
+41
+],
+[
+"2025-10-01",
+28
+],
+[
+"2025-11-01",
+82
+],
+[
+"2025-12-01",
+89
+]
+],
+"total": 12
+},
+"group_null": {
+"sql": "SELECT city, COUNT(*) AS customers\nFROM customers\nWHERE state IN ('OR', 'MA')\nGROUP BY city\nORDER BY customers DESC;",
+"columns": [
+"city",
+"customers"
+],
+"rows": [
+[
+"Boston",
+13
+],
+[
+"Portland",
+11
+],
+[
+null,
+2
+]
+],
+"total": 3
+},
+"bad_group": {
+"sql": "SELECT customer_id, order_date, COUNT(*) AS orders\nFROM orders\nGROUP BY customer_id;",
+"error": "Binder Error: column \"order_date\" must appear in the GROUP BY clause or must be part of an aggregate function."
+},
+"any_value": {
+"sql": "SELECT customer_id, COUNT(*) AS orders, MAX(order_date) AS latest_order\nFROM orders\nGROUP BY customer_id\nORDER BY orders DESC\nLIMIT 5;",
+"columns": [
+"customer_id",
+"orders",
+"latest_order"
+],
+"rows": [
+[
+36,
+19,
+"2025-12-21"
+],
+[
+9,
+18,
+"2025-12-06"
+],
+[
+85,
+15,
+"2025-12-22"
+],
+[
+69,
+13,
+"2025-12-11"
+],
+[
+15,
+11,
+"2025-12-04"
+]
+],
+"total": 5
+},
+"having": {
+"sql": "SELECT customer_id, COUNT(*) AS orders\nFROM orders\nGROUP BY customer_id\nHAVING COUNT(*) >= 8\nORDER BY orders DESC;",
+"columns": [
+"customer_id",
+"orders"
+],
+"rows": [
+[
+36,
+19
+],
+[
+9,
+18
+],
+[
+85,
+15
+],
+[
+69,
+13
+],
+[
+15,
+11
+],
+[
+28,
+11
+],
+[
+145,
+11
+],
+[
+138,
+10
+],
+[
+30,
+9
+],
+[
+72,
+9
+],
+[
+56,
+8
+]
+],
+"total": 11
+},
+"where_and_having": {
+"sql": "SELECT customer_id, COUNT(*) AS completed_orders\nFROM orders\nWHERE status = 'completed'\nGROUP BY customer_id\nHAVING COUNT(*) >= 8\nORDER BY completed_orders DESC;",
+"columns": [
+"customer_id",
+"completed_orders"
+],
+"rows": [
+[
+36,
+18
+],
+[
+9,
+16
+],
+[
+28,
+10
+],
+[
+69,
+10
+],
+[
+85,
+10
+],
+[
+138,
+10
+],
+[
+30,
+9
+],
+[
+72,
+9
+],
+[
+145,
+9
+]
+],
+"total": 9
+},
+"where_agg": {
+"sql": "SELECT customer_id, COUNT(*) AS orders\nFROM orders\nWHERE COUNT(*) >= 8\nGROUP BY customer_id;",
+"error": "Binder Error: WHERE clause cannot contain aggregates!"
+},
+"conditional": {
+"sql": "SELECT\n  channel,\n  COUNT(*)                                             AS orders,\n  SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) AS completed,\n  COUNT(*) FILTER (WHERE status = 'returned')           AS returned,\n  ROUND(AVG(CASE WHEN status = 'cancelled' THEN 1.0 ELSE 0 END), 3) AS cancel_rate\nFROM orders\nGROUP BY channel\nORDER BY orders DESC;",
+"columns": [
+"channel",
+"orders",
+"completed",
+"returned",
+"cancel_rate"
+],
+"rows": [
+[
+"web",
+217,
+198,
+8,
+0.051
+],
+[
+"app",
+144,
+128,
+5,
+0.076
+],
+[
+"store",
+59,
+47,
+2,
+0.169
+]
+],
+"total": 3
+},
+"avg_order_value": {
+"sql": "SELECT\n  order_id,\n  SUM(quantity * unit_price) AS order_value,\n  COUNT(*)                   AS lines\nFROM order_items\nGROUP BY order_id\nORDER BY order_value DESC\nLIMIT 5;",
+"columns": [
+"order_id",
+"order_value",
+"lines"
+],
+"rows": [
+[
+1301,
+537.0,
+1
+],
+[
+1342,
+530.04,
+3
+],
+[
+1240,
+486.98,
+3
+],
+[
+1365,
+443.37,
+4
+],
+[
+1309,
+432.49,
+3
+]
+],
+"total": 5
+},
+"string_agg": {
+"sql": "SELECT\n  state,\n  COUNT(*) AS customers,\n  STRING_AGG(DISTINCT city, ', ' ORDER BY city) AS cities\nFROM customers\nGROUP BY state\nORDER BY customers DESC\nLIMIT 5;",
+"columns": [
+"state",
+"customers",
+"cities"
+],
+"rows": [
+[
+"TX",
+30,
+"Austin, Dallas, Houston"
+],
+[
+"CA",
+17,
+"Los Angeles, San Jose"
+],
+[
+"WA",
+15,
+"Seattle"
+],
+[
+"MA",
+14,
+"Boston"
+],
+[
+"CO",
+13,
+"Denver"
+]
+],
+"total": 5
+},
+"group_by_all": {
+"sql": "SELECT segment, channel, COUNT(*) AS orders\nFROM orders\nJOIN customers USING (customer_id)\nGROUP BY ALL\nORDER BY segment, channel;",
+"columns": [
+"segment",
+"channel",
+"orders"
+],
+"rows": [
+[
+"business",
+"app",
+40
+],
+[
+"business",
+"store",
+19
+],
+[
+"business",
+"web",
+46
+],
+[
+"consumer",
+"app",
+104
+],
+[
+"consumer",
+"store",
+40
+],
+[
+"consumer",
+"web",
+171
+]
+],
+"total": 6
+},
+"rollup": {
+"sql": "SELECT\n  channel,\n  status,\n  COUNT(*) AS orders\nFROM orders\nGROUP BY ROLLUP (channel, status)\nORDER BY channel NULLS LAST, status NULLS LAST;",
+"columns": [
+"channel",
+"status",
+"orders"
+],
+"rows": [
+[
+"app",
+"cancelled",
+11
+],
+[
+"app",
+"completed",
+128
+],
+[
+"app",
+"returned",
+5
+],
+[
+"app",
+null,
+144
+],
+[
+"store",
+"cancelled",
+10
+],
+[
+"store",
+"completed",
+47
+],
+[
+"store",
+"returned",
+2
+],
+[
+"store",
+null,
+59
+],
+[
+"web",
+"cancelled",
+11
+],
+[
+"web",
+"completed",
+198
+],
+[
+"web",
+"returned",
+8
+],
+[
+"web",
+null,
+217
+],
+[
+null,
+null,
+420
+]
+],
+"total": 13
+},
+"missing_days": {
+"sql": "SELECT\n  COUNT(*)                                   AS days_with_orders,\n  COUNT(*) / 365.0                           AS share_of_year,\n  AVG(n)                                     AS avg_orders_on_order_days,\n  SUM(n) / 365.0                             AS avg_orders_per_calendar_day\nFROM (\n  SELECT order_date, COUNT(*) AS n\n  FROM orders\n  GROUP BY order_date\n) AS daily;",
+"columns": [
+"days_with_orders",
+"share_of_year",
+"avg_orders_on_order_days",
+"avg_orders_per_calendar_day"
+],
+"rows": [
+[
+212,
+0.580822,
+1.981132,
+1.150685
+]
+],
+"total": 1
+},
+"ex1": {
+"sql": "SELECT status, COUNT(*) AS orders\nFROM orders\nGROUP BY status\nORDER BY orders DESC;",
+"columns": [
+"status",
+"orders"
+],
+"rows": [
+[
+"completed",
+373
+],
+[
+"cancelled",
+32
+],
+[
+"returned",
+15
+]
+],
+"total": 3
+},
+"ex2": {
+"sql": "SELECT state, COUNT(*) AS customers\nFROM customers\nGROUP BY state\nHAVING COUNT(*) >= 10\nORDER BY customers DESC;",
+"columns": [
+"state",
+"customers"
+],
+"rows": [
+[
+"TX",
+30
+],
+[
+"CA",
+17
+],
+[
+"WA",
+15
+],
+[
+"MA",
+14
+],
+[
+"CO",
+13
+],
+[
+"NY",
+13
+],
+[
+"OR",
+12
+],
+[
+"FL",
+10
+],
+[
+"IL",
+10
+]
+],
+"total": 9
+},
+"ex3": {
+"sql": "SELECT\n  date_trunc('month', order_date)::DATE                AS month,\n  COUNT(*)                                              AS orders,\n  COUNT(*) FILTER (WHERE channel = 'app')               AS app_orders,\n  ROUND(COUNT(*) FILTER (WHERE channel = 'app') * 1.0 / COUNT(*), 2) AS app_share\nFROM orders\nGROUP BY month\nORDER BY month;",
+"columns": [
+"month",
+"orders",
+"app_orders",
+"app_share"
+],
+"rows": [
+[
+"2025-01-01",
+16,
+8,
+0.5
+],
+[
+"2025-02-01",
+18,
+6,
+0.33
+],
+[
+"2025-03-01",
+15,
+8,
+0.53
+],
+[
+"2025-04-01",
+18,
+7,
+0.39
+],
+[
+"2025-05-01",
+26,
+10,
+0.38
+],
+[
+"2025-06-01",
+25,
+8,
+0.32
+],
+[
+"2025-07-01",
+28,
+9,
+0.32
+],
+[
+"2025-08-01",
+34,
+11,
+0.32
+],
+[
+"2025-09-01",
+41,
+10,
+0.24
+],
+[
+"2025-10-01",
+28,
+6,
+0.21
+],
+[
+"2025-11-01",
+82,
+27,
+0.33
+],
+[
+"2025-12-01",
+89,
+34,
+0.38
+]
+],
+"total": 12
+}
+}

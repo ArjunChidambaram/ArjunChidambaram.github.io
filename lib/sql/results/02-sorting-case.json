@@ -1,0 +1,1302 @@
+{
+"order_price": {
+"sql": "SELECT name, category, price\nFROM products\nORDER BY price DESC;",
+"columns": [
+"name",
+"category",
+"price"
+],
+"rows": [
+[
+"Smart Watch",
+"Electronics",
+199.0
+],
+[
+"Two-Person Tent",
+"Outdoor",
+179.0
+],
+[
+"Sleeping Bag",
+"Outdoor",
+119.0
+],
+[
+"Trail Running Shoes",
+"Footwear",
+89.99
+],
+[
+"Dumbbell Set",
+"Fitness",
+89.0
+],
+[
+"Wireless Earbuds",
+"Electronics",
+79.0
+],
+[
+"Daypack 20L",
+"Outdoor",
+64.0
+],
+[
+"Everyday Sneakers",
+"Footwear",
+59.99
+],
+[
+"Bluetooth Speaker",
+"Electronics",
+49.99
+],
+[
+"Rain Boots",
+"Footwear",
+44.5
+],
+[
+"Yoga Mat",
+"Fitness",
+34.99
+],
+[
+"Camping Lantern",
+"Outdoor",
+29.95
+],
+[
+"Insulated Water Bottle",
+"Outdoor",
+24.99
+],
+[
+"Foam Roller",
+"Fitness",
+24.0
+],
+[
+"Phone Charger",
+"Electronics",
+19.99
+],
+[
+"Resistance Bands",
+"Fitness",
+19.5
+],
+[
+"Wool Socks (3-pack)",
+"Footwear",
+14.99
+],
+[
+"Coffee Beans 1lb",
+"Grocery",
+12.49
+],
+[
+"USB-C Cable",
+"Electronics",
+9.99
+],
+[
+"Trail Mix",
+"Grocery",
+7.99
+],
+[
+"Green Tea (50 bags)",
+"Grocery",
+6.99
+],
+[
+"Dark Chocolate Bar",
+"Grocery",
+3.49
+]
+],
+"total": 22
+},
+"order_multi": {
+"sql": "SELECT name, category, price\nFROM products\nORDER BY category, price DESC;",
+"columns": [
+"name",
+"category",
+"price"
+],
+"rows": [
+[
+"Smart Watch",
+"Electronics",
+199.0
+],
+[
+"Wireless Earbuds",
+"Electronics",
+79.0
+],
+[
+"Bluetooth Speaker",
+"Electronics",
+49.99
+],
+[
+"Phone Charger",
+"Electronics",
+19.99
+],
+[
+"USB-C Cable",
+"Electronics",
+9.99
+],
+[
+"Dumbbell Set",
+"Fitness",
+89.0
+],
+[
+"Yoga Mat",
+"Fitness",
+34.99
+],
+[
+"Foam Roller",
+"Fitness",
+24.0
+],
+[
+"Resistance Bands",
+"Fitness",
+19.5
+],
+[
+"Trail Running Shoes",
+"Footwear",
+89.99
+],
+[
+"Everyday Sneakers",
+"Footwear",
+59.99
+],
+[
+"Rain Boots",
+"Footwear",
+44.5
+],
+[
+"Wool Socks (3-pack)",
+"Footwear",
+14.99
+],
+[
+"Coffee Beans 1lb",
+"Grocery",
+12.49
+],
+[
+"Trail Mix",
+"Grocery",
+7.99
+],
+[
+"Green Tea (50 bags)",
+"Grocery",
+6.99
+],
+[
+"Dark Chocolate Bar",
+"Grocery",
+3.49
+],
+[
+"Two-Person Tent",
+"Outdoor",
+179.0
+],
+[
+"Sleeping Bag",
+"Outdoor",
+119.0
+],
+[
+"Daypack 20L",
+"Outdoor",
+64.0
+],
+[
+"Camping Lantern",
+"Outdoor",
+29.95
+],
+[
+"Insulated Water Bottle",
+"Outdoor",
+24.99
+]
+],
+"total": 22
+},
+"order_text": {
+"sql": "SELECT first_name, last_name\nFROM customers\nORDER BY last_name, first_name\nLIMIT 8;",
+"columns": [
+"first_name",
+"last_name"
+],
+"rows": [
+[
+"Chloe",
+"Allen"
+],
+[
+"Daniel",
+"Allen"
+],
+[
+"Zoe",
+"Allen"
+],
+[
+"Diego",
+"Anderson"
+],
+[
+"Lily",
+"Anderson"
+],
+[
+"Sophia",
+"Anderson"
+],
+[
+"Liam",
+"Brown"
+],
+[
+"Matthew",
+"Brown"
+]
+],
+"total": 8
+},
+"order_nulls_default": {
+"sql": "SELECT first_name, city\nFROM customers\nORDER BY city\nLIMIT 5;",
+"columns": [
+"first_name",
+"city"
+],
+"rows": [
+[
+"Sofia",
+"Atlanta"
+],
+[
+"Joseph",
+"Atlanta"
+],
+[
+"Carter",
+"Atlanta"
+],
+[
+"Elijah",
+"Atlanta"
+],
+[
+"Noah",
+"Atlanta"
+]
+],
+"total": 5
+},
+"order_nulls_first": {
+"sql": "SELECT first_name, city\nFROM customers\nORDER BY city NULLS FIRST\nLIMIT 5;",
+"columns": [
+"first_name",
+"city"
+],
+"rows": [
+[
+"Chloe",
+null
+],
+[
+"David",
+null
+],
+[
+"Sofia",
+"Atlanta"
+],
+[
+"Joseph",
+"Atlanta"
+],
+[
+"Carter",
+"Atlanta"
+]
+],
+"total": 5
+},
+"order_alias": {
+"sql": "SELECT name, price * 1.0825 AS price_with_tax\nFROM products\nORDER BY price_with_tax DESC\nLIMIT 5;",
+"columns": [
+"name",
+"price_with_tax"
+],
+"rows": [
+[
+"Smart Watch",
+215.4175
+],
+[
+"Two-Person Tent",
+193.7675
+],
+[
+"Sleeping Bag",
+128.8175
+],
+[
+"Trail Running Shoes",
+97.414175
+],
+[
+"Dumbbell Set",
+96.3425
+]
+],
+"total": 5
+},
+"order_position": {
+"sql": "SELECT category, name, price\nFROM products\nORDER BY 1, 3;",
+"columns": [
+"category",
+"name",
+"price"
+],
+"rows": [
+[
+"Electronics",
+"USB-C Cable",
+9.99
+],
+[
+"Electronics",
+"Phone Charger",
+19.99
+],
+[
+"Electronics",
+"Bluetooth Speaker",
+49.99
+],
+[
+"Electronics",
+"Wireless Earbuds",
+79.0
+],
+[
+"Electronics",
+"Smart Watch",
+199.0
+],
+[
+"Fitness",
+"Resistance Bands",
+19.5
+],
+[
+"Fitness",
+"Foam Roller",
+24.0
+],
+[
+"Fitness",
+"Yoga Mat",
+34.99
+],
+[
+"Fitness",
+"Dumbbell Set",
+89.0
+],
+[
+"Footwear",
+"Wool Socks (3-pack)",
+14.99
+],
+[
+"Footwear",
+"Rain Boots",
+44.5
+],
+[
+"Footwear",
+"Everyday Sneakers",
+59.99
+],
+[
+"Footwear",
+"Trail Running Shoes",
+89.99
+],
+[
+"Grocery",
+"Dark Chocolate Bar",
+3.49
+],
+[
+"Grocery",
+"Green Tea (50 bags)",
+6.99
+],
+[
+"Grocery",
+"Trail Mix",
+7.99
+],
+[
+"Grocery",
+"Coffee Beans 1lb",
+12.49
+],
+[
+"Outdoor",
+"Insulated Water Bottle",
+24.99
+],
+[
+"Outdoor",
+"Camping Lantern",
+29.95
+],
+[
+"Outdoor",
+"Daypack 20L",
+64.0
+],
+[
+"Outdoor",
+"Sleeping Bag",
+119.0
+],
+[
+"Outdoor",
+"Two-Person Tent",
+179.0
+]
+],
+"total": 22
+},
+"limit_top": {
+"sql": "SELECT name, price\nFROM products\nORDER BY price DESC\nLIMIT 3;",
+"columns": [
+"name",
+"price"
+],
+"rows": [
+[
+"Smart Watch",
+199.0
+],
+[
+"Two-Person Tent",
+179.0
+],
+[
+"Sleeping Bag",
+119.0
+]
+],
+"total": 3
+},
+"limit_ties": {
+"sql": "SELECT order_id, order_date\nFROM orders\nORDER BY order_date DESC\nLIMIT 3;",
+"columns": [
+"order_id",
+"order_date"
+],
+"rows": [
+[
+1419,
+"2025-12-31"
+],
+[
+1420,
+"2025-12-30"
+],
+[
+1418,
+"2025-12-28"
+]
+],
+"total": 3
+},
+"limit_ties_fix": {
+"sql": "SELECT order_id, order_date\nFROM orders\nORDER BY order_date DESC, order_id DESC\nLIMIT 3;",
+"columns": [
+"order_id",
+"order_date"
+],
+"rows": [
+[
+1419,
+"2025-12-31"
+],
+[
+1420,
+"2025-12-30"
+],
+[
+1418,
+"2025-12-28"
+]
+],
+"total": 3
+},
+"offset": {
+"sql": "SELECT name, price\nFROM products\nORDER BY price DESC\nLIMIT 5 OFFSET 5;",
+"columns": [
+"name",
+"price"
+],
+"rows": [
+[
+"Wireless Earbuds",
+79.0
+],
+[
+"Daypack 20L",
+64.0
+],
+[
+"Everyday Sneakers",
+59.99
+],
+[
+"Bluetooth Speaker",
+49.99
+],
+[
+"Rain Boots",
+44.5
+]
+],
+"total": 5
+},
+"distinct_one": {
+"sql": "SELECT DISTINCT state\nFROM customers\nORDER BY state;",
+"columns": [
+"state"
+],
+"rows": [
+[
+"AR"
+],
+[
+"AZ"
+],
+[
+"CA"
+],
+[
+"CO"
+],
+[
+"FL"
+],
+[
+"GA"
+],
+[
+"IL"
+],
+[
+"MA"
+],
+[
+"NY"
+],
+[
+"OR"
+],
+[
+"TX"
+],
+[
+"WA"
+]
+],
+"total": 12
+},
+"distinct_two": {
+"sql": "SELECT DISTINCT segment, channel\nFROM orders\nJOIN customers USING (customer_id)\nORDER BY segment, channel;",
+"columns": [
+"segment",
+"channel"
+],
+"rows": [
+[
+"business",
+"app"
+],
+[
+"business",
+"store"
+],
+[
+"business",
+"web"
+],
+[
+"consumer",
+"app"
+],
+[
+"consumer",
+"store"
+],
+[
+"consumer",
+"web"
+]
+],
+"total": 6
+},
+"distinct_null": {
+"sql": "SELECT DISTINCT city\nFROM customers\nWHERE state = 'OR' OR state = 'MA'\nORDER BY city;",
+"columns": [
+"city"
+],
+"rows": [
+[
+"Boston"
+],
+[
+"Portland"
+],
+[
+null
+]
+],
+"total": 3
+},
+"count_distinct": {
+"sql": "SELECT\n  COUNT(*)                    AS orders,\n  COUNT(DISTINCT customer_id) AS customers_who_ordered\nFROM orders;",
+"columns": [
+"orders",
+"customers_who_ordered"
+],
+"rows": [
+[
+420,
+133
+]
+],
+"total": 1
+},
+"distinct_on": {
+"sql": "SELECT DISTINCT ON (customer_id)\n  customer_id, order_id, order_date\nFROM orders\nORDER BY customer_id, order_date\nLIMIT 6;",
+"columns": [
+"customer_id",
+"order_id",
+"order_date"
+],
+"rows": [
+[
+2,
+1222,
+"2025-10-01"
+],
+[
+3,
+1259,
+"2025-11-11"
+],
+[
+4,
+1031,
+"2025-02-18"
+],
+[
+5,
+1004,
+"2025-01-14"
+],
+[
+6,
+1125,
+"2025-07-06"
+],
+[
+7,
+1190,
+"2025-09-09"
+]
+],
+"total": 6
+},
+"funcs_text": {
+"sql": "SELECT\n  first_name || ' ' || last_name     AS full_name,\n  UPPER(state)                       AS state,\n  LENGTH(first_name)                 AS name_length,\n  LEFT(last_name, 1) || '.'          AS initial\nFROM customers\nLIMIT 5;",
+"columns": [
+"full_name",
+"state",
+"name_length",
+"initial"
+],
+"rows": [
+[
+"Sophia Robinson",
+"TX",
+6,
+"R."
+],
+[
+"Aiden Sanchez",
+"TX",
+5,
+"S."
+],
+[
+"Wei Perez",
+"OR",
+3,
+"P."
+],
+[
+"Daniel Allen",
+"WA",
+6,
+"A."
+],
+[
+"Sebastian Robinson",
+"CO",
+9,
+"R."
+]
+],
+"total": 5
+},
+"funcs_num": {
+"sql": "SELECT\n  name,\n  price,\n  ROUND(price * 0.85, 2)  AS sale_price,\n  CEIL(price)             AS rounded_up,\n  price::INTEGER          AS cast_to_int\nFROM products\nLIMIT 5;",
+"columns": [
+"name",
+"price",
+"sale_price",
+"rounded_up",
+"cast_to_int"
+],
+"rows": [
+[
+"Trail Running Shoes",
+89.99,
+76.49,
+90.0,
+90
+],
+[
+"Everyday Sneakers",
+59.99,
+50.99,
+60.0,
+60
+],
+[
+"Rain Boots",
+44.5,
+37.83,
+45.0,
+45
+],
+[
+"Wool Socks (3-pack)",
+14.99,
+12.74,
+15.0,
+15
+],
+[
+"Insulated Water Bottle",
+24.99,
+21.24,
+25.0,
+25
+]
+],
+"total": 5
+},
+"int_div": {
+"sql": "SELECT 7 / 2 AS slash, 7 // 2 AS integer_division, 7 % 2 AS remainder, 7 / 2.0 AS with_decimal;",
+"columns": [
+"slash",
+"integer_division",
+"remainder",
+"with_decimal"
+],
+"rows": [
+[
+3.5,
+3,
+1,
+3.5
+]
+],
+"total": 1
+},
+"case_tiers": {
+"sql": "SELECT\n  name,\n  price,\n  CASE\n    WHEN price >= 100 THEN 'premium'\n    WHEN price >= 30  THEN 'standard'\n    ELSE 'budget'\n  END AS tier\nFROM products\nORDER BY price DESC;",
+"columns": [
+"name",
+"price",
+"tier"
+],
+"rows": [
+[
+"Smart Watch",
+199.0,
+"premium"
+],
+[
+"Two-Person Tent",
+179.0,
+"premium"
+],
+[
+"Sleeping Bag",
+119.0,
+"premium"
+],
+[
+"Trail Running Shoes",
+89.99,
+"standard"
+],
+[
+"Dumbbell Set",
+89.0,
+"standard"
+],
+[
+"Wireless Earbuds",
+79.0,
+"standard"
+],
+[
+"Daypack 20L",
+64.0,
+"standard"
+],
+[
+"Everyday Sneakers",
+59.99,
+"standard"
+],
+[
+"Bluetooth Speaker",
+49.99,
+"standard"
+],
+[
+"Rain Boots",
+44.5,
+"standard"
+],
+[
+"Yoga Mat",
+34.99,
+"standard"
+],
+[
+"Camping Lantern",
+29.95,
+"budget"
+],
+[
+"Insulated Water Bottle",
+24.99,
+"budget"
+],
+[
+"Foam Roller",
+24.0,
+"budget"
+],
+[
+"Phone Charger",
+19.99,
+"budget"
+],
+[
+"Resistance Bands",
+19.5,
+"budget"
+],
+[
+"Wool Socks (3-pack)",
+14.99,
+"budget"
+],
+[
+"Coffee Beans 1lb",
+12.49,
+"budget"
+],
+[
+"USB-C Cable",
+9.99,
+"budget"
+],
+[
+"Trail Mix",
+7.99,
+"budget"
+],
+[
+"Green Tea (50 bags)",
+6.99,
+"budget"
+],
+[
+"Dark Chocolate Bar",
+3.49,
+"budget"
+]
+],
+"total": 22
+},
+"case_order_matters": {
+"sql": "SELECT\n  name,\n  price,\n  CASE\n    WHEN price >= 30  THEN 'standard'\n    WHEN price >= 100 THEN 'premium'\n    ELSE 'budget'\n  END AS tier\nFROM products\nORDER BY price DESC\nLIMIT 4;",
+"columns": [
+"name",
+"price",
+"tier"
+],
+"rows": [
+[
+"Smart Watch",
+199.0,
+"standard"
+],
+[
+"Two-Person Tent",
+179.0,
+"standard"
+],
+[
+"Sleeping Bag",
+119.0,
+"standard"
+],
+[
+"Trail Running Shoes",
+89.99,
+"standard"
+]
+],
+"total": 4
+},
+"case_simple": {
+"sql": "SELECT\n  order_id,\n  status,\n  CASE status\n    WHEN 'completed' THEN 'Delivered'\n    WHEN 'returned'  THEN 'Sent back'\n    WHEN 'cancelled' THEN 'Never shipped'\n  END AS label\nFROM orders\nWHERE order_id IN (1001, 1254, 1291, 1302);",
+"columns": [
+"order_id",
+"status",
+"label"
+],
+"rows": [
+[
+1001,
+"completed",
+"Delivered"
+],
+[
+1254,
+"returned",
+"Sent back"
+],
+[
+1291,
+"cancelled",
+"Never shipped"
+],
+[
+1302,
+"cancelled",
+"Never shipped"
+]
+],
+"total": 4
+},
+"case_no_else": {
+"sql": "SELECT\n  first_name,\n  city,\n  CASE WHEN city IN ('Austin', 'Dallas', 'Houston') THEN 'Texas metro' END AS region\nFROM customers\nLIMIT 6;",
+"columns": [
+"first_name",
+"city",
+"region"
+],
+"rows": [
+[
+"Sophia",
+"Austin",
+"Texas metro"
+],
+[
+"Aiden",
+"Houston",
+"Texas metro"
+],
+[
+"Wei",
+"Portland",
+null
+],
+[
+"Daniel",
+"Seattle",
+null
+],
+[
+"Sebastian",
+"Denver",
+null
+],
+[
+"Ethan",
+"San Jose",
+null
+]
+],
+"total": 6
+},
+"case_sort": {
+"sql": "SELECT order_id, status, order_date\nFROM orders\nWHERE order_date >= '2025-12-20'\nORDER BY\n  CASE status WHEN 'returned' THEN 1 WHEN 'cancelled' THEN 2 ELSE 3 END,\n  order_date DESC;",
+"columns": [
+"order_id",
+"status",
+"order_date"
+],
+"rows": [
+[
+1403,
+"returned",
+"2025-12-21"
+],
+[
+1420,
+"cancelled",
+"2025-12-30"
+],
+[
+1417,
+"cancelled",
+"2025-12-28"
+],
+[
+1407,
+"cancelled",
+"2025-12-21"
+],
+[
+1419,
+"completed",
+"2025-12-31"
+],
+[
+1418,
+"completed",
+"2025-12-28"
+],
+[
+1416,
+"completed",
+"2025-12-26"
+],
+[
+1414,
+"completed",
+"2025-12-25"
+],
+[
+1415,
+"completed",
+"2025-12-25"
+],
+[
+1410,
+"completed",
+"2025-12-23"
+],
+[
+1411,
+"completed",
+"2025-12-23"
+],
+[
+1412,
+"completed",
+"2025-12-23"
+],
+[
+1413,
+"completed",
+"2025-12-23"
+],
+[
+1408,
+"completed",
+"2025-12-22"
+],
+[
+1409,
+"completed",
+"2025-12-22"
+],
+[
+1401,
+"completed",
+"2025-12-21"
+],
+[
+1402,
+"completed",
+"2025-12-21"
+],
+[
+1404,
+"completed",
+"2025-12-21"
+],
+[
+1405,
+"completed",
+"2025-12-21"
+],
+[
+1406,
+"completed",
+"2025-12-21"
+],
+[
+1398,
+"completed",
+"2025-12-20"
+],
+[
+1399,
+"completed",
+"2025-12-20"
+],
+[
+1400,
+"completed",
+"2025-12-20"
+]
+],
+"total": 23
+},
+"case_count": {
+"sql": "SELECT\n  COUNT(*) AS products,\n  SUM(CASE WHEN price >= 100 THEN 1 ELSE 0 END) AS premium,\n  SUM(CASE WHEN price < 30 THEN 1 ELSE 0 END)   AS budget\nFROM products;",
+"columns": [
+"products",
+"premium",
+"budget"
+],
+"rows": [
+[
+22,
+3,
+11
+]
+],
+"total": 1
+},
+"ex1": {
+"sql": "SELECT name, category, price\nFROM products\nWHERE category = 'Grocery'\nORDER BY price\nLIMIT 2;",
+"columns": [
+"name",
+"category",
+"price"
+],
+"rows": [
+[
+"Dark Chocolate Bar",
+"Grocery",
+3.49
+],
+[
+"Green Tea (50 bags)",
+"Grocery",
+6.99
+]
+],
+"total": 2
+},
+"ex2": {
+"sql": "SELECT DISTINCT category\nFROM products\nWHERE price > 50\nORDER BY category;",
+"columns": [
+"category"
+],
+"rows": [
+[
+"Electronics"
+],
+[
+"Fitness"
+],
+[
+"Footwear"
+],
+[
+"Outdoor"
+]
+],
+"total": 4
+},
+"ex3": {
+"sql": "SELECT\n  order_id,\n  channel,\n  CASE WHEN channel = 'store' THEN 'in person' ELSE 'online' END AS how\nFROM orders\nORDER BY order_id\nLIMIT 6;",
+"columns": [
+"order_id",
+"channel",
+"how"
+],
+"rows": [
+[
+1001,
+"web",
+"online"
+],
+[
+1002,
+"app",
+"online"
+],
+[
+1003,
+"web",
+"online"
+],
+[
+1004,
+"web",
+"online"
+],
+[
+1005,
+"app",
+"online"
+],
+[
+1006,
+"app",
+"online"
+]
+],
+"total": 6
+}
+}

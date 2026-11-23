@@ -26,6 +26,7 @@ import CLTStory from "@/components/explainers/CLTStory";
 import ABTestStory from "@/components/explainers/ABTestStory";
 import BootstrapStory from "@/components/explainers/BootstrapStory";
 import Sql01Story from "@/components/sql/Sql01Story";
+import Sql02Story from "@/components/sql/Sql02Story";
 
 // Animated explainers, keyed by the `explainer` field in a post's frontmatter.
 const EXPLAINERS: Record<string, { node: JSX.Element }> = {
@@ -40,6 +41,7 @@ const EXPLAINERS: Record<string, { node: JSX.Element }> = {
   "ab-testing": { node: <ABTestStory /> },
   bootstrap: { node: <BootstrapStory /> },
   "sql-01": { node: <Sql01Story /> },
+  "sql-02": { node: <Sql02Story /> },
 };
 
 export interface MdxMeta extends Meta {
