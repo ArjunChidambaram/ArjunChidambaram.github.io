@@ -15,6 +15,7 @@
     "format": "prettier --write ."
   },
   "dependencies": {
+    "@duckdb/duckdb-wasm": "1.33.1-dev57.0",
     "gray-matter": "^4.0.3",
     "gsap": "^3.11.4",
     "katex": "^0.16.47",

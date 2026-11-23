@@ -95,3 +95,10 @@
     display: none !important;
   }
 }
+
+/* SQL series: syntax colors in query blocks */
+.sq-code .sq-k { color: #7dd3fc; font-weight: 600; }
+.sq-code .sq-s { color: #fcd34d; }
+.sq-code .sq-n { color: #f9a8d4; }
+.sq-code .sq-c { color: #94a3b8; font-style: italic; }
+.sq-code .sq-f { color: #86efac; }

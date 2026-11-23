@@ -1,0 +1,1940 @@
+{
+"peek": {
+"sql": "SELECT *\nFROM customers\nLIMIT 5;",
+"columns": [
+"customer_id",
+"first_name",
+"last_name",
+"email",
+"city",
+"state",
+"signup_date",
+"segment"
+],
+"rows": [
+[
+1,
+"Sophia",
+"Robinson",
+"sophia.robinson@example.com",
+"Austin",
+"TX",
+"2025-10-02",
+"business"
+],
+[
+2,
+"Aiden",
+"Sanchez",
+"aiden.sanchez@example.com",
+"Houston",
+"TX",
+"2025-09-16",
+"consumer"
+],
+[
+3,
+"Wei",
+"Perez",
+"wei.perez@example.com",
+"Portland",
+"OR",
+"2025-10-31",
+"business"
+],
+[
+4,
+"Daniel",
+"Allen",
+"daniel.allen@example.com",
+"Seattle",
+"WA",
+"2024-12-20",
+"business"
+],
+[
+5,
+"Sebastian",
+"Robinson",
+"sebastian.robinson@example.com",
+"Denver",
+"CO",
+"2024-11-18",
+"consumer"
+]
+],
+"total": 5
+},
+"tables": {
+"sql": "SELECT table_name, COUNT(*) AS columns\nFROM information_schema.columns\nGROUP BY table_name\nORDER BY table_name;",
+"columns": [
+"table_name",
+"columns"
+],
+"rows": [
+[
+"customers",
+8
+],
+[
+"employees",
+5
+],
+[
+"events",
+4
+],
+[
+"experiment",
+2
+],
+[
+"order_items",
+4
+],
+[
+"orders",
+5
+],
+[
+"products",
+4
+],
+[
+"sessions",
+5
+]
+],
+"total": 8
+},
+"describe": {
+"sql": "DESCRIBE orders;",
+"columns": [
+"column_name",
+"column_type",
+"null",
+"key",
+"default",
+"extra"
+],
+"rows": [
+[
+"order_id",
+"INTEGER",
+"NO",
+"PRI",
+null,
+null
+],
+[
+"customer_id",
+"INTEGER",
+"YES",
+null,
+null,
+null
+],
+[
+"order_date",
+"DATE",
+"YES",
+null,
+null,
+null
+],
+[
+"status",
+"VARCHAR",
+"YES",
+null,
+null,
+null
+],
+[
+"channel",
+"VARCHAR",
+"YES",
+null,
+null,
+null
+]
+],
+"total": 5
+},
+"pick_cols": {
+"sql": "SELECT first_name, last_name, city\nFROM customers;",
+"columns": [
+"first_name",
+"last_name",
+"city"
+],
+"rows": [
+[
+"Sophia",
+"Robinson",
+"Austin"
+],
+[
+"Aiden",
+"Sanchez",
+"Houston"
+],
+[
+"Wei",
+"Perez",
+"Portland"
+],
+[
+"Daniel",
+"Allen",
+"Seattle"
+],
+[
+"Sebastian",
+"Robinson",
+"Denver"
+],
+[
+"Ethan",
+"Gonzalez",
+"San Jose"
+],
+[
+"Kenji",
+"Clark",
+"Denver"
+],
+[
+"Arjun",
+"Chen",
+"New York"
+],
+[
+"Noah",
+"Davis",
+"Portland"
+],
+[
+"Carter",
+"Davis",
+"New York"
+],
+[
+"Henry",
+"White",
+"Boston"
+],
+[
+"Chloe",
+"Robinson",
+"Houston"
+],
+[
+"Evelyn",
+"Nguyen",
+"New York"
+],
+[
+"Mason",
+"Martin",
+"Boston"
+],
+[
+"Sofia",
+"Kim",
+"Chicago"
+],
+[
+"Arjun",
+"King",
+"Los Angeles"
+],
+[
+"Abigail",
+"Hernandez",
+"Houston"
+],
+[
+"Amelia",
+"Chen",
+"Denver"
+],
+[
+"Sophia",
+"Anderson",
+"Seattle"
+],
+[
+"Wei",
+"Nguyen",
+"Houston"
+],
+[
+"Mason",
+"Wright",
+"Bentonville"
+],
+[
+"David",
+"Patel",
+"Portland"
+],
+[
+"Henry",
+"Clark",
+"Denver"
+],
+[
+"Zoe",
+"Allen",
+"Portland"
+],
+[
+"Sofia",
+"Thomas",
+"Austin"
+],
+[
+"Sofia",
+"King",
+"Dallas"
+],
+[
+"Emma",
+"Robinson",
+"Los Angeles"
+],
+[
+"Elijah",
+"Patel",
+"Miami"
+],
+[
+"Hannah",
+"Robinson",
+"Phoenix"
+],
+[
+"Zoe",
+"Brown",
+"Miami"
+],
+[
+"Evelyn",
+"Garcia",
+"Seattle"
+],
+[
+"Layla",
+"Walker",
+"Seattle"
+],
+[
+"Liam",
+"Brown",
+"Austin"
+],
+[
+"Riley",
+"Miller",
+"Boston"
+],
+[
+"Jackson",
+"Kim",
+"Houston"
+],
+[
+"Sofia",
+"Lewis",
+"Denver"
+],
+[
+"Noah",
+"Perez",
+"Los Angeles"
+],
+[
+"Matthew",
+"Clark",
+"Denver"
+],
+[
+"Mei",
+"Garcia",
+"Austin"
+],
+[
+"David",
+"Gonzalez",
+"Chicago"
+],
+[
+"Aiden",
+"Martin",
+"New York"
+],
+[
+"Chloe",
+"Jones",
+"Denver"
+],
+[
+"Sebastian",
+"Taylor",
+"Austin"
+],
+[
+"Jackson",
+"Nguyen",
+"New York"
+],
+[
+"Isabella",
+"Johnson",
+"Dallas"
+],
+[
+"Samuel",
+"Davis",
+"Boston"
+],
+[
+"Sofia",
+"Smith",
+"Atlanta"
+],
+[
+"Isabella",
+"Walker",
+"Los Angeles"
+],
+[
+"Daniel",
+"Davis",
+"Bentonville"
+],
+[
+"Wei",
+"Gonzalez",
+"Bentonville"
+],
+[
+"Chloe",
+"Lee",
+null
+],
+[
+"David",
+"Sanchez",
+"Bentonville"
+],
+[
+"Sebastian",
+"Nguyen",
+"Chicago"
+],
+[
+"Hannah",
+"Smith",
+"San Jose"
+],
+[
+"Ava",
+"Harris",
+"Los Angeles"
+],
+[
+"Riley",
+"Rodriguez",
+"Los Angeles"
+],
+[
+"Zoe",
+"Jackson",
+"New York"
+],
+[
+"Liam",
+"Ramirez",
+"Chicago"
+],
+[
+"Daniel",
+"Kim",
+"Houston"
+],
+[
+"David",
+"Harris",
+null
+]
+],
+"total": 150
+},
+"alias_expr": {
+"sql": "SELECT\n  name,\n  price,\n  price * 1.0825 AS price_with_tax,\n  'USD' AS currency\nFROM products;",
+"columns": [
+"name",
+"price",
+"price_with_tax",
+"currency"
+],
+"rows": [
+[
+"Trail Running Shoes",
+89.99,
+97.414175,
+"USD"
+],
+[
+"Everyday Sneakers",
+59.99,
+64.939175,
+"USD"
+],
+[
+"Rain Boots",
+44.5,
+48.17125,
+"USD"
+],
+[
+"Wool Socks (3-pack)",
+14.99,
+16.226675,
+"USD"
+],
+[
+"Insulated Water Bottle",
+24.99,
+27.051675,
+"USD"
+],
+[
+"Daypack 20L",
+64.0,
+69.28,
+"USD"
+],
+[
+"Camping Lantern",
+29.95,
+32.420875,
+"USD"
+],
+[
+"Two-Person Tent",
+179.0,
+193.7675,
+"USD"
+],
+[
+"Sleeping Bag",
+119.0,
+128.8175,
+"USD"
+],
+[
+"Wireless Earbuds",
+79.0,
+85.5175,
+"USD"
+],
+[
+"Phone Charger",
+19.99,
+21.639175,
+"USD"
+],
+[
+"Bluetooth Speaker",
+49.99,
+54.114175,
+"USD"
+],
+[
+"Smart Watch",
+199.0,
+215.4175,
+"USD"
+],
+[
+"USB-C Cable",
+9.99,
+10.814175,
+"USD"
+],
+[
+"Coffee Beans 1lb",
+12.49,
+13.520425,
+"USD"
+],
+[
+"Green Tea (50 bags)",
+6.99,
+7.566675,
+"USD"
+],
+[
+"Dark Chocolate Bar",
+3.49,
+3.777925,
+"USD"
+],
+[
+"Trail Mix",
+7.99,
+8.649175,
+"USD"
+],
+[
+"Yoga Mat",
+34.99,
+37.876675,
+"USD"
+],
+[
+"Resistance Bands",
+19.5,
+21.10875,
+"USD"
+],
+[
+"Dumbbell Set",
+89.0,
+96.3425,
+"USD"
+],
+[
+"Foam Roller",
+24.0,
+25.98,
+"USD"
+]
+],
+"total": 22
+},
+"where_eq": {
+"sql": "SELECT first_name, last_name, city, state\nFROM customers\nWHERE state = 'TX';",
+"columns": [
+"first_name",
+"last_name",
+"city",
+"state"
+],
+"rows": [
+[
+"Sophia",
+"Robinson",
+"Austin",
+"TX"
+],
+[
+"Aiden",
+"Sanchez",
+"Houston",
+"TX"
+],
+[
+"Chloe",
+"Robinson",
+"Houston",
+"TX"
+],
+[
+"Abigail",
+"Hernandez",
+"Houston",
+"TX"
+],
+[
+"Wei",
+"Nguyen",
+"Houston",
+"TX"
+],
+[
+"Sofia",
+"Thomas",
+"Austin",
+"TX"
+],
+[
+"Sofia",
+"King",
+"Dallas",
+"TX"
+],
+[
+"Liam",
+"Brown",
+"Austin",
+"TX"
+],
+[
+"Jackson",
+"Kim",
+"Houston",
+"TX"
+],
+[
+"Mei",
+"Garcia",
+"Austin",
+"TX"
+],
+[
+"Sebastian",
+"Taylor",
+"Austin",
+"TX"
+],
+[
+"Isabella",
+"Johnson",
+"Dallas",
+"TX"
+],
+[
+"Daniel",
+"Kim",
+"Houston",
+"TX"
+],
+[
+"Olivia",
+"Clark",
+"Houston",
+"TX"
+],
+[
+"Liam",
+"Lee",
+"Austin",
+"TX"
+],
+[
+"Omar",
+"Nguyen",
+"Houston",
+"TX"
+],
+[
+"Matthew",
+"Brown",
+"Houston",
+"TX"
+],
+[
+"Diego",
+"Sanchez",
+"Austin",
+"TX"
+],
+[
+"Sebastian",
+"Kim",
+"Dallas",
+"TX"
+],
+[
+"Diego",
+"Anderson",
+"Austin",
+"TX"
+],
+[
+"Zoe",
+"Gonzalez",
+"Houston",
+"TX"
+],
+[
+"Mason",
+"King",
+"Austin",
+"TX"
+],
+[
+"Benjamin",
+"Jones",
+"Houston",
+"TX"
+],
+[
+"Nora",
+"Thomas",
+"Austin",
+"TX"
+],
+[
+"Henry",
+"Williams",
+"Austin",
+"TX"
+],
+[
+"Ava",
+"Sanchez",
+"Houston",
+"TX"
+],
+[
+"Liam",
+"Perez",
+"Dallas",
+"TX"
+],
+[
+"Priya",
+"Chen",
+"Austin",
+"TX"
+],
+[
+"Yuki",
+"Jackson",
+"Houston",
+"TX"
+],
+[
+"Zoe",
+"Thomas",
+"Dallas",
+"TX"
+]
+],
+"total": 30
+},
+"where_cmp": {
+"sql": "SELECT name, category, price\nFROM products\nWHERE price >= 50;",
+"columns": [
+"name",
+"category",
+"price"
+],
+"rows": [
+[
+"Trail Running Shoes",
+"Footwear",
+89.99
+],
+[
+"Everyday Sneakers",
+"Footwear",
+59.99
+],
+[
+"Daypack 20L",
+"Outdoor",
+64.0
+],
+[
+"Two-Person Tent",
+"Outdoor",
+179.0
+],
+[
+"Sleeping Bag",
+"Outdoor",
+119.0
+],
+[
+"Wireless Earbuds",
+"Electronics",
+79.0
+],
+[
+"Smart Watch",
+"Electronics",
+199.0
+],
+[
+"Dumbbell Set",
+"Fitness",
+89.0
+]
+],
+"total": 8
+},
+"where_and": {
+"sql": "SELECT order_id, customer_id, order_date, channel\nFROM orders\nWHERE channel = 'app'\n  AND order_date >= '2025-12-01';",
+"columns": [
+"order_id",
+"customer_id",
+"order_date",
+"channel"
+],
+"rows": [
+[
+1333,
+144,
+"2025-12-01",
+"app"
+],
+[
+1334,
+51,
+"2025-12-02",
+"app"
+],
+[
+1338,
+90,
+"2025-12-03",
+"app"
+],
+[
+1340,
+145,
+"2025-12-03",
+"app"
+],
+[
+1341,
+149,
+"2025-12-03",
+"app"
+],
+[
+1342,
+15,
+"2025-12-04",
+"app"
+],
+[
+1347,
+9,
+"2025-12-06",
+"app"
+],
+[
+1350,
+42,
+"2025-12-07",
+"app"
+],
+[
+1353,
+28,
+"2025-12-08",
+"app"
+],
+[
+1356,
+133,
+"2025-12-08",
+"app"
+],
+[
+1358,
+45,
+"2025-12-09",
+"app"
+],
+[
+1363,
+48,
+"2025-12-11",
+"app"
+],
+[
+1367,
+33,
+"2025-12-12",
+"app"
+],
+[
+1375,
+16,
+"2025-12-14",
+"app"
+],
+[
+1377,
+94,
+"2025-12-14",
+"app"
+],
+[
+1381,
+121,
+"2025-12-15",
+"app"
+],
+[
+1382,
+128,
+"2025-12-15",
+"app"
+],
+[
+1385,
+95,
+"2025-12-16",
+"app"
+],
+[
+1386,
+145,
+"2025-12-16",
+"app"
+],
+[
+1388,
+49,
+"2025-12-17",
+"app"
+],
+[
+1393,
+5,
+"2025-12-19",
+"app"
+],
+[
+1395,
+54,
+"2025-12-19",
+"app"
+],
+[
+1396,
+67,
+"2025-12-19",
+"app"
+],
+[
+1398,
+36,
+"2025-12-20",
+"app"
+],
+[
+1399,
+144,
+"2025-12-20",
+"app"
+],
+[
+1402,
+36,
+"2025-12-21",
+"app"
+],
+[
+1405,
+111,
+"2025-12-21",
+"app"
+],
+[
+1407,
+145,
+"2025-12-21",
+"app"
+],
+[
+1409,
+125,
+"2025-12-22",
+"app"
+],
+[
+1410,
+13,
+"2025-12-23",
+"app"
+],
+[
+1414,
+13,
+"2025-12-25",
+"app"
+],
+[
+1417,
+23,
+"2025-12-28",
+"app"
+],
+[
+1418,
+145,
+"2025-12-28",
+"app"
+],
+[
+1419,
+91,
+"2025-12-31",
+"app"
+]
+],
+"total": 34
+},
+"precedence_wrong": {
+"sql": "SELECT name, category, price\nFROM products\nWHERE category = 'Footwear' OR category = 'Outdoor' AND price < 40;",
+"columns": [
+"name",
+"category",
+"price"
+],
+"rows": [
+[
+"Trail Running Shoes",
+"Footwear",
+89.99
+],
+[
+"Everyday Sneakers",
+"Footwear",
+59.99
+],
+[
+"Rain Boots",
+"Footwear",
+44.5
+],
+[
+"Wool Socks (3-pack)",
+"Footwear",
+14.99
+],
+[
+"Insulated Water Bottle",
+"Outdoor",
+24.99
+],
+[
+"Camping Lantern",
+"Outdoor",
+29.95
+]
+],
+"total": 6
+},
+"precedence_right": {
+"sql": "SELECT name, category, price\nFROM products\nWHERE (category = 'Footwear' OR category = 'Outdoor') AND price < 40;",
+"columns": [
+"name",
+"category",
+"price"
+],
+"rows": [
+[
+"Wool Socks (3-pack)",
+"Footwear",
+14.99
+],
+[
+"Insulated Water Bottle",
+"Outdoor",
+24.99
+],
+[
+"Camping Lantern",
+"Outdoor",
+29.95
+]
+],
+"total": 3
+},
+"where_in": {
+"sql": "SELECT first_name, city, state\nFROM customers\nWHERE state IN ('WA', 'OR', 'CA');",
+"columns": [
+"first_name",
+"city",
+"state"
+],
+"rows": [
+[
+"Wei",
+"Portland",
+"OR"
+],
+[
+"Daniel",
+"Seattle",
+"WA"
+],
+[
+"Ethan",
+"San Jose",
+"CA"
+],
+[
+"Noah",
+"Portland",
+"OR"
+],
+[
+"Arjun",
+"Los Angeles",
+"CA"
+],
+[
+"Sophia",
+"Seattle",
+"WA"
+],
+[
+"David",
+"Portland",
+"OR"
+],
+[
+"Zoe",
+"Portland",
+"OR"
+],
+[
+"Emma",
+"Los Angeles",
+"CA"
+],
+[
+"Evelyn",
+"Seattle",
+"WA"
+],
+[
+"Layla",
+"Seattle",
+"WA"
+],
+[
+"Noah",
+"Los Angeles",
+"CA"
+],
+[
+"Isabella",
+"Los Angeles",
+"CA"
+],
+[
+"Chloe",
+null,
+"OR"
+],
+[
+"Hannah",
+"San Jose",
+"CA"
+],
+[
+"Ava",
+"Los Angeles",
+"CA"
+],
+[
+"Riley",
+"Los Angeles",
+"CA"
+],
+[
+"Omar",
+"Los Angeles",
+"CA"
+],
+[
+"Olivia",
+"Portland",
+"OR"
+],
+[
+"Samuel",
+"Los Angeles",
+"CA"
+],
+[
+"Owen",
+"Seattle",
+"WA"
+],
+[
+"Arjun",
+"Seattle",
+"WA"
+],
+[
+"Nora",
+"San Jose",
+"CA"
+],
+[
+"Lucas",
+"Seattle",
+"WA"
+],
+[
+"Priya",
+"Los Angeles",
+"CA"
+],
+[
+"Jackson",
+"Los Angeles",
+"CA"
+],
+[
+"Yuki",
+"Portland",
+"OR"
+],
+[
+"Logan",
+"Seattle",
+"WA"
+],
+[
+"Lucas",
+"Portland",
+"OR"
+],
+[
+"Noah",
+"San Jose",
+"CA"
+],
+[
+"Yuki",
+"Portland",
+"OR"
+],
+[
+"Aria",
+"Seattle",
+"WA"
+],
+[
+"Benjamin",
+"Portland",
+"OR"
+],
+[
+"Evelyn",
+"Seattle",
+"WA"
+],
+[
+"David",
+"Seattle",
+"WA"
+],
+[
+"Layla",
+"Portland",
+"OR"
+],
+[
+"Zoe",
+"Seattle",
+"WA"
+],
+[
+"Daniel",
+"Seattle",
+"WA"
+],
+[
+"Daniel",
+"Seattle",
+"WA"
+],
+[
+"Diego",
+"Portland",
+"OR"
+],
+[
+"David",
+"Los Angeles",
+"CA"
+],
+[
+"Yuki",
+"San Jose",
+"CA"
+],
+[
+"Benjamin",
+"Seattle",
+"WA"
+],
+[
+"Abigail",
+"Los Angeles",
+"CA"
+]
+],
+"total": 44
+},
+"where_between": {
+"sql": "SELECT name, price\nFROM products\nWHERE price BETWEEN 20 AND 30;",
+"columns": [
+"name",
+"price"
+],
+"rows": [
+[
+"Insulated Water Bottle",
+24.99
+],
+[
+"Camping Lantern",
+29.95
+],
+[
+"Foam Roller",
+24.0
+]
+],
+"total": 3
+},
+"where_dates": {
+"sql": "SELECT order_id, order_date, status\nFROM orders\nWHERE order_date BETWEEN '2025-11-24' AND '2025-11-30'\n  AND status <> 'completed';",
+"columns": [
+"order_id",
+"order_date",
+"status"
+],
+"rows": [
+[
+1291,
+"2025-11-24",
+"cancelled"
+],
+[
+1302,
+"2025-11-27",
+"cancelled"
+],
+[
+1316,
+"2025-11-28",
+"cancelled"
+]
+],
+"total": 3
+},
+"where_like": {
+"sql": "SELECT name, category\nFROM products\nWHERE name LIKE '%Bottle%' OR name LIKE 'S%';",
+"columns": [
+"name",
+"category"
+],
+"rows": [
+[
+"Insulated Water Bottle",
+"Outdoor"
+],
+[
+"Sleeping Bag",
+"Outdoor"
+],
+[
+"Smart Watch",
+"Electronics"
+]
+],
+"total": 3
+},
+"where_like_underscore": {
+"sql": "SELECT first_name\nFROM customers\nWHERE first_name LIKE '_a%';",
+"columns": [
+"first_name"
+],
+"rows": [
+[
+"Daniel"
+],
+[
+"Carter"
+],
+[
+"Mason"
+],
+[
+"Mason"
+],
+[
+"David"
+],
+[
+"Hannah"
+],
+[
+"Layla"
+],
+[
+"Jackson"
+],
+[
+"Matthew"
+],
+[
+"David"
+],
+[
+"Jackson"
+],
+[
+"Samuel"
+],
+[
+"Daniel"
+],
+[
+"David"
+],
+[
+"Hannah"
+],
+[
+"Daniel"
+],
+[
+"David"
+],
+[
+"Jackson"
+],
+[
+"Fatima"
+],
+[
+"Samuel"
+],
+[
+"Harper"
+],
+[
+"Matthew"
+],
+[
+"Carter"
+],
+[
+"Jackson"
+],
+[
+"Jackson"
+],
+[
+"Fatima"
+],
+[
+"Mason"
+],
+[
+"David"
+],
+[
+"Layla"
+],
+[
+"Daniel"
+],
+[
+"Daniel"
+],
+[
+"Daniel"
+],
+[
+"Hannah"
+],
+[
+"David"
+],
+[
+"Carter"
+]
+],
+"total": 35
+},
+"where_ilike": {
+"sql": "SELECT name\nFROM products\nWHERE name ILIKE '%tea%';",
+"columns": [
+"name"
+],
+"rows": [
+[
+"Green Tea (50 bags)"
+]
+],
+"total": 1
+},
+"null_eq": {
+"sql": "SELECT first_name, city\nFROM customers\nWHERE city = NULL;",
+"columns": [
+"first_name",
+"city"
+],
+"rows": [],
+"total": 0
+},
+"null_is": {
+"sql": "SELECT first_name, last_name, city, state\nFROM customers\nWHERE city IS NULL;",
+"columns": [
+"first_name",
+"last_name",
+"city",
+"state"
+],
+"rows": [
+[
+"Chloe",
+"Lee",
+null,
+"OR"
+],
+[
+"David",
+"Harris",
+null,
+"MA"
+]
+],
+"total": 2
+},
+"null_not_equal": {
+"sql": "SELECT COUNT(*) AS not_austin\nFROM customers\nWHERE city <> 'Austin';",
+"columns": [
+"not_austin"
+],
+"rows": [
+[
+136
+]
+],
+"total": 1
+},
+"null_counts": {
+"sql": "SELECT\n  COUNT(*)                                        AS all_customers,\n  COUNT(*) FILTER (WHERE city = 'Austin')         AS austin,\n  COUNT(*) FILTER (WHERE city <> 'Austin')        AS not_austin,\n  COUNT(*) FILTER (WHERE city IS NULL)            AS unknown_city\nFROM customers;",
+"columns": [
+"all_customers",
+"austin",
+"not_austin",
+"unknown_city"
+],
+"rows": [
+[
+150,
+12,
+136,
+2
+]
+],
+"total": 1
+},
+"null_logic": {
+"sql": "SELECT\n  NULL = NULL        AS null_equals_null,\n  NULL <> 1          AS null_not_one,\n  TRUE AND NULL      AS true_and_null,\n  FALSE AND NULL     AS false_and_null,\n  TRUE OR NULL       AS true_or_null,\n  NOT NULL           AS not_null;",
+"columns": [
+"null_equals_null",
+"null_not_one",
+"true_and_null",
+"false_and_null",
+"true_or_null",
+"not_null"
+],
+"rows": [
+[
+null,
+null,
+null,
+false,
+true,
+null
+]
+],
+"total": 1
+},
+"null_distinct": {
+"sql": "SELECT first_name, city\nFROM customers\nWHERE city IS DISTINCT FROM 'Austin'\nLIMIT 5;",
+"columns": [
+"first_name",
+"city"
+],
+"rows": [
+[
+"Aiden",
+"Houston"
+],
+[
+"Wei",
+"Portland"
+],
+[
+"Daniel",
+"Seattle"
+],
+[
+"Sebastian",
+"Denver"
+],
+[
+"Ethan",
+"San Jose"
+]
+],
+"total": 5
+},
+"coalesce": {
+"sql": "SELECT first_name, COALESCE(city, '(unknown)') AS city, state\nFROM customers\nWHERE city IS NULL OR email IS NULL;",
+"columns": [
+"first_name",
+"city",
+"state"
+],
+"rows": [
+[
+"Carter",
+"New York",
+"NY"
+],
+[
+"Chloe",
+"(unknown)",
+"OR"
+],
+[
+"David",
+"(unknown)",
+"MA"
+],
+[
+"Omar",
+"Houston",
+"TX"
+],
+[
+"Ella",
+"Miami",
+"FL"
+],
+[
+"Olivia",
+"Miami",
+"FL"
+],
+[
+"Joseph",
+"Boston",
+"MA"
+]
+],
+"total": 7
+},
+"alias_where": {
+"sql": "SELECT name, price * 1.0825 AS price_with_tax\nFROM products\nWHERE price_with_tax > 100;",
+"columns": [
+"name",
+"price_with_tax"
+],
+"rows": [
+[
+"Two-Person Tent",
+193.7675
+],
+[
+"Sleeping Bag",
+128.8175
+],
+[
+"Smart Watch",
+215.4175
+]
+],
+"total": 3
+},
+"alias_where_fix": {
+"sql": "SELECT name, price * 1.0825 AS price_with_tax\nFROM products\nWHERE price * 1.0825 > 100;",
+"columns": [
+"name",
+"price_with_tax"
+],
+"rows": [
+[
+"Two-Person Tent",
+193.7675
+],
+[
+"Sleeping Bag",
+128.8175
+],
+[
+"Smart Watch",
+215.4175
+]
+],
+"total": 3
+},
+"double_quote": {
+"sql": "SELECT first_name\nFROM customers\nWHERE city = \"Austin\";",
+"error": "Binder Error: Referenced column \"Austin\" not found in FROM clause!"
+},
+"ex1": {
+"sql": "SELECT name, price\nFROM products\nWHERE category = 'Electronics' AND price < 50;",
+"columns": [
+"name",
+"price"
+],
+"rows": [
+[
+"Phone Charger",
+19.99
+],
+[
+"Bluetooth Speaker",
+49.99
+],
+[
+"USB-C Cable",
+9.99
+]
+],
+"total": 3
+},
+"ex2": {
+"sql": "SELECT order_id, customer_id, order_date\nFROM orders\nWHERE status IN ('cancelled', 'returned')\n  AND order_date >= '2025-11-01';",
+"columns": [
+"order_id",
+"customer_id",
+"order_date"
+],
+"rows": [
+[
+1254,
+111,
+"2025-11-07"
+],
+[
+1256,
+47,
+"2025-11-08"
+],
+[
+1262,
+139,
+"2025-11-14"
+],
+[
+1266,
+28,
+"2025-11-20"
+],
+[
+1274,
+59,
+"2025-11-22"
+],
+[
+1291,
+69,
+"2025-11-24"
+],
+[
+1302,
+9,
+"2025-11-27"
+],
+[
+1316,
+40,
+"2025-11-28"
+],
+[
+1332,
+93,
+"2025-12-01"
+],
+[
+1343,
+85,
+"2025-12-04"
+],
+[
+1380,
+85,
+"2025-12-15"
+],
+[
+1384,
+58,
+"2025-12-16"
+],
+[
+1387,
+145,
+"2025-12-16"
+],
+[
+1392,
+4,
+"2025-12-19"
+],
+[
+1403,
+36,
+"2025-12-21"
+],
+[
+1407,
+145,
+"2025-12-21"
+],
+[
+1417,
+23,
+"2025-12-28"
+],
+[
+1420,
+25,
+"2025-12-30"
+]
+],
+"total": 18
+},
+"ex3": {
+"sql": "SELECT customer_id, first_name, last_name\nFROM customers\nWHERE email IS NULL;",
+"columns": [
+"customer_id",
+"first_name",
+"last_name"
+],
+"rows": [
+[
+10,
+"Carter",
+"Davis"
+],
+[
+70,
+"Omar",
+"Nguyen"
+],
+[
+73,
+"Ella",
+"Lewis"
+],
+[
+95,
+"Olivia",
+"Davis"
+],
+[
+97,
+"Joseph",
+"Gonzalez"
+]
+],
+"total": 5
+}
+}

@@ -25,6 +25,7 @@ import LLNStory from "@/components/explainers/LLNStory";
 import CLTStory from "@/components/explainers/CLTStory";
 import ABTestStory from "@/components/explainers/ABTestStory";
 import BootstrapStory from "@/components/explainers/BootstrapStory";
+import Sql01Story from "@/components/sql/Sql01Story";
 
 // Animated explainers, keyed by the `explainer` field in a post's frontmatter.
 const EXPLAINERS: Record<string, { node: JSX.Element }> = {
@@ -38,6 +39,7 @@ const EXPLAINERS: Record<string, { node: JSX.Element }> = {
   "central-limit-theorem": { node: <CLTStory /> },
   "ab-testing": { node: <ABTestStory /> },
   bootstrap: { node: <BootstrapStory /> },
+  "sql-01": { node: <Sql01Story /> },
 };
 
 export interface MdxMeta extends Meta {
