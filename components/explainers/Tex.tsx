@@ -12,6 +12,9 @@ export const COL = {
   y: "#3E9B4F",
   yhat: "#9B59D0",
   e: "#D4A017",
+  z: "#0E9F8E",
+  sig: "#C2507A",
+  dim: "#6B7280",
 };
 
 const MACROS: Record<string, string> = {
@@ -30,6 +33,11 @@ const MACROS: Record<string, string> = {
   "\\cy": `\\textcolor{#${COL.y}}{#1}`,
   "\\ce": `\\textcolor{#${COL.e}}{#1}`,
   "\\cp": `\\textcolor{#${COL.yhat}}{#1}`,
+  // logistic regression
+  "\\Z": `\\textcolor{${COL.z}}{z}`,
+  "\\p": `\\textcolor{${COL.yhat}}{\\hat{p}}`,
+  "\\sig": `\\textcolor{${COL.sig}}{\\sigma}`,
+  "\\cz": `\\textcolor{#${COL.z}}{#1}`,
 };
 
 const tight = (s: string) => s.replace(/(\d),(\d)/g, "$1{,}$2");
