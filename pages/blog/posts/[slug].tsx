@@ -29,6 +29,7 @@ import Sql01Story from "@/components/sql/Sql01Story";
 import Sql02Story from "@/components/sql/Sql02Story";
 import Sql03Story from "@/components/sql/Sql03Story";
 import Sql04Story from "@/components/sql/Sql04Story";
+import Sql05Story from "@/components/sql/Sql05Story";
 
 // Animated explainers, keyed by the `explainer` field in a post's frontmatter.
 const EXPLAINERS: Record<string, { node: JSX.Element }> = {
@@ -46,6 +47,7 @@ const EXPLAINERS: Record<string, { node: JSX.Element }> = {
   "sql-02": { node: <Sql02Story /> },
   "sql-03": { node: <Sql03Story /> },
   "sql-04": { node: <Sql04Story /> },
+  "sql-05": { node: <Sql05Story /> },
 };
 
 export interface MdxMeta extends Meta {

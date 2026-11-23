@@ -1,0 +1,536 @@
+{
+"avg_price": {
+"sql": "SELECT AVG(price) AS avg_price\nFROM products;",
+"columns": [
+"avg_price"
+],
+"rows": [
+[
+53.765
+]
+],
+"total": 1
+},
+"above_avg": {
+"sql": "SELECT name, price\nFROM products\nWHERE price > (SELECT AVG(price) FROM products)\nORDER BY price DESC;",
+"columns": [
+"name",
+"price"
+],
+"rows": [
+[
+"Smart Watch",
+199.0
+],
+[
+"Two-Person Tent",
+179.0
+],
+[
+"Sleeping Bag",
+119.0
+],
+[
+"Trail Running Shoes",
+89.99
+],
+[
+"Dumbbell Set",
+89.0
+],
+[
+"Wireless Earbuds",
+79.0
+],
+[
+"Daypack 20L",
+64.0
+],
+[
+"Everyday Sneakers",
+59.99
+]
+],
+"total": 8
+},
+"scalar_select": {
+"sql": "SELECT\n  name,\n  price,\n  ROUND(price - (SELECT AVG(price) FROM products), 2) AS vs_average\nFROM products\nORDER BY vs_average DESC\nLIMIT 5;",
+"columns": [
+"name",
+"price",
+"vs_average"
+],
+"rows": [
+[
+"Smart Watch",
+199.0,
+145.24
+],
+[
+"Two-Person Tent",
+179.0,
+125.24
+],
+[
+"Sleeping Bag",
+119.0,
+65.24
+],
+[
+"Trail Running Shoes",
+89.99,
+36.23
+],
+[
+"Dumbbell Set",
+89.0,
+35.24
+]
+],
+"total": 5
+},
+"scalar_many": {
+"sql": "SELECT name\nFROM products\nWHERE price > (SELECT price FROM products WHERE category = 'Outdoor');",
+"error": "Invalid Input Error: More than one row returned by a subquery used as an expression - scalar subqueries can only return a single row."
+},
+"in_sub": {
+"sql": "SELECT customer_id, first_name, last_name\nFROM customers\nWHERE customer_id IN (\n  SELECT customer_id\n  FROM orders\n  WHERE order_date >= '2025-12-24'\n)\nORDER BY customer_id;",
+"columns": [
+"customer_id",
+"first_name",
+"last_name"
+],
+"rows": [
+[
+13,
+"Evelyn",
+"Nguyen"
+],
+[
+23,
+"Henry",
+"Clark"
+],
+[
+25,
+"Sofia",
+"Thomas"
+],
+[
+91,
+"Jackson",
+"Rodriguez"
+],
+[
+117,
+"Benjamin",
+"Jones"
+],
+[
+145,
+"Wei",
+"Wright"
+]
+],
+"total": 6
+},
+"not_in_trap": {
+"sql": "SELECT COUNT(*) AS never_came_from_email\nFROM customers\nWHERE customer_id NOT IN (\n  SELECT customer_id FROM sessions WHERE source = 'email'\n);",
+"columns": [
+"never_came_from_email"
+],
+"rows": [
+[
+0
+]
+],
+"total": 1
+},
+"not_in_why": {
+"sql": "SELECT\n  COUNT(*)                      AS email_sessions,\n  COUNT(customer_id)            AS logged_in,\n  COUNT(*) - COUNT(customer_id) AS anonymous_null_ids\nFROM sessions\nWHERE source = 'email';",
+"columns": [
+"email_sessions",
+"logged_in",
+"anonymous_null_ids"
+],
+"rows": [
+[
+280,
+176,
+104
+]
+],
+"total": 1
+},
+"not_in_fixed": {
+"sql": "SELECT COUNT(*) AS never_came_from_email\nFROM customers\nWHERE customer_id NOT IN (\n  SELECT customer_id FROM sessions\n  WHERE source = 'email' AND customer_id IS NOT NULL\n);",
+"columns": [
+"never_came_from_email"
+],
+"rows": [
+[
+50
+]
+],
+"total": 1
+},
+"not_exists": {
+"sql": "SELECT COUNT(*) AS never_came_from_email\nFROM customers c\nWHERE NOT EXISTS (\n  SELECT 1\n  FROM sessions s\n  WHERE s.customer_id = c.customer_id\n    AND s.source = 'email'\n);",
+"columns": [
+"never_came_from_email"
+],
+"rows": [
+[
+50
+]
+],
+"total": 1
+},
+"exists": {
+"sql": "SELECT c.customer_id, c.first_name\nFROM customers c\nWHERE EXISTS (\n  SELECT 1\n  FROM orders o\n  WHERE o.customer_id = c.customer_id\n    AND o.status = 'returned'\n)\nORDER BY c.customer_id\nLIMIT 6;",
+"columns": [
+"customer_id",
+"first_name"
+],
+"rows": [
+[
+4,
+"Daniel"
+],
+[
+15,
+"Sofia"
+],
+[
+34,
+"Riley"
+],
+[
+36,
+"Sofia"
+],
+[
+42,
+"Chloe"
+],
+[
+47,
+"Sofia"
+]
+],
+"total": 6
+},
+"correlated": {
+"sql": "SELECT\n  c.customer_id,\n  c.first_name,\n  (SELECT MAX(o.order_date)\n   FROM orders o\n   WHERE o.customer_id = c.customer_id) AS last_order\nFROM customers c\nORDER BY c.customer_id\nLIMIT 6;",
+"columns": [
+"customer_id",
+"first_name",
+"last_order"
+],
+"rows": [
+[
+1,
+"Sophia",
+null
+],
+[
+2,
+"Aiden",
+"2025-12-14"
+],
+[
+3,
+"Wei",
+"2025-11-28"
+],
+[
+4,
+"Daniel",
+"2025-12-19"
+],
+[
+5,
+"Sebastian",
+"2025-12-19"
+],
+[
+6,
+"Ethan",
+"2025-11-24"
+]
+],
+"total": 6
+},
+"correlated_category": {
+"sql": "SELECT p.name, p.category, p.price\nFROM products p\nWHERE p.price > (\n  SELECT AVG(p2.price)\n  FROM products p2\n  WHERE p2.category = p.category\n)\nORDER BY p.category, p.price DESC;",
+"columns": [
+"name",
+"category",
+"price"
+],
+"rows": [
+[
+"Smart Watch",
+"Electronics",
+199.0
+],
+[
+"Wireless Earbuds",
+"Electronics",
+79.0
+],
+[
+"Dumbbell Set",
+"Fitness",
+89.0
+],
+[
+"Trail Running Shoes",
+"Footwear",
+89.99
+],
+[
+"Everyday Sneakers",
+"Footwear",
+59.99
+],
+[
+"Coffee Beans 1lb",
+"Grocery",
+12.49
+],
+[
+"Trail Mix",
+"Grocery",
+7.99
+],
+[
+"Two-Person Tent",
+"Outdoor",
+179.0
+],
+[
+"Sleeping Bag",
+"Outdoor",
+119.0
+]
+],
+"total": 9
+},
+"derived": {
+"sql": "SELECT\n  COUNT(*)              AS orders,\n  ROUND(AVG(value), 2)  AS avg_order_value,\n  MAX(value)            AS biggest_order\nFROM (\n  SELECT order_id, SUM(quantity * unit_price) AS value\n  FROM order_items\n  GROUP BY order_id\n) AS order_values;",
+"columns": [
+"orders",
+"avg_order_value",
+"biggest_order"
+],
+"rows": [
+[
+419,
+85.82,
+537.0
+]
+],
+"total": 1
+},
+"cte": {
+"sql": "WITH order_values AS (\n  SELECT order_id, SUM(quantity * unit_price) AS value\n  FROM order_items\n  GROUP BY order_id\n)\nSELECT\n  COUNT(*)              AS orders,\n  ROUND(AVG(value), 2)  AS avg_order_value,\n  MAX(value)            AS biggest_order\nFROM order_values;",
+"columns": [
+"orders",
+"avg_order_value",
+"biggest_order"
+],
+"rows": [
+[
+419,
+85.82,
+537.0
+]
+],
+"total": 1
+},
+"cte_chain": {
+"sql": "WITH order_values AS (\n  SELECT o.order_id, o.customer_id, SUM(i.quantity * i.unit_price) AS value\n  FROM orders o\n  JOIN order_items i ON i.order_id = o.order_id\n  WHERE o.status = 'completed'\n  GROUP BY o.order_id, o.customer_id\n),\ncustomer_stats AS (\n  SELECT customer_id, COUNT(*) AS orders, SUM(value) AS lifetime_value\n  FROM order_values\n  GROUP BY customer_id\n),\ntiers AS (\n  SELECT\n    customer_id, orders, lifetime_value,\n    CASE WHEN lifetime_value >= 800 THEN 'VIP'\n         WHEN lifetime_value >= 300 THEN 'regular'\n         ELSE 'occasional' END AS tier\n  FROM customer_stats\n)\nSELECT tier, COUNT(*) AS customers, ROUND(AVG(lifetime_value), 2) AS avg_value\nFROM tiers\nGROUP BY tier\nORDER BY avg_value DESC;",
+"columns": [
+"tier",
+"customers",
+"avg_value"
+],
+"rows": [
+[
+"VIP",
+12,
+1160.3
+],
+[
+"regular",
+18,
+436.83
+],
+[
+"occasional",
+101,
+108.41
+]
+],
+"total": 3
+},
+"fanout_fixed": {
+"sql": "WITH orders_per_customer AS (\n  SELECT customer_id, COUNT(*) AS orders\n  FROM orders\n  GROUP BY customer_id\n),\nrevenue_per_customer AS (\n  SELECT o.customer_id, SUM(i.quantity * i.unit_price) AS revenue\n  FROM orders o\n  JOIN order_items i ON i.order_id = o.order_id\n  GROUP BY o.customer_id\n)\nSELECT\n  c.segment,\n  SUM(opc.orders)  AS orders,\n  SUM(rpc.revenue) AS revenue\nFROM customers c\nJOIN orders_per_customer  opc ON opc.customer_id = c.customer_id\nJOIN revenue_per_customer rpc ON rpc.customer_id = c.customer_id\nGROUP BY c.segment;",
+"columns": [
+"segment",
+"orders",
+"revenue"
+],
+"rows": [
+[
+"consumer",
+315,
+27009.75
+],
+[
+"business",
+105,
+8947.17
+]
+],
+"total": 2
+},
+"cte_reuse": {
+"sql": "WITH daily AS (\n  SELECT order_date, COUNT(*) AS orders\n  FROM orders\n  GROUP BY order_date\n)\nSELECT order_date, orders\nFROM daily\nWHERE orders = (SELECT MAX(orders) FROM daily);",
+"columns": [
+"order_date",
+"orders"
+],
+"rows": [
+[
+"2025-11-27",
+10
+]
+],
+"total": 1
+},
+"lateral": {
+"sql": "SELECT c.first_name, recent.order_id, recent.order_date\nFROM customers c,\nLATERAL (\n  SELECT o.order_id, o.order_date\n  FROM orders o\n  WHERE o.customer_id = c.customer_id\n  ORDER BY o.order_date DESC\n  LIMIT 2\n) AS recent\nWHERE c.customer_id IN (2, 3, 6)\nORDER BY c.first_name, recent.order_date DESC;",
+"columns": [
+"first_name",
+"order_id",
+"order_date"
+],
+"rows": [
+[
+"Aiden",
+1374,
+"2025-12-14"
+],
+[
+"Aiden",
+1229,
+"2025-10-08"
+],
+[
+"Ethan",
+1287,
+"2025-11-24"
+],
+[
+"Ethan",
+1125,
+"2025-07-06"
+],
+[
+"Wei",
+1312,
+"2025-11-28"
+],
+[
+"Wei",
+1296,
+"2025-11-26"
+]
+],
+"total": 6
+},
+"ex1": {
+"sql": "SELECT name, category, price\nFROM products\nWHERE price < (SELECT AVG(price) FROM products WHERE category = 'Electronics')\n  AND category = 'Electronics';",
+"columns": [
+"name",
+"category",
+"price"
+],
+"rows": [
+[
+"Phone Charger",
+"Electronics",
+19.99
+],
+[
+"Bluetooth Speaker",
+"Electronics",
+49.99
+],
+[
+"USB-C Cable",
+"Electronics",
+9.99
+]
+],
+"total": 3
+},
+"ex2": {
+"sql": "SELECT p.product_id, p.name\nFROM products p\nWHERE NOT EXISTS (\n  SELECT 1\n  FROM order_items i\n  JOIN orders o ON o.order_id = i.order_id\n  WHERE i.product_id = p.product_id\n    AND o.order_date >= '2025-12-20'\n);",
+"columns": [
+"product_id",
+"name"
+],
+"rows": [
+[
+22,
+"Foam Roller"
+],
+[
+10,
+"Wireless Earbuds"
+],
+[
+13,
+"Smart Watch"
+],
+[
+7,
+"Camping Lantern"
+],
+[
+20,
+"Resistance Bands"
+],
+[
+3,
+"Rain Boots"
+]
+],
+"total": 6
+},
+"ex3": {
+"sql": "WITH monthly AS (\n  SELECT date_trunc('month', order_date)::DATE AS month, COUNT(*) AS orders\n  FROM orders\n  GROUP BY month\n)\nSELECT month, orders\nFROM monthly\nWHERE orders > (SELECT AVG(orders) FROM monthly)\nORDER BY month;",
+"columns": [
+"month",
+"orders"
+],
+"rows": [
+[
+"2025-09-01",
+41
+],
+[
+"2025-11-01",
+82
+],
+[
+"2025-12-01",
+89
+]
+],
+"total": 3
+}
+}
