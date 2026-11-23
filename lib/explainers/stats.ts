@@ -161,3 +161,137 @@ export const PAGES: Page[] = (() => {
 /** The stream the story follows: an early lucky streak (18 buyers in the first 100). */
 export const OUR = 23;
 export const idxOf = (n: number) => CHECKS.indexOf(n);
+
+// ---------- central limit theorem post ----------
+/** 20,000 past order values in dollars: lopsided (log-normal, median $40, a long right tail). */
+export const ORDERS: number[] = (() => {
+  const r = rng(777);
+  return Array.from({ length: 20000 }, () => Math.round(40 * Math.exp(0.8 * gauss(r)) * 100) / 100);
+})();
+export const ORDER_MEAN = mean(ORDERS);
+export const ORDER_SD = sd(ORDERS);
+export const skewness = (xs: number[]) => {
+  const m = mean(xs);
+  const s = sd(xs);
+  return xs.reduce((a, x) => a + ((x - m) / s) ** 3, 0) / xs.length;
+};
+/** `reps` averages of `n` orders drawn at random (with replacement) from ORDERS. */
+export function sampleMeans(n: number, reps: number, seed: number) {
+  const r = rng(seed);
+  return Array.from({ length: reps }, () => {
+    let s = 0;
+    for (let i = 0; i < n; i++) s += ORDERS[Math.floor(r() * ORDERS.length)];
+    return s / n;
+  });
+}
+export const CLT_NS = [1, 2, 5, 30, 100];
+export const MEANS: Record<number, number[]> = Object.fromEntries(CLT_NS.map((n) => [n, sampleMeans(n, 2000, 900 + n)]));
+/** 100 samples of 100 orders, each with its 95% confidence interval for the mean. */
+export const INTERVALS = (() => {
+  const r = rng(4242);
+  return Array.from({ length: 100 }, () => {
+    const xs = Array.from({ length: 100 }, () => ORDERS[Math.floor(r() * ORDERS.length)]);
+    const m = mean(xs);
+    const se = sd(xs, 1) / 10;
+    return { m, lo: m - 1.96 * se, hi: m + 1.96 * se };
+  });
+})();
+/** Histogram with arbitrary bin edges [lo, hi) of width w. */
+export const binned = (xs: number[], lo: number, hi: number, w: number) => {
+  const h = new Array(Math.ceil((hi - lo) / w)).fill(0);
+  for (const x of xs) {
+    const i = Math.floor((x - lo) / w);
+    if (i >= 0 && i < h.length) h[i]++;
+  }
+  return h;
+};
+
+// ---------- A/B testing post ----------
+/** Two-proportion z-test and the confidence interval for the difference B − A. */
+export function abTest(kA: number, nA: number, kB: number, nB: number) {
+  const pA = kA / nA;
+  const pB = kB / nB;
+  const diff = pB - pA;
+  const pool = (kA + kB) / (nA + nB);
+  const se0 = Math.sqrt(pool * (1 - pool) * (1 / nA + 1 / nB));
+  const z = diff / se0;
+  const p = 2 * (1 - normCDF(Math.abs(z)));
+  const se = Math.sqrt((pA * (1 - pA)) / nA + (pB * (1 - pB)) / nB);
+  return { pA, pB, diff, pool, se0, z, p, se, lo: diff - 1.96 * se, hi: diff + 1.96 * se, lift: diff / pA };
+}
+/** Power of a two-sided two-proportion z-test with n per arm. */
+export function power(pA: number, pB: number, n: number, alpha = 0.05) {
+  const za = normQuantile(1 - alpha / 2);
+  const pbar = (pA + pB) / 2;
+  const se0 = Math.sqrt((2 * pbar * (1 - pbar)) / n);
+  const se1 = Math.sqrt((pA * (1 - pA) + pB * (1 - pB)) / n);
+  const d = Math.abs(pB - pA);
+  return normCDF((d - za * se0) / se1) + normCDF((-d - za * se0) / se1);
+}
+/** Visitors needed per arm for a given power. */
+export function sampleSize(pA: number, pB: number, alpha = 0.05, pow = 0.8) {
+  const za = normQuantile(1 - alpha / 2);
+  const zb = normQuantile(pow);
+  const pbar = (pA + pB) / 2;
+  const d = Math.abs(pB - pA);
+  return Math.ceil(((za * Math.sqrt(2 * pbar * (1 - pbar)) + zb * Math.sqrt(pA * (1 - pA) + pB * (1 - pB))) / d) ** 2);
+}
+/** Approximate binomial draw (normal approximation, fine for large n). */
+const binomDraw = (r: () => number, n: number, p: number) => Math.max(0, Math.min(n, Math.round(n * p + Math.sqrt(n * p * (1 - p)) * gauss(r))));
+
+export const AB_PA = 0.1;
+export const AB_PB = 0.11;
+export const AB_DAYS = 14;
+export const AB_N = 15000; // per arm, from sampleSize(0.10, 0.11) rounded up
+/** The experiment, day by day (cumulative visitors and buyers per arm). */
+export const AB_DAILY = (() => {
+  const r = rng(2623);
+  let nA = 0;
+  let kA = 0;
+  let nB = 0;
+  let kB = 0;
+  const out: { day: number; nA: number; kA: number; nB: number; kB: number }[] = [];
+  for (let d = 1; d <= AB_DAYS; d++) {
+    const per = d === AB_DAYS ? AB_N - nA : Math.round(AB_N / AB_DAYS);
+    let a = 0;
+    let b = 0;
+    for (let i = 0; i < per; i++) {
+      if (r() < AB_PA) a++;
+      if (r() < AB_PB) b++;
+    }
+    nA += per;
+    nB += per;
+    kA += a;
+    kB += b;
+    out.push({ day: d, nA, kA, nB, kB });
+  }
+  return out;
+})();
+export const AB = AB_DAILY[AB_DAYS - 1];
+export const AB_RESULT = abTest(AB.kA, AB.nA, AB.kB, AB.nB);
+
+/**
+ * 2,000 A/A tests (both arms truly 10%), checked every day for 14 days.
+ * zs[i][d] is test i's z statistic after day d+1.
+ */
+export const AA_ZS: number[][] = (() => {
+  const r = rng(77);
+  const per = Math.round(AB_N / AB_DAYS);
+  return Array.from({ length: 2000 }, () => {
+    let nA = 0;
+    let kA = 0;
+    let kB = 0;
+    const zs: number[] = [];
+    for (let d = 0; d < AB_DAYS; d++) {
+      nA += per;
+      kA += binomDraw(r, per, AB_PA);
+      kB += binomDraw(r, per, AB_PA);
+      zs.push(abTest(kA, nA, kB, nA).z);
+    }
+    return zs;
+  });
+})();
+export const AA_FINAL_FP = AA_ZS.filter((z) => Math.abs(z[AB_DAYS - 1]) > 1.96).length / AA_ZS.length;
+export const AA_PEEK_FP = AA_ZS.filter((z) => z.some((x) => Math.abs(x) > 1.96)).length / AA_ZS.length;
+/** An A/A test that looked "significant" on some day but not at the end (the peeking trap). */
+export const AA_EXAMPLE = AA_ZS.findIndex((z) => Math.abs(z[AB_DAYS - 1]) < 1 && z.slice(2, 8).some((x) => Math.abs(x) > 2.2));

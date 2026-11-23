@@ -22,6 +22,7 @@ import RandomForestStory from "@/components/explainers/RandomForestStory";
 import SVMStory from "@/components/explainers/SVMStory";
 import ProbabilityStory from "@/components/explainers/ProbabilityStory";
 import LLNStory from "@/components/explainers/LLNStory";
+import CLTStory from "@/components/explainers/CLTStory";
 
 // Animated explainers, keyed by the `explainer` field in a post's frontmatter.
 const EXPLAINERS: Record<string, { node: JSX.Element }> = {
@@ -32,6 +33,7 @@ const EXPLAINERS: Record<string, { node: JSX.Element }> = {
   svm: { node: <SVMStory /> },
   probability: { node: <ProbabilityStory /> },
   "law-of-large-numbers": { node: <LLNStory /> },
+  "central-limit-theorem": { node: <CLTStory /> },
 };
 
 export interface MdxMeta extends Meta {
