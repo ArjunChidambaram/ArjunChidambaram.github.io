@@ -15,26 +15,11 @@ import PostBody from "@/components/blog/PostBody";
 import Tag from "@/components/blog/Tag";
 import DateTime from "@/components/DateTime";
 import HeadCategory from "@/components/blog/HeadCategory";
-import ExplainerPlayer from "@/components/explainers/ExplainerPlayer";
-import LinearRegressionPlayground from "@/components/explainers/LinearRegressionPlayground";
-import * as linearRegression from "lib/explainers/linearRegression";
+import LinearRegressionStory from "@/components/explainers/LinearRegressionStory";
 
 // Animated explainers, keyed by the `explainer` field in a post's frontmatter.
 const EXPLAINERS: Record<string, { node: JSX.Element }> = {
-  "linear-regression": {
-    node: (
-      <>
-        <ExplainerPlayer
-          draw={linearRegression.draw}
-          duration={linearRegression.DURATION}
-          size={linearRegression.SIZE}
-          stillAt={37.8}
-          label="Animation: a line is fitted to house size versus price by shrinking the total squared error, then used to predict a new house's price."
-        />
-        <LinearRegressionPlayground />
-      </>
-    ),
-  },
+  "linear-regression": { node: <LinearRegressionStory /> },
 };
 
 export interface MdxMeta extends Meta {

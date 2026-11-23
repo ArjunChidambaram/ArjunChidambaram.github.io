@@ -21,10 +21,14 @@ export const COLORS = {
 
 const FONT = '"Jost", "Helvetica Neue", Arial, sans-serif';
 
-// House size (sq ft) vs price ($k). Fixed so every render is identical.
+// 25 houses: size (sq ft) vs price ($k), with realistic noise. Means are
+// exactly 1,700 sq ft and $330k so the hand calculation stays readable.
 export const POINTS: [number, number][] = [
-  [850, 205], [1000, 228], [1100, 275], [1250, 248], [1350, 296], [1450, 310], [1550, 289],
-  [1650, 342], [1800, 330], [1900, 372], [2050, 365], [2150, 410], [2300, 398], [2450, 446],
+  [860, 204], [900, 240], [1210, 260], [1250, 257], [1320, 292],
+  [1330, 285], [1340, 345], [1360, 282], [1390, 260], [1400, 266],
+  [1550, 301], [1660, 363], [1690, 315], [1810, 314], [1840, 324],
+  [1880, 357], [2000, 373], [2050, 367], [2060, 343], [2160, 427],
+  [2210, 419], [2250, 405], [2270, 424], [2330, 426], [2380, 401],
 ];
 
 export const X_RANGE: [number, number] = [700, 2700];
@@ -105,6 +109,7 @@ const lerp = (a: number, b: number, p: number) => a + (b - a) * p;
 
 function lineAt(t: number): Line {
   if (t < 18.5) return START;
+  if (t >= 28) return BEST;
   const p = prog(t, 18.5, 28);
   const f = p * GD_STEPS;
   const i = Math.min(GD_STEPS - 1, Math.floor(f));
@@ -241,6 +246,10 @@ export function drawResiduals(
 ) {
   ctx.save();
   ctx.globalAlpha = alpha;
+  // keep the squares inside the plot, even when the line is badly wrong
+  ctx.beginPath();
+  ctx.rect(PLOT.left, PLOT.top - 40, PLOT.right - PLOT.left + 40, PLOT.bottom - PLOT.top + 40);
+  ctx.clip();
   points.forEach(([x, y], i) => {
     const X = px(x);
     const Y = py(y);
@@ -269,7 +278,7 @@ export function drawResiduals(
 
 export function drawPoints(ctx: CanvasRenderingContext2D, points: [number, number][], t = 99, start = 0) {
   points.forEach(([x, y], i) => {
-    const p = backOut(prog(t, start + i * 0.12, start + i * 0.12 + 0.45));
+    const p = backOut(prog(t, start + i * 0.09, start + i * 0.09 + 0.4));
     if (p <= 0) return;
     ctx.save();
     ctx.fillStyle = COLORS.teal;

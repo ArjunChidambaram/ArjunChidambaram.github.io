@@ -5,6 +5,7 @@ import { ProvideFilter } from "context/filter";
 import { ProvideSection } from "context/section";
 
 import "../styles/globals.css";
+import "katex/dist/katex.min.css";
 
 import Script from "next/script";
 
