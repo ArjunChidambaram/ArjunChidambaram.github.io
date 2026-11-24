@@ -222,11 +222,11 @@ export const siteConfig = {
     
     // Favicon paths
     favicons: {
-      appleTouchIcon: "/favicons/apple-touch-icon.png",
-      favicon32: "/favicons/favicon-32x32.png", 
-      favicon16: "/favicons/favicon-16x16.png",
-      safariPinnedTab: "/favicons/safari-pinned-tab.svg",
-      manifest: "/favicons/site.webmanifest",
+      appleTouchIcon: "/favicons/apple-touch-icon.png?v=3",
+      favicon32: "/favicons/favicon-32x32.png?v=3", 
+      favicon16: "/favicons/favicon-16x16.png?v=3",
+      safariPinnedTab: "/favicons/safari-pinned-tab.svg?v=3",
+      manifest: "/favicons/site.webmanifest?v=3",
     },
     
     // Background decorative images
