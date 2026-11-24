@@ -25,15 +25,15 @@ const Document = () => {
           sizes="16x16"
           href={siteConfig.images.favicons.favicon16}
         />
-        <link rel="shortcut icon" href="/favicons/favicon.ico" />
+        <link rel="shortcut icon" href="/favicons/favicon.ico?v=2" />
         <link rel="manifest" href={siteConfig.images.favicons.manifest} />
         <link
           rel="mask-icon"
           href={siteConfig.images.favicons.safariPinnedTab}
-          color="#5bbad5"
+          color="#007A7A"
         />
-        <meta name="msapplication-TileColor" content="#5bbad5" />
-        <meta name="theme-color" content="#1d2a35" />
+        <meta name="msapplication-TileColor" content="#007A7A" />
+        <meta name="theme-color" content="#007A7A" />
 
         <link
           href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap"
