@@ -37,6 +37,9 @@ import Sql09Story from "@/components/sql/Sql09Story";
 import Sql10Story from "@/components/sql/Sql10Story";
 import Sql11Story from "@/components/sql/Sql11Story";
 import Sql12Story from "@/components/sql/Sql12Story";
+import Sql13Story from "@/components/sql/Sql13Story";
+import { CheatSheet, CheatSheetLink } from "@/components/explainers/CheatSheet";
+import { CHEATSHEETS } from "lib/cheatsheets";
 
 // Animated explainers, keyed by the `explainer` field in a post's frontmatter.
 const EXPLAINERS: Record<string, { node: JSX.Element }> = {
@@ -62,6 +65,7 @@ const EXPLAINERS: Record<string, { node: JSX.Element }> = {
   "sql-10": { node: <Sql10Story /> },
   "sql-11": { node: <Sql11Story /> },
   "sql-12": { node: <Sql12Story /> },
+  "sql-13": { node: <Sql13Story /> },
 };
 
 export interface MdxMeta extends Meta {
@@ -125,6 +129,7 @@ const BlogLayout: React.FC<Props> = ({ post }) => {
                   ))}
                 </div>
               )}
+              {post.explainer && CHEATSHEETS[post.explainer] && <CheatSheetLink id={post.explainer} />}
               {post.coverImage && (
                 <div className="bg-cardlight dark:bg-carddark">
                   <Image
@@ -139,6 +144,12 @@ const BlogLayout: React.FC<Props> = ({ post }) => {
                 </div>
               )}
               {post.explainer && EXPLAINERS[post.explainer]?.node}
+              {post.explainer && CHEATSHEETS[post.explainer] && (
+                <>
+                  <h2 className="mt-12 text-2xl font-semibold">Cheat sheet</h2>
+                  <CheatSheet sheet={CHEATSHEETS[post.explainer]} />
+                </>
+              )}
               <PostBody content={post.content} />
 
               {/* <hr /> */}
