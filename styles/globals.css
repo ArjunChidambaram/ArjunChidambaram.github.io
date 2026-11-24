@@ -128,7 +128,7 @@
 .cs-h { font-size: 15px; font-weight: 700; margin: 0 0 6px; color: #004D4D; }
 .cs-warn .cs-h { color: #9A4A00; }
 .cs-text { margin: 0 0 6px; color: #334155; }
-.cs-big { font-size: 17px; font-weight: 600; background: #EFF3F3; border-radius: 8px; padding: 8px 10px; margin: 2px 0 8px; color: #004D4D; overflow-x: auto; white-space: pre; }
+.cs-big { font-size: 17px; font-weight: 600; background: #EFF3F3; border-radius: 8px; padding: 8px 10px; margin: 2px 0 8px; color: #004D4D; overflow-x: auto; white-space: pre-wrap; overflow-wrap: anywhere; }
 .cs-code { margin: 4px 0 6px; padding: 8px 10px; border-radius: 8px; background: #0F172A; color: #E2E8F0; font-size: 12.5px; line-height: 1.45; overflow-x: auto; white-space: pre-wrap; overflow-wrap: anywhere; }
 .cs-rows { margin: 0; }
 .cs-row { display: grid; grid-template-columns: minmax(0, 44%) 1fr; gap: 8px; padding: 3px 0; border-bottom: 1px dashed #E2E8F0; }
