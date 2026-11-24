@@ -25,7 +25,7 @@ const Document = () => {
           sizes="16x16"
           href={siteConfig.images.favicons.favicon16}
         />
-        <link rel="shortcut icon" href="/favicons/favicon.ico?v=2" />
+        <link rel="shortcut icon" href="/favicons/favicon.ico?v=3" />
         <link rel="manifest" href={siteConfig.images.favicons.manifest} />
         <link
           rel="mask-icon"
